@@ -1,0 +1,8 @@
+../Core/Src/main.c:160:9:Checksum_Hesapla	24	static
+../Core/Src/main.c:181:5:main	40	static
+../Core/Src/main.c:361:6:SystemClock_Config	88	static
+../Core/Src/main.c:409:13:MX_USART2_UART_Init	8	static
+../Core/Src/main.c:440:13:MX_DMA_Init	16	static
+../Core/Src/main.c:458:13:MX_GPIO_Init	16	static
+../Core/Src/main.c:473:6:HAL_UART_RxCpltCallback	24	static
+../Core/Src/main.c:510:6:Error_Handler	4	static,ignoring_inline_asm
