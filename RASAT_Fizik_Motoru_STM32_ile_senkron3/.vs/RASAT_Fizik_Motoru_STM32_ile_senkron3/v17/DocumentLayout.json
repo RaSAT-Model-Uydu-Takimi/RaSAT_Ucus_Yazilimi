@@ -1,0 +1,104 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|d:\\visual studio\\rasat yazilimlari\\rasat_fizik_motoru_stm32_ile_senkron3\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|d:\\visual studio\\rasat yazilimlari\\rasat_fizik_motoru_stm32_ile_senkron3\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|d:\\visual studio\\rasat yazilimlari\\rasat_fizik_motoru_stm32_ile_senkron3\\fm_logging.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|solutionrelative:fm_logging.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|d:\\visual studio\\rasat yazilimlari\\rasat_fizik_motoru_stm32_ile_senkron3\\fm_haberlesme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|solutionrelative:fm_haberlesme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|d:\\visual studio\\rasat yazilimlari\\rasat_fizik_motoru_stm32_ile_senkron3\\fm_sistem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.csproj|solutionrelative:fm_sistem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form1.cs [Tasar\u0131m]",
+              "DocumentMoniker": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\Form1.cs",
+              "RelativeDocumentMoniker": "Form1.cs",
+              "ToolTip": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\Form1.cs [Tasar\u0131m]",
+              "RelativeToolTip": "Form1.cs [Tasar\u0131m]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-10T15:17:48.226Z",
+              "EditorCaption": " [Tasar\u0131m]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FM_logging.cs",
+              "DocumentMoniker": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\FM_logging.cs",
+              "RelativeDocumentMoniker": "FM_logging.cs",
+              "ToolTip": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\FM_logging.cs",
+              "RelativeToolTip": "FM_logging.cs",
+              "ViewState": "AgIAADwAAAAAAAAAAAArwF0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-10T17:30:48.681Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\Form1.cs",
+              "RelativeDocumentMoniker": "Form1.cs",
+              "ToolTip": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\Form1.cs",
+              "RelativeToolTip": "Form1.cs",
+              "ViewState": "AgIAAJIAAAAAAAAAAAAIwJcAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-10T15:17:45.39Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "FM_sistem.cs",
+              "DocumentMoniker": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\FM_sistem.cs",
+              "RelativeDocumentMoniker": "FM_sistem.cs",
+              "ToolTip": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\FM_sistem.cs",
+              "RelativeToolTip": "FM_sistem.cs",
+              "ViewState": "AgIAAFAAAAAAAAAAAAA5wFcAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-10T15:17:51.693Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FM_haberlesme.cs",
+              "DocumentMoniker": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\FM_haberlesme.cs",
+              "RelativeDocumentMoniker": "FM_haberlesme.cs",
+              "ToolTip": "D:\\Visual Studio\\RASAT Yazilimlari\\RASAT_Fizik_Motoru_STM32_ile_senkron3\\FM_haberlesme.cs",
+              "RelativeToolTip": "FM_haberlesme.cs",
+              "ViewState": "AgIAACsAAAAAAAAAAAAQwDQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-10T15:17:50.86Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
