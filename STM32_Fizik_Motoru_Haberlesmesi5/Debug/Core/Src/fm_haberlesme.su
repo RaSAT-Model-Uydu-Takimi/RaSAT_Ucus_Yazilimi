@@ -1,0 +1,6 @@
+../Core/Src/fm_haberlesme.c:17:16:Checksum_Hesapla	24	static
+../Core/Src/fm_haberlesme.c:32:6:Donanim_Sec	16	static
+../Core/Src/fm_haberlesme.c:46:9:Alim_Paketini_Al	32	static
+../Core/Src/fm_haberlesme.c:87:9:Bozuk_Paket_Mi	24	static
+../Core/Src/fm_haberlesme.c:109:9:Alarm_Paket_Mi	16	static
+../Core/Src/fm_haberlesme.c:124:6:Gonder	16	static

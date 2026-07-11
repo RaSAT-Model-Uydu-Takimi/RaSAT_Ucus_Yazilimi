@@ -1,0 +1,4 @@
+../Core/Src/fm_sistem.c:33:16:Checksum_Hesapla_Sistem	2
+../Core/Src/fm_sistem.c:51:6:En_Son_Paketi_Bir_Daha_Olustur	1
+../Core/Src/fm_sistem.c:64:6:Sistem_Davranisini_Hesapla	1
+../Core/Src/fm_sistem.c:84:6:Iletim_Paketini_Olustur	1
