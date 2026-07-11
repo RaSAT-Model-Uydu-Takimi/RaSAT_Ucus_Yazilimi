@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>FM ↔ STM32 Tam Paket Yönetimi</title>
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; font-size: 13px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .card { background: #1e1e1e; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
+        .card.tx { border-left: 5px solid #4ade80; }
+        .card.rx { border-left: 5px solid #818cf8; }
+        h2 { margin-top: 0; font-size: 16px; color: #fff; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        label { display: block; color: #aaa; margin-bottom: 3px; }
+        input { width: 100%; padding: 6px; background: #000; border: 1px solid #444; color: #00ff00; border-radius: 4px; box-sizing: border-box; }
+        button { background: #333; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 4px; font-weight: bold; margin-top: 10px; }
+        .card.tx button { background: #4ade80; color: #000; }
+        .card.rx button { background: #818cf8; color: #000; }
+        .output { background: #000; padding: 10px; border-radius: 4px; font-family: monospace; color: #fff; margin-top: 10px; border: 1px solid #444; word-break: break-all; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- ILETIM PAKETI (16 BYTE) -->
+    <div class="card tx">
+        <h2>1. İletim Paketi (STM32 ➔ FM)</h2>
+        <div class="grid-4">
+            <div><label>Header</label><input type="number" id="txHeader" value="43605"></div>
+            <div><label>Index</label><input type="number" id="txIndex" value="1"></div>
+            <div><label>mi1</label><input type="number" id="txMi1" value="1500"></div>
+            <div><label>mi2</label><input type="number" id="txMi2" value="1500"></div>
+            <div><label>mi3</label><input type="number" id="txMi3" value="1500"></div>
+            <div><label>mi4</label><input type="number" id="txMi4" value="1500"></div>
+            <div><label>Durum</label><input type="number" id="txDurum" value="0"></div>
+        </div>
+        <button onclick="generateTx()">16 Byte HEX Üret</button>
+        <div class="output" id="txOutput"></div>
+    </div>
+
+    <!-- ALIM PAKETI (52 BYTE) -->
+    <div class="card rx">
+        <h2>2. Alım Paketi (FM ➔ STM32)</h2>
+        <div class="grid-4">
+            <div><label>Header</label><input type="number" id="rxHeader" value="43605"></div>
+            <div><label>Index</label><input type="number" id="rxIndex" value="1"></div>
+        </div>
+        <div class="grid-3" style="margin-top: 10px;">
+            <div><label>Acc X</label><input type="number" id="acc_x" value="0"></div>
+            <div><label>Acc Y</label><input type="number" id="acc_y" value="0"></div>
+            <div><label>Acc Z</label><input type="number" id="acc_z" value="0"></div>
+            <div><label>Gyro X</label><input type="number" id="gyro_x" value="0"></div>
+            <div><label>Gyro Y</label><input type="number" id="gyro_y" value="0"></div>
+            <div><label>Gyro Z</label><input type="number" id="gyro_z" value="0"></div>
+            <div><label>Mag X</label><input type="number" id="mag_x" value="0"></div>
+            <div><label>Mag Y</label><input type="number" id="mag_y" value="0"></div>
+            <div><label>Mag Z</label><input type="number" id="mag_z" value="0"></div>
+            <div><label>Basınç</label><input type="number" id="basinc" value="101325"></div>
+            <div><label>Sıcaklık</label><input type="number" id="sicaklik" value="2543"></div>
+            <div><label>Bat V</label><input type="number" id="bat_v" value="3700"></div>
+            <div><label>GPS Lat</label><input type="number" id="gps_lat" value="0"></div>
+            <div><label>GPS Lon</label><input type="number" id="gps_lon" value="0"></div>
+            <div><label>GPS Alt</label><input type="number" id="gps_alt" value="0"></div>
+            <div><label>GPS Vel</label><input type="number" id="gps_vel" value="0"></div>
+            <div><label>Bat A</label><input type="number" id="bat_a" value="0"></div>
+            <div><label>Rezerve</label><input type="number" id="rezerve" value="0"></div>
+        </div>
+        <button onclick="generateRx()">52 Byte HEX Üret</button>
+        <div class="output" id="rxOutput"></div>
+    </div>
+</div>
+
+<script>
+    function generateTx() {
+        const buf = new ArrayBuffer(16);
+        const dv = new DataView(buf);
+        const arr = new Uint8Array(buf);
+        dv.setUint16(0, document.getElementById('txHeader').value, true);
+        dv.setUint32(2, document.getElementById('txIndex').value, true);
+        dv.setUint16(6, document.getElementById('txMi1').value, true);
+        dv.setUint16(8, document.getElementById('txMi2').value, true);
+        dv.setUint16(10, document.getElementById('txMi3').value, true);
+        dv.setUint16(12, document.getElementById('txMi4').value, true);
+        dv.setUint8(14, document.getElementById('txDurum').value);
+        let chk = 0;
+        for(let i=0; i<15; i++) chk ^= arr[i];
+        arr[15] = chk;
+        let res = "";
+        for(let i=0; i<16; i++) res += arr[i].toString(16).toUpperCase().padStart(2, '0') + " ";
+        document.getElementById('txOutput').textContent = res;
+    }
+
+    function generateRx() {
+        const buf = new ArrayBuffer(52);
+        const dv = new DataView(buf);
+        const arr = new Uint8Array(buf);
+        dv.setUint16(0, document.getElementById('rxHeader').value, true);
+        dv.setUint32(2, document.getElementById('rxIndex').value, true);
+        dv.setInt16(6, document.getElementById('acc_x').value, true);
+        dv.setInt16(8, document.getElementById('acc_y').value, true);
+        dv.setInt16(10, document.getElementById('acc_z').value, true);
+        dv.setInt16(12, document.getElementById('gyro_x').value, true);
+        dv.setInt16(14, document.getElementById('gyro_y').value, true);
+        dv.setInt16(16, document.getElementById('gyro_z').value, true);
+        dv.setInt16(18, document.getElementById('mag_x').value, true);
+        dv.setInt16(20, document.getElementById('mag_y').value, true);
+        dv.setInt16(22, document.getElementById('mag_z').value, true);
+        dv.setUint32(24, document.getElementById('basinc').value, true);
+        dv.setInt16(28, document.getElementById('sicaklik').value, true);
+        dv.setInt32(30, document.getElementById('gps_lat').value, true);
+        dv.setInt32(34, document.getElementById('gps_lon').value, true);
+        dv.setInt32(38, document.getElementById('gps_alt').value, true);
+        dv.setInt16(42, document.getElementById('gps_vel').value, true);
+        dv.setUint16(44, document.getElementById('bat_v').value, true);
+        dv.setInt32(46, document.getElementById('bat_a').value, true);
+        dv.setUint8(50, document.getElementById('rezerve').value);
+        let chk = 0;
+        for(let i=0; i<51; i++) chk ^= arr[i];
+        arr[51] = chk;
+        let res = "";
+        for(let i=0; i<52; i++) res += arr[i].toString(16).toUpperCase().padStart(2, '0') + " ";
+        document.getElementById('rxOutput').textContent = res;
+    }
+</script>
+</body>
+</html>
