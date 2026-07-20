@@ -34,8 +34,11 @@ typedef struct
 						  // 1: Veri geçerli (Active), 0: Veri geçersiz/hesaplanıyor (Void).
 
 	// --- YAZILIMSAL KONTROL BAYRAĞI ---
-	uint8_t new_data;     // Yeni Veri Bayrağı. UART'tan yeni bir NMEA paketi başarıyla çözümlendiğinde 1 olur.
-						  // main() döngüsünde veri okunduktan sonra tekrar 0'a çekilir.
+	uint32_t update;         //1 mikrosaniyeleri sayan bir timer tanımlayacağız ve her sensör verisi güncellendiğinde sensörün update değeri bu timerin değeri olacak.
+
+
+	/*uint8_t new_data;     // Yeni Veri Bayrağı. UART'tan yeni bir NMEA paketi başarıyla çözümlendiğinde 1 olur.
+						  // main() döngüsünde veri okunduktan sonra tekrar 0'a çekilir.*/
 
 } BN_Verisi_t;
 
@@ -47,7 +50,9 @@ typedef struct
 {
 	float pressure_pa;   // Kompanze edilmiş atmosferik basınç. Birim: Pascal (Pa). (Örn: Deniz seviyesinde standart atmosferik basınç yaklaşık 101325 Pa civarındadır.)
 	float temperature_c; // Kompanze edilmiş sıcaklık. Birim: Santigrat (°C). (Örn: 25.4 °C)
-	uint8_t valid;       // Veri geçerlilik bayrağı (Flag). (1: Okuma başarılı, 0: Hata/Geçersiz)
+	uint32_t update;
+
+	//uint8_t valid;       // Veri geçerlilik bayrağı (Flag). (1: Okuma başarılı, 0: Hata/Geçersiz)
 
 } BMP_Verisi_t;
 
@@ -78,8 +83,13 @@ typedef struct
     float mag_y_uT;
     float mag_z_uT;
 
-    uint8_t valid; //accel + gyro verisi geçerli mi?
-    uint8_t mag_valid; //magnetometer verisi geçerli mi?
+    //MPU9250 sensörü aslında iki sensörün birleşiminden oluşuyor. bu sensörlerden birisi ivmeölçer ve jiroskopu teşkil ederken diğeri ise magnetometreyi teşkil ediyor. bundan dolayı MPU9250 sensörünün içindeki iki sensör birbirinden bağımsız haberleştiği için güncellenme süreleri birbirinden farklı.
+    uint32_t update_AG;  //ivmeölçer(A) ve jiroskopun(G) güncellenme mikrosaniyesi
+    uint32_t update_M;   //magnetometrenin(M) güncellenme mikrosaniyesi
+
+
+    //uint8_t valid; //accel + gyro verisi geçerli mi?
+    //uint8_t mag_valid; //magnetometer verisi geçerli mi?
 
 } MPU_Verisi_t;
 
