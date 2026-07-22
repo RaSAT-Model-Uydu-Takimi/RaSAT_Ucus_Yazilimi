@@ -16,7 +16,7 @@ uint8_t Ayril();
 uint8_t SigmaAc();
 uint8_t TelemetriFonksiyonu(uint8_t CalismaliMi);
 uint8_t S2DFonksiyonu();
-uint8_t HoverKronometresi();
+//uint8_t HoverKronometresi();
 uint8_t PidHedefYukseklik(float hedefyukseklik);
 uint8_t ApamAc();
 uint8_t SigmaKapat();

@@ -29,9 +29,9 @@ uint8_t S2DFonksiyonu(){
 
 }
 
-uint8_t HoverKronometresi(){
+/*uint8_t HoverKronometresi(){
 
-}
+}*/
 
 uint8_t PidHedefYukseklik(float hedefyukseklik){
 
