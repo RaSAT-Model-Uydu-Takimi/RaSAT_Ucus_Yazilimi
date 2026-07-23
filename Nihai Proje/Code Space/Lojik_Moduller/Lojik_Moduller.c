@@ -191,7 +191,8 @@ uint8_t HoverExit(DataCenter *DC, uint32_t sistemTimeri){
 	if(AF_6==1){return 0;}
 	if(prev_sistemTimeri_6 == 0){ prev_sistemTimeri_6 = sistemTimeri; return 0; }
 
-	float x1 = ((float)(sistemTimeri - hover_start_time)) * SISTEM_TIMERI_TIMESTEP;
+	float x1 = 0.0f;// Sadece HoverStart tetiklendiyse kronometreyi işlet!
+	if (AF_5 == 1){x1 = ((float)(sistemTimeri - hover_start_time)) * SISTEM_TIMERI_TIMESTEP;}
 	float x2 = DC->estimated.pos_z.value;
 	float x3 = ((float)(sistemTimeri - s4_start_time)) * SISTEM_TIMERI_TIMESTEP;
 

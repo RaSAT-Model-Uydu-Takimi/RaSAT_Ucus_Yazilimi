@@ -129,6 +129,7 @@ int main(void)
 	  //kestirimyap(&datacenter)
 
 
+
 	  switch(akis_yonlendiricisi){
 
 	  case 0:
@@ -164,9 +165,10 @@ int main(void)
 		  if(ApamAcilmaliMi(&datacenter, getMicros())==1){
 			  ApamAc();
 			  akis_yonlendiricisi=8;
+			  break;
 		  }
 		  if(HoverStart(&datacenter, getMicros())==1){
-			  //HoverKronometresi();
+
 		  }
 		  if(HoverExit(&datacenter, getMicros())==1){
 			  PidHedefYukseklik(YERE_INIS_YUKSEKLIGI_m);
