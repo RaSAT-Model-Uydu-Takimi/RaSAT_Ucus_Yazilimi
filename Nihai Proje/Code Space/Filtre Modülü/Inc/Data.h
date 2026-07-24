@@ -58,21 +58,21 @@ typedef struct {
     SensorData x;       // X ekseni ivmesi [g]
     SensorData y;       // Y ekseni ivmesi [g]
     SensorData z;       // Z ekseni ivmesi [g]
-    uint32_t UpdateTime; // Son güncelleme zamanı (ms)
+    uint32_t UpdateTime; // Son güncelleme zamanı (us)
 } Acc;
 
 typedef struct {
     SensorData x;       // X ekseni açısal hızı [dps]
     SensorData y;       // Y ekseni açısal hızı [dps]
     SensorData z;       // Z ekseni açısal hızı [dps]
-    uint32_t UpdateTime;   // Son güncelleme zamanı (ms)
+    uint32_t UpdateTime;   // Son güncelleme zamanı (us)
 } Gyro;
 
 typedef struct {
     SensorData x;        // X ekseni manyetik alan [uT]
     SensorData y;        // Y ekseni manyetik alan [uT]
     SensorData z;        // Z ekseni manyetik alan [uT]
-    uint32_t UpdateTime;    // Son güncelleme zamanı (ms)
+    uint32_t UpdateTime;    // Son güncelleme zamanı (us)
 } Mag;
 
 typedef struct {
@@ -86,20 +86,20 @@ typedef struct {
     SensorData speed;         // Yere göre hız [m/s]
     
 
-    uint32_t UpdateTime;      // Son güncelleme zamanı (ms)
+    uint32_t UpdateTime;      // Son güncelleme zamanı (us)
 
 }Gps;
 
 typedef struct {
     SensorData press; // Basınç [Pa]
     SensorData temp; // Sıcaklık [°C]
-    uint32_t UpdateTime; // Son güncelleme zamanı (ms)
+    uint32_t UpdateTime; // Son güncelleme zamanı (us)
 } Baro;
 
 typedef struct {
     SensorData battVolt; // Batarya gerilimi [V]
     SensorData battCurr; // Batarya akımı [A]
-    uint32_t UpdateTime; // Son güncelleme zamanı (ms)
+    uint32_t UpdateTime; // Son güncelleme zamanı (us)
 } Batt;
 
 
