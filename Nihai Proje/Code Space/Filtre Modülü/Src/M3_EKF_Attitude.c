@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include <string.h>
 
-// Fast Inverse Square Root
+/* -------------------------------------------------------------------------- */
+/*  Fast Inverse Square Root (gömülü sistemler için optimize)                 */
+/* -------------------------------------------------------------------------- */
 static float invSqrt(float x) {
     float halfx = 0.5f * x;
     float y = x;
@@ -16,9 +18,13 @@ static float invSqrt(float x) {
     return y;
 }
 
+/* ========================================================================== */
+/*  M3_Attitude_Init                                                          */
+/* ========================================================================== */
 void M3_Attitude_Init(DataCenter *dataC) {
     if (dataC == NULL) return;
-    
+
+    /* Birim kuaterniyon: uydu düz duruyor */
     dataC->estimated.q0.value = 1.0f;
     dataC->estimated.q1.value = 0.0f;
     dataC->estimated.q2.value = 0.0f;
@@ -26,17 +32,29 @@ void M3_Attitude_Init(DataCenter *dataC) {
 
     dataC->estimated.pitch.value = 0.0f;
     dataC->estimated.roll.value  = 0.0f;
-    dataC->estimated.yaw.value   = 0.0f; // Yaw burda sıfırlanır ama M4'te güncellenir.
+    dataC->estimated.yaw.value   = 0.0f;
 }
 
+/* ========================================================================== */
+/*  M3_Attitude_Update                                                        */
+/*                                                                            */
+/*  Mahony tarzı tamamlayıcı filtre (kuaterniyon tabanlı).                    */
+/*  - Gyro entegrasyonu ile tahmin (3 eksen, yaw dahil)                       */
+/*  - İvmeölçer düzeltmesi ile pitch/roll kararlılığı                         */
+/*  - G-Kompansasyonu: yüksek ivmede ivmeölçer devre dışı                     */
+/*                                                                            */
+/*  GİRİŞ BİRİMLERİ: calibratedValue → ivme m/s², gyro rad/s                 */
+/*  ÇIKIŞ: pitch, roll, yaw [°] ve q0-q3                                     */
+/* ========================================================================== */
 void M3_Attitude_Update(DataCenter *dataC, float dt_seconds) {
     if (dataC == NULL || dt_seconds <= 0.0f) return;
 
-    float ax = dataC->acc.x.calibratedValue;
+    /* Kalibre edilmiş sensör verilerini al (SI birimleri) */
+    float ax = dataC->acc.x.calibratedValue;   /* m/s² */
     float ay = dataC->acc.y.calibratedValue;
     float az = dataC->acc.z.calibratedValue;
-    
-    float gx = dataC->gyro.x.calibratedValue;
+
+    float gx = dataC->gyro.x.calibratedValue;  /* rad/s */
     float gy = dataC->gyro.y.calibratedValue;
     float gz = dataC->gyro.z.calibratedValue;
 
@@ -45,13 +63,15 @@ void M3_Attitude_Update(DataCenter *dataC, float dt_seconds) {
     float q2 = dataC->estimated.q2.value;
     float q3 = dataC->estimated.q3.value;
 
-    // G-Kompansasyonu: Toplam ivme sınırın üzerindeyse ivmeölçeri reddet (Ağırlık = 0)
+    /* ================================================================== */
+    /*  G-KOMPANSASYONU: İvme büyüklüğü kontrol et                        */
+    /*  calibratedValue m/s² olduğu için eşik de m/s² cinsindendir        */
+    /* ================================================================== */
     float acc_magnitude = sqrtf(ax * ax + ay * ay + az * az);
     float dynamic_acc_weight = 0.0f;
 
-    if (acc_magnitude > 0.1f && acc_magnitude < EKF_G_COMP_THRESHOLD_MPS2) {
-        // Motor yanmıyor (Aşırı G yok), İvmeölçere M2 Güvenine göre ağırlık ver
-        // 3 Eksenin de minimum güvenini alarak en güvenli (kötü) senaryoyu koru
+    if (acc_magnitude > 1.0f && acc_magnitude < EKF_G_COMP_THRESHOLD_MPS2) {
+        /* Motor yanmıyor (aşırı G yok) → ivmeölçere güven skoru ile ağırlık ver */
         float min_acc_conf = dataC->acc.x.confidence;
         if (dataC->acc.y.confidence < min_acc_conf) min_acc_conf = dataC->acc.y.confidence;
         if (dataC->acc.z.confidence < min_acc_conf) min_acc_conf = dataC->acc.z.confidence;
@@ -59,30 +79,36 @@ void M3_Attitude_Update(DataCenter *dataC, float dt_seconds) {
         dynamic_acc_weight = WEIGHT_PR_ACC * min_acc_conf;
     }
 
-    // İvmeölçer kullanılıyorsa Düzeltme Adımı (Update Step)
+    /* ================================================================== */
+    /*  DÜZELTME ADIMI (İvmeölçer → yerçekimi vektörü hatası)             */
+    /* ================================================================== */
     if (dynamic_acc_weight > 0.0f) {
+        /* İvmeölçeri normalize et */
         float norm = invSqrt(ax * ax + ay * ay + az * az);
         ax *= norm;
         ay *= norm;
         az *= norm;
 
-        // Tahmin edilen Yerçekimi Vektörü
+        /* Kuaterniyondan tahmini yerçekimi vektörü (gövde çerçevesinde) */
         float vx = 2.0f * (q1 * q3 - q0 * q2);
         float vy = 2.0f * (q0 * q1 + q2 * q3);
         float vz = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
 
-        // Hata Vektörü (Cross Product)
+        /* Hata vektörü (cross product) */
         float ex = (ay * vz - az * vy);
         float ey = (az * vx - ax * vz);
         float ez = (ax * vy - ay * vx);
 
-        // Jiroskop değerine hatayı dinamik ağırlıkla ekle
-        gx += dynamic_acc_weight * ex;
-        gy += dynamic_acc_weight * ey;
-        gz += dynamic_acc_weight * ez;
+        /* Jiroskop değerine hatayı ORIENTATION_SYSTEM_GAIN ve ağırlıkla ekle */
+        gx += ORIENTATION_SYSTEM_GAIN * dynamic_acc_weight * ex;
+        gy += ORIENTATION_SYSTEM_GAIN * dynamic_acc_weight * ey;
+        gz += ORIENTATION_SYSTEM_GAIN * dynamic_acc_weight * ez;
     }
 
-    // Tahmin Adımı (Predict Step): Jiroskop verisiyle kuaterniyon entegrasyonu
+    /* ================================================================== */
+    /*  TAHMİN ADIMI: Kuaterniyon entegrasyonu (tüm 3 eksen)              */
+    /*  Hamilton konvansiyonu: q_dot = 0.5 * q ⊗ ω                       */
+    /* ================================================================== */
     float q0_dot = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
     float q1_dot = 0.5f * ( q0 * gx + q2 * gz - q3 * gy);
     float q2_dot = 0.5f * ( q0 * gy - q1 * gz + q3 * gx);
@@ -93,20 +119,46 @@ void M3_Attitude_Update(DataCenter *dataC, float dt_seconds) {
     q2 += q2_dot * dt_seconds;
     q3 += q3_dot * dt_seconds;
 
-    // Normalizasyon
+    /* Normalizasyon */
     float norm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     q0 *= norm;
     q1 *= norm;
     q2 *= norm;
     q3 *= norm;
 
-    // Euler'e Çevir (Pitch ve Roll)
-    dataC->estimated.roll.value  = atan2f(2.0f * (q0 * q1 + q2 * q3), 1.0f - 2.0f * (q1 * q1 + q2 * q2)) * (180.0f / (float)M_PI);
-    dataC->estimated.pitch.value = asinf(2.0f * (q0 * q2 - q3 * q1)) * (180.0f / (float)M_PI);
-    
-    // Değerleri kaydet
+    /* ================================================================== */
+    /*  EULER AÇILARINA DÖNÜŞTÜR (Pitch, Roll, Yaw)                       */
+    /*  Kuaterniyon 3 ekseni de entegre ettiği için yaw da çıkartılır.    */
+    /*  Bu yaw "ham" (gyro-only) yaw'dır; M4 tarafından düzeltilecektir.  */
+    /* ================================================================== */
+    dataC->estimated.roll.value  = atan2f(2.0f * (q0 * q1 + q2 * q3),
+                                          1.0f - 2.0f * (q1 * q1 + q2 * q2)) * RAD2DEG;
+
+    /* asinf girişini [-1, 1] aralığında tut (float hassasiyet koruması) */
+    float sinP = 2.0f * (q0 * q2 - q3 * q1);
+    if (sinP >  1.0f) sinP =  1.0f;
+    if (sinP < -1.0f) sinP = -1.0f;
+    dataC->estimated.pitch.value = asinf(sinP) * RAD2DEG;
+
+    /* Yaw (kuaterniyondan ham değer – M4 düzeltecek) */
+    dataC->estimated.yaw.value = atan2f(2.0f * (q0 * q3 + q1 * q2),
+                                        1.0f - 2.0f * (q2 * q2 + q3 * q3)) * RAD2DEG;
+
+    /* Kuaterniyon değerlerini kaydet */
     dataC->estimated.q0.value = q0;
     dataC->estimated.q1.value = q1;
     dataC->estimated.q2.value = q2;
     dataC->estimated.q3.value = q3;
+
+    /* Güven: Gyro güveninin minimumu (gyro her zaman kullanılıyor) */
+    float min_gyro_conf = dataC->gyro.x.confidence;
+    if (dataC->gyro.y.confidence < min_gyro_conf) min_gyro_conf = dataC->gyro.y.confidence;
+    if (dataC->gyro.z.confidence < min_gyro_conf) min_gyro_conf = dataC->gyro.z.confidence;
+
+    dataC->estimated.pitch.confidence = min_gyro_conf;
+    dataC->estimated.roll.confidence  = min_gyro_conf;
+    dataC->estimated.q0.confidence    = min_gyro_conf;
+    dataC->estimated.q1.confidence    = min_gyro_conf;
+    dataC->estimated.q2.confidence    = min_gyro_conf;
+    dataC->estimated.q3.confidence    = min_gyro_conf;
 }

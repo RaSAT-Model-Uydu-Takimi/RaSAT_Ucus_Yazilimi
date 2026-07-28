@@ -3,127 +3,160 @@
 #include <string.h>
 #include <math.h>
 
-#define GRAVITY 9.80665f
-
-void M5_Altitude_Init(M5_EKF_Altitude_t *ekf, float initial_altitude) {
-    // Başlangıç Durumları: Z = İlk İrtifa, Hız = 0, Bias = 0
-    ekf->x[0] = initial_altitude;
+/* ========================================================================== */
+/*  M5_Altitude_Init – AGL = 0 olarak başlat                                 */
+/* ========================================================================== */
+void M5_Altitude_Init(M5_EKF_Altitude_t *ekf) {
+    /* Başlangıç Durumları: AGL=0, Hız=0, Bias=0 */
+    ekf->x[0] = 0.0f;
     ekf->x[1] = 0.0f;
     ekf->x[2] = 0.0f;
 
-    // Başlangıç Kovaryansı (P): Konumda biraz, hız ve bias'ta düşük belirsizlik
+    /* Başlangıç Kovaryansı */
     memset(ekf->P, 0, sizeof(ekf->P));
-    ekf->P[0] = 10.0f; // P(0,0)
-    ekf->P[4] = 1.0f;  // P(1,1)
-    ekf->P[8] = 0.1f;  // P(2,2)
-}
+    ekf->P[0] = 10.0f;   /* P(0,0) konum belirsizliği */
+    ekf->P[4] = 1.0f;    /* P(1,1) hız belirsizliği   */
+    ekf->P[8] = 0.1f;    /* P(2,2) bias belirsizliği  */
 
-void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC, const SensorCalib_t *calib, float dt_seconds) {
-    if (dataC == NULL || calib == NULL || dt_seconds <= 0.0f) return;
+    /* Station modülü zemin referansını halleder */
 
-    // --- 1. GERÇEK DİKEY İVMEYİ BULMA (Dünya Eksenine Rotasyon) ---
-    float ax = dataC->acc.x.calibratedValue;
-    float ay = dataC->acc.y.calibratedValue;
-    float az = dataC->acc.z.calibratedValue;
+/* ========================================================================== */
+/*  M5_Altitude_Update                                                        */
+/*                                                                            */
+/*  3-Durumlu EKF: [irtifa_AGL, dikey_hız, ivme_bias]                        */
+/*                                                                            */
+/*  TAHMİN:    İvmeölçerden dikey ivme (body→world, Euler açılarıyla)         */
+/*  ÖLÇÜM 1:  Barometrik irtifa (AGL'ye çevrilmiş)                           */
+/*  ÖLÇÜM 2:  GPS irtifa (zaten AGL – M1'de çevrildi)                        */
+/*                                                                            */
+/*  GİRİŞ BİRİMLERİ: ivme m/s², pitch/roll derece                            */
+/*  ÇIKIŞ: pos_z [m AGL], vel_z [m/s], a_z [m/s²], confidence                */
+/* ========================================================================== */
+void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC,
+                        const Station_Reference_t *station, float dt_seconds) {
+    if (dataC == NULL || station == NULL || dt_seconds <= 0.0f) return;
 
-    float q0 = dataC->estimated.q0.value;
-    float q1 = dataC->estimated.q1.value;
-    float q2 = dataC->estimated.q2.value;
-    float q3 = dataC->estimated.q3.value;
+    /* ================================================================== */
+    /*  1. DİKEY İVMEYİ AL (M7 Kinematics modülünden gelir)              */
+    /* ================================================================== */
+    float earth_az = dataC->estimated.earth_a_z.value;
 
-    // Sadece Z eksenindeki net ivmeyi bulmak için Kuaterniyon Döndürme (Quaternion Rotation)
-    // Dünya ekseninde Z ivmesi:
-    float earth_az = 2.0f*(q1*q3 - q0*q2)*ax + 2.0f*(q0*q1 + q2*q3)*ay + (q0*q0 - q1*q1 - q2*q2 + q3*q3)*az;
-    
-    // Yerçekimini çıkar (Sensör yukarı yönü pozitif ölçüyorsa)
-    // Roket ivmelenirken earth_az > 9.81 olacaktır, bu yüzden net ivme:
-    float net_accel_z = earth_az - GRAVITY; 
+    /* Yerçekimini çıkar → net dikey ivme */
+    float net_accel_z = earth_az - GRAVITY_MPS2;
 
-    // --- 2. TAHMİN ADIMI (PREDICT) ---
-    // Bias'ı ivmeden çıkar
-    float a_z = net_accel_z - ekf->x[2]; 
+    /* ================================================================== */
+    /*  2. TAHMİN ADIMI                                                    */
+    /* ================================================================== */
+    /* Bias'ı ivmeden çıkar */
+    float a_z = net_accel_z - ekf->x[2];
 
-    // x = F * x + B * u (Kinematik)
-    // Z = Z + V*dt + 0.5*a*dt^2
+    /* Kinematik: Z = Z + V*dt + 0.5*a*dt² */
     ekf->x[0] += ekf->x[1] * dt_seconds + 0.5f * a_z * dt_seconds * dt_seconds;
-    // V = V + a*dt
+    /* V = V + a*dt */
     ekf->x[1] += a_z * dt_seconds;
-    // Bias sabittir, değişmez (x[2] aynı kalır)
+    /* Bias sabit kalır (x[2] değişmez) */
 
-    // F Matrisi (Durum Geçiş)
-    // [1, dt, -0.5*dt^2]
-    // [0,  1,        -dt]
-    // [0,  0,         1]
+    /* F Matrisi (3×3 durum geçiş) */
     float F[9] = {
         1.0f, dt_seconds, -0.5f * dt_seconds * dt_seconds,
         0.0f, 1.0f,       -dt_seconds,
-        0.0f, 0.0f,       1.0f
+        0.0f, 0.0f,        1.0f
     };
 
-    // Q Matrisi (Süreç Gürültüsü - Filter_Config.h'dan)
+    /* Q Matrisi (süreç gürültüsü) */
     float Q[9] = {
-        EKF_Q_Z_POS, 0, 0,
-        0, EKF_Q_Z_VEL, 0,
-        0, 0, EKF_Q_Z_ACC_BIAS
+        EKF_Q_Z_POS, 0.0f, 0.0f,
+        0.0f, EKF_Q_Z_VEL, 0.0f,
+        0.0f, 0.0f, EKF_Q_Z_ACC_BIAS
     };
 
-    // P = F * P * F^T + Q
-    float F_P[9];
-    mat_mult(3, 3, 3, F, ekf->P, F_P); // F_P = F * P
-    float F_T[9];
-    mat_trans(3, 3, F, F_T);           // F_T = F^T
-    float FPFT[9];
-    mat_mult(3, 3, 3, F_P, F_T, FPFT); // FPFT = F_P * F_T
-    mat_add(3, 3, FPFT, Q, ekf->P);    // P = FPFT + Q
+    /* P = F * P * F^T + Q */
+    float F_P[9], F_T[9], FPFT[9];
+    mat_mult(3, 3, 3, F, ekf->P, F_P);
+    mat_trans(3, 3, F, F_T);
+    mat_mult(3, 3, 3, F_P, F_T, FPFT);
+    mat_add(3, 3, FPFT, Q, ekf->P);
 
-    // --- 3. GÜNCELLEME ADIMI (UPDATE - Barometre) ---
-    if (dataC->baro.press.confidence > CONFIDENCE_MIN_VALID) {
-        // İrtifayı basınçtan anlık olarak türet
-        float z_meas = 44330.0f * (1.0f - powf(dataC->baro.press.calibratedValue / calib->sea_level_pa, 0.190295f));
-        
-        // Dinamik Ölçüm Gürültüsü (R)
-        float R_baro = 1.0f / (WEIGHT_ALT_BARO * dataC->baro.press.confidence);
+    /* ================================================================== */
+    /*  3. ÖLÇÜM 1 – Barometrik İrtifa (AGL)                              */
+    /* ================================================================== */
+    if (dataC->baro.press.confidence > CONFIDENCE_MIN_VALID && station->baro_ref_set) {
+        /* Barometrik MSL irtifa (Standart atmosfer, 101325 sabit alınabilir veya sea_level_pa) */
+        float baro_msl = 44330.0f * (1.0f - powf(dataC->baro.press.calibratedValue / 101325.0f, 0.190295f));
 
-        // H = [1, 0, 0] (Sadece Z konumunu ölçüyoruz)
-        float H[3] = {1.0f, 0.0f, 0.0f};
-        float H_T[3] = {1.0f, 0.0f, 0.0f}; // Transpozu (3x1)
+        /* MSL → AGL (Station'dan gelen referans irtifa) */
+        float z_meas = baro_msl - station->ref_baro_msl;
 
-        // y = z_meas - H*x
+        /* Dinamik R */
+        float R_baro = 1.0f / (WEIGHT_ALT_BARO * dataC->baro.press.confidence + 1e-6f);
+
+        /* H = [1, 0, 0] */
         float y = z_meas - ekf->x[0];
 
-        // S = H * P * H^T + R
-        // H*P (1x3)
-        float HP[3] = {
-            H[0]*ekf->P[0] + H[1]*ekf->P[3] + H[2]*ekf->P[6],
-            H[0]*ekf->P[1] + H[1]*ekf->P[4] + H[2]*ekf->P[7],
-            H[0]*ekf->P[2] + H[1]*ekf->P[5] + H[2]*ekf->P[8]
-        };
-        // HP * H^T (1x1)
-        float S = HP[0]*H_T[0] + HP[1]*H_T[1] + HP[2]*H_T[2] + R_baro;
+        /* S = H*P*H^T + R = P[0][0] + R */
+        float S = ekf->P[0] + R_baro;
 
-        // K = P * H^T / S  (3x1)
+        /* K = P*H^T / S (3×1) */
         float K[3];
-        K[0] = (ekf->P[0]*H_T[0] + ekf->P[1]*H_T[1] + ekf->P[2]*H_T[2]) / S;
-        K[1] = (ekf->P[3]*H_T[0] + ekf->P[4]*H_T[1] + ekf->P[5]*H_T[2]) / S;
-        K[2] = (ekf->P[6]*H_T[0] + ekf->P[7]*H_T[1] + ekf->P[8]*H_T[2]) / S;
+        K[0] = ekf->P[0] / (S + 1e-12f);
+        K[1] = ekf->P[3] / (S + 1e-12f);
+        K[2] = ekf->P[6] / (S + 1e-12f);
 
-        // x = x + K*y
+        /* x = x + K*y */
         ekf->x[0] += K[0] * y;
         ekf->x[1] += K[1] * y;
         ekf->x[2] += K[2] * y;
 
-        // P = (I - K*H) * P
+        /* P = (I - K*H) * P */
         float I_KH[9] = {
-            1.0f - K[0]*H[0], 0.0f - K[0]*H[1], 0.0f - K[0]*H[2],
-            0.0f - K[1]*H[0], 1.0f - K[1]*H[1], 0.0f - K[1]*H[2],
-            0.0f - K[2]*H[0], 0.0f - K[2]*H[1], 1.0f - K[2]*H[2]
+            1.0f - K[0], 0.0f, 0.0f,
+            0.0f - K[1], 1.0f, 0.0f,
+            0.0f - K[2], 0.0f, 1.0f
         };
         float P_new[9];
         mat_mult(3, 3, 3, I_KH, ekf->P, P_new);
         memcpy(ekf->P, P_new, sizeof(P_new));
     }
 
-    // Nihai verileri kaydet
-    dataC->estimated.pos_z.value = ekf->x[0];
-    dataC->estimated.vel_z.value = ekf->x[1];
+    /* ================================================================== */
+    /*  4. ÖLÇÜM 2 – GPS İrtifa (zaten AGL – M1'de çevrildi)              */
+    /* ================================================================== */
+    if (dataC->gps.z.confidence > CONFIDENCE_MIN_VALID && station->gps_ref_set) {
+        float z_gps = dataC->gps.z.calibratedValue - station->ref_alt_msl;  /* AGL (Station) */
+
+        float R_gps = 1.0f / (WEIGHT_ALT_BARO * dataC->gps.z.confidence + 1e-6f);
+
+        float y = z_gps - ekf->x[0];
+        float S = ekf->P[0] + R_gps;
+
+        float K[3];
+        K[0] = ekf->P[0] / (S + 1e-12f);
+        K[1] = ekf->P[3] / (S + 1e-12f);
+        K[2] = ekf->P[6] / (S + 1e-12f);
+
+        ekf->x[0] += K[0] * y;
+        ekf->x[1] += K[1] * y;
+        ekf->x[2] += K[2] * y;
+
+        float I_KH[9] = {
+            1.0f - K[0], 0.0f, 0.0f,
+            0.0f - K[1], 1.0f, 0.0f,
+            0.0f - K[2], 0.0f, 1.0f
+        };
+        float P_new[9];
+        mat_mult(3, 3, 3, I_KH, ekf->P, P_new);
+        memcpy(ekf->P, P_new, sizeof(P_new));
+    }
+
+    /* ================================================================== */
+    /*  5. ÇIKTILAR                                                        */
+    /* ================================================================== */
+    dataC->estimated.pos_z.value = ekf->x[0];        /* AGL irtifa [m]    */
+    dataC->estimated.vel_z.value = ekf->x[1];        /* Dikey hız [m/s]   */
+    dataC->estimated.a_z.value   = net_accel_z;       /* Dikey ivme [m/s²] */
+
+    /* Güven: kovaryans köşegeninden türet */
+    dataC->estimated.pos_z.confidence = 1.0f / (1.0f + ekf->P[0]);
+    dataC->estimated.vel_z.confidence = 1.0f / (1.0f + ekf->P[4]);
+    dataC->estimated.a_z.confidence   = 1.0f / (1.0f + ekf->P[8]);
 }

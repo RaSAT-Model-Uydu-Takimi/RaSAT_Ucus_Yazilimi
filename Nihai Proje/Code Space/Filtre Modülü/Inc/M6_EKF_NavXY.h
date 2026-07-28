@@ -3,6 +3,7 @@
 
 #include "Data.h"
 #include "M0_Matrix_Operations.h"
+#include "Station_Reference.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,10 +16,7 @@ typedef struct {
     // 4x4 Hata Kovaryans Matrisi (P)
     float P[16]; 
     
-    // Referans Konumları (Derece) - İlk GPS fix'te kaydedilir
-    float ref_lat;
-    float ref_lon;
-    uint8_t ref_set;
+    // Referans Konumları Station modülünden alınır
 } M6_EKF_NavXY_t;
 
 /*
@@ -30,9 +28,9 @@ void M6_NavXY_Init(M6_EKF_NavXY_t *ekf);
 /*
  * Fonksiyon: M6_NavXY_Update
  * Görevi: İvmeölçer (Tahmin) ve GPS (Güncelleme) verilerini kullanarak
- * roketin yatay (Rüzgar vb.) sürüklenmesini ve konumunu yüksek frekanslı olarak hesaplar.
+ * roketin yatay sürüklenmesini ve konumunu yüksek frekanslı olarak hesaplar.
  */
-void M6_NavXY_Update(M6_EKF_NavXY_t *ekf, DataCenter *dataC, float dt_seconds);
+void M6_NavXY_Update(M6_EKF_NavXY_t *ekf, DataCenter *dataC, const Station_Reference_t *station, float dt_seconds);
 
 #ifdef __cplusplus
 }

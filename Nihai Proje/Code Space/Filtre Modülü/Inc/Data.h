@@ -117,6 +117,11 @@ typedef struct {
     DerivedData a_x; // X ekseni ivme [m/s^2]
     DerivedData a_y; // Y ekseni ivme [m/s^2]
     DerivedData a_z; // Z ekseni ivme [m/s^2]
+    
+    // Dünya ekseni (NED) ivmeleri (M7 modülünden gelir)
+    DerivedData earth_a_x;
+    DerivedData earth_a_y;
+    DerivedData earth_a_z;
 
     // 
     DerivedData q0; // Kuaterniyon w (real)

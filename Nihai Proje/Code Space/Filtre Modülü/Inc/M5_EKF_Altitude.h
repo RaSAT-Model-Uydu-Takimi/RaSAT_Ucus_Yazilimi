@@ -3,7 +3,7 @@
 
 #include "Data.h"
 #include "M0_Matrix_Operations.h"
-#include "M1_Sensor_Calibrator.h"
+#include "Station_Reference.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,20 +14,24 @@ typedef struct {
     float x[3]; 
     
     // 3x3 Hata Kovaryans Matrisi (P)
-    float P[9]; 
+    float P[9];
+
+    // Station referansı Station_Reference modülünden alınır
 } M5_EKF_Altitude_t;
 
 /*
  * Fonksiyon: M5_Altitude_Init
- * Görevi: EKF durum matrislerini başlangıç irtifasına göre ayarlar.
+ * Görevi: EKF durum matrislerini AGL=0 olarak başlatır.
+ *         İlk geçerli baro ölçümünde zemin referansı otomatik alınır.
  */
-void M5_Altitude_Init(M5_EKF_Altitude_t *ekf, float initial_altitude);
+void M5_Altitude_Init(M5_EKF_Altitude_t *ekf);
 
 /*
  * Fonksiyon: M5_Altitude_Update
  * Görevi: İvmeölçer ile tahminde bulunur, Barometre ve GPS ile düzeltme yapar.
+ *         Çıktılar: estimated.pos_z, vel_z, a_z (AGL) ve confidence değerleri.
  */
-void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC, const SensorCalib_t *calib, float dt_seconds);
+void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC, const Station_Reference_t *station, float dt_seconds);
 
 #ifdef __cplusplus
 }
