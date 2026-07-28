@@ -101,28 +101,13 @@ void M4_Yaw_Update(M4_EKF_Yaw_t *ekf, DataCenter *dataC, float dt_seconds) {
     }
 
     /* ================================================================== */
-    /*  3. ÖLÇÜM 2 – GPS Course (hız > 2 m/s iken)                       */
-    /*     Düşük hızda GPS course güvenilmez, yalnız yüksek hızda kullan  */
+    /*  3. ÖLÇÜM 2 – GPS Course (İPTAL EDİLDİ)                           */
+    /*     Model Uydu (CanSat) paraşütle inerken rüzgara kapılıp bir      */
+    /*     yöne sürüklenir (Course), ancak uydu kendi etrafında fırıl     */
+    /*     fırıl dönebilir (Yaw). Bu yüzden Course = Yaw varsayımı       */
+    /*     uçaklarda çalışsa da uydularda YANLIŞTIR. Sadece Mag kullanılır*/
     /* ================================================================== */
-    if (dataC->gps.speed.calibratedValue > 2.0f &&
-        dataC->gps.course.confidence > CONFIDENCE_MIN_VALID) {
-
-        float gps_course = dataC->gps.course.calibratedValue;
-
-        /* Dinamik R: güven düştükçe ölçüm gürültüsü artar */
-        float dynamic_R_gps = 1.0f / (WEIGHT_YAW_GPS * dataC->gps.course.confidence + 1e-6f);
-
-        /* İnovasyon */
-        float y_gps = wrap_180(gps_course - ekf->state_yaw);
-
-        /* Kalman kazancı */
-        float S_gps = ekf->P + dynamic_R_gps;
-        float K_gps = ekf->P / (S_gps + 1e-12f);
-
-        /* Düzeltme */
-        ekf->state_yaw = wrap_180(ekf->state_yaw + K_gps * y_gps);
-        ekf->P = (1.0f - K_gps) * ekf->P;
-    }
+    // GPS Course ile Yaw düzeltmesi kodu Abdullah Köker'in uyarısı üzerine kaldırıldı.
 
     /* ================================================================== */
     /*  4. ÇIKTILAR                                                        */
