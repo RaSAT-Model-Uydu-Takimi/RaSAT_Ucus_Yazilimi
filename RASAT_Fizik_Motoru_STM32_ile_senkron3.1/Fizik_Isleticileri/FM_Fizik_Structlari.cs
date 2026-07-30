@@ -177,6 +177,27 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         public double Batarya_Voltaj_V;
         public double Batarya_Akim_A;
         public double Tuketilen_mAh;
+
+        public double Motor_1_Gazi; //stm32den gelen motor sinyalini direkt olarak motora yansıtmıyoruz, low pass filterdan geçirerek bir gecikme yaratıyoruz.
+        public double Motor_2_Gazi; //LPF için de eski değerin hafızada tutulması gerektiğinden uydunun dinamik durumu içine motorun anlık çalışma yüzdeliğini (gazını) dahil ediyoruz.
+        public double Motor_3_Gazi; //Motor gazı demek motor rpm'inin 0 1 arasında normalize edilmiş halidir. Motor kuvvetinin normalize edilmiş hali değildir. ingilizcesi throttle.
+        public double Motor_4_Gazi;
+
+        public static Uydu_Dinamik_Durum_t VarsayilanOlustur()
+        {
+            return new Uydu_Dinamik_Durum_t
+            {
+                Konum_m_dunya = new Vektor_t(0, 0, FM_Fizik_Sabitler.ZEMIN_RAKIMI_M + 1000, Kordinat_Sistemi_t.DUNYA_ENU),
+                Hiz_m_s_dunya = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.DUNYA_ENU),
+                Ivme_m_s2_dunya = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.DUNYA_ENU),
+                Yonelim = Kuaterniyon_t.BirimKuaterniyon,
+                Acisal_Hiz_rad_s_body = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.GOVDE_BODY),
+                Acisal_Ivme_rad_s2_body = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.GOVDE_BODY),
+                Batarya_Voltaj_V = FM_Fizik_Sabitler.BATARYA_DOLU_VOLTAJ_V,
+                Batarya_Akim_A = 0,
+                Tuketilen_mAh = 0
+            };
+        }
     }
 
 

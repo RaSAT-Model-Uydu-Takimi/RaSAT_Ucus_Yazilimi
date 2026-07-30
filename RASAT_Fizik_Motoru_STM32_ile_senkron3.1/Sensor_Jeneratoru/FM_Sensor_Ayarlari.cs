@@ -27,58 +27,58 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
             // --- İvmeölçer (Accelerometer) --- // Hatalar m/s^2 tipindeki değere uygulanır.
             IMU.AccX.BagilHataCarpani    = 1.0; 
-            IMU.AccX.MutlakHata          = 0.05; 
-            IMU.AccX.TermalGurultuStdDev = 0.08; 
+            IMU.AccX.MutlakHata          = 0.0; 
+            IMU.AccX.TermalGurultuStdDev = 0.2500; 
             IMU.AccX.DarbeIhtimaliPct    = 0.0; 
             IMU.AccX.DarbeSiddeti        = 0.0;
             
             IMU.AccY.BagilHataCarpani    = 1.0; 
-            IMU.AccY.MutlakHata          = 0.05; 
-            IMU.AccY.TermalGurultuStdDev = 0.08; 
+            IMU.AccY.MutlakHata          = 0.0; 
+            IMU.AccY.TermalGurultuStdDev = 0.2500; 
             IMU.AccY.DarbeIhtimaliPct    = 0.0; 
             IMU.AccY.DarbeSiddeti        = 0.0;
             
             IMU.AccZ.BagilHataCarpani    = 1.0; 
-            IMU.AccZ.MutlakHata          = 0.05; 
-            IMU.AccZ.TermalGurultuStdDev = 0.08; 
+            IMU.AccZ.MutlakHata          = 0.00; 
+            IMU.AccZ.TermalGurultuStdDev = 0.2500; 
             IMU.AccZ.DarbeIhtimaliPct    = 0.0; 
             IMU.AccZ.DarbeSiddeti        = 0.0;
 
             // --- Jiroskop (Gyroscope) ---  // Hatalar dps tipindeki değere uygulanır.
             IMU.GyroX.BagilHataCarpani    = 1.0; 
             IMU.GyroX.MutlakHata          = 0.01; 
-            IMU.GyroX.TermalGurultuStdDev = 0.02; 
+            IMU.GyroX.TermalGurultuStdDev = 0.0010; 
             IMU.GyroX.DarbeIhtimaliPct    = 0.0; 
             IMU.GyroX.DarbeSiddeti        = 0.0;
             
             IMU.GyroY.BagilHataCarpani    = 1.0; 
             IMU.GyroY.MutlakHata          = 0.01; 
-            IMU.GyroY.TermalGurultuStdDev = 0.02; 
+            IMU.GyroY.TermalGurultuStdDev = 0.0010; 
             IMU.GyroY.DarbeIhtimaliPct    = 0.0; 
             IMU.GyroY.DarbeSiddeti        = 0.0;
             
             IMU.GyroZ.BagilHataCarpani    = 1.0; 
             IMU.GyroZ.MutlakHata          = 0.01; 
-            IMU.GyroZ.TermalGurultuStdDev = 0.02; 
+            IMU.GyroZ.TermalGurultuStdDev = 0.0010; 
             IMU.GyroZ.DarbeIhtimaliPct    = 0.0; 
             IMU.GyroZ.DarbeSiddeti        = 0.0;
 
             // --- Manyetometre (Magnetometer) ---  // Hatalar uT tipindeki değere uygulanır.
             IMU.MagX.BagilHataCarpani    = 1.0; 
             IMU.MagX.MutlakHata          = 0.0; 
-            IMU.MagX.TermalGurultuStdDev = 1.5; 
+            IMU.MagX.TermalGurultuStdDev = 0.0500; 
             IMU.MagX.DarbeIhtimaliPct    = 0.0; 
             IMU.MagX.DarbeSiddeti        = 0.0;
             
             IMU.MagY.BagilHataCarpani    = 1.0; 
             IMU.MagY.MutlakHata          = 0.0; 
-            IMU.MagY.TermalGurultuStdDev = 1.5; 
+            IMU.MagY.TermalGurultuStdDev = 0.0500; 
             IMU.MagY.DarbeIhtimaliPct    = 0.0; 
             IMU.MagY.DarbeSiddeti        = 0.0;
             
             IMU.MagZ.BagilHataCarpani    = 1.0; 
             IMU.MagZ.MutlakHata          = 0.0; 
-            IMU.MagZ.TermalGurultuStdDev = 1.5; 
+            IMU.MagZ.TermalGurultuStdDev = 0.0500; 
             IMU.MagZ.DarbeIhtimaliPct    = 0.0; 
             IMU.MagZ.DarbeSiddeti        = 0.0;
 
@@ -90,14 +90,14 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             Baro.IletisimKoptu = false;
             
             Baro.Basinc.BagilHataCarpani    = 1.0; // Hatalar Pascal tipindeki değere uygulanır.
-            Baro.Basinc.MutlakHata          = 2.5; 
-            Baro.Basinc.TermalGurultuStdDev = 1.2; 
+            Baro.Basinc.MutlakHata          = 0.0; 
+            Baro.Basinc.TermalGurultuStdDev = 2.0; 
             Baro.Basinc.DarbeIhtimaliPct    = 0.0; 
             Baro.Basinc.DarbeSiddeti        = 0.0;
             
             Baro.Sicaklik.BagilHataCarpani    = 1.0; // Hatalar derece_Celcius tipindeki değere uygulanır.
             Baro.Sicaklik.MutlakHata          = 0.0; 
-            Baro.Sicaklik.TermalGurultuStdDev = 0.2; 
+            Baro.Sicaklik.TermalGurultuStdDev = 0.0; 
             Baro.Sicaklik.DarbeIhtimaliPct    = 0.0; 
             Baro.Sicaklik.DarbeSiddeti        = 0.0;
 
@@ -110,25 +110,25 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
             GPS.Enlem.BagilHataCarpani    = 1.0; 
             GPS.Enlem.MutlakHata          = 0.0; 
-            GPS.Enlem.TermalGurultuStdDev = 2.5; 
+            GPS.Enlem.TermalGurultuStdDev = 0.0100; 
             GPS.Enlem.DarbeIhtimaliPct    = 0.0; 
             GPS.Enlem.DarbeSiddeti        = 0.0;
             
             GPS.Boylam.BagilHataCarpani    = 1.0; 
             GPS.Boylam.MutlakHata          = 0.0; 
-            GPS.Boylam.TermalGurultuStdDev = 2.5; 
+            GPS.Boylam.TermalGurultuStdDev = 0.0100; 
             GPS.Boylam.DarbeIhtimaliPct    = 0.0; 
             GPS.Boylam.DarbeSiddeti        = 0.0;
             
             GPS.Irtifa.BagilHataCarpani    = 1.0; 
             GPS.Irtifa.MutlakHata          = 0.0; 
-            GPS.Irtifa.TermalGurultuStdDev = 3.0; 
+            GPS.Irtifa.TermalGurultuStdDev = 0.0100; 
             GPS.Irtifa.DarbeIhtimaliPct    = 0.0; 
             GPS.Irtifa.DarbeSiddeti        = 0.0;
             
             GPS.Yatay_Hiz.BagilHataCarpani    = 1.0; 
-            GPS.Yatay_Hiz.MutlakHata          = 0.5; // +-0.5 m/s
-            GPS.Yatay_Hiz.TermalGurultuStdDev = 0.2; 
+            GPS.Yatay_Hiz.MutlakHata          = 0.0; // +-0.5 m/s
+            GPS.Yatay_Hiz.TermalGurultuStdDev = 0.0100; 
             GPS.Yatay_Hiz.DarbeIhtimaliPct    = 0.0; 
             GPS.Yatay_Hiz.DarbeSiddeti        = 0.0;
 

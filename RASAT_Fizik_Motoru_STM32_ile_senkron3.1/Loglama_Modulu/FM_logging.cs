@@ -40,8 +40,8 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
             // Başlık (Header) Satırlarının CSV'ye yazılması
             // Excel'de hücrelere düzgün ayrılması için aralara sadece virgül (,) koyuyoruz.
-            File.WriteAllText(dosyaGelen, "Saat,Header,Index,MI1,MI2,MI3,MI4,DurumBayraklari,Checksum\n");
-            File.WriteAllText(dosyaGiden, "Saat,Header,Index,AccX,AccY,AccZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,Basinc,Sicaklik,GpsLat,GpsLon,GpsAlt,GpsVel,BatV,BatA,Rezerve,Checksum\n");
+            //File.WriteAllText(dosyaGelen, "Saat,Header,Index,MI1,MI2,MI3,MI4,DurumBayraklari,Checksum\n");
+            //File.WriteAllText(dosyaGiden, "Saat,Header,Index,AccX,AccY,AccZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,Basinc,Sicaklik,GpsLat,GpsLon,GpsAlt,GpsVel,BatV,BatA,Rezerve,Checksum\n");
 
             // Birleşik tablo için önce Giden, hemen yanına Gelen başlıkları
             string birlesikBaslik = "Giden Saat,Giden Header,Giden Index,AccX,AccY,AccZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,Basinc,Sicaklik,GpsLat,GpsLon,GpsAlt,GpsVel,BatV,BatA,Rezerve,Giden Checksum," +
@@ -72,8 +72,8 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         private void LogYaziciTask(string pathGelen, string pathGiden, string pathBirlesik, CancellationToken token)
         {
             // StreamWriter bellek tamponu kullanarak dosyayı sürekli aç-kapat yapmadan diski rahatlatır.
-            using (StreamWriter swGelen = new StreamWriter(pathGelen, true))
-            using (StreamWriter swGiden = new StreamWriter(pathGiden, true))
+            //using (StreamWriter swGelen = new StreamWriter(pathGelen, true))
+            //using (StreamWriter swGiden = new StreamWriter(pathGiden, true))
             using (StreamWriter swBirlesik = new StreamWriter(pathBirlesik, true))
             {
                 try

@@ -118,6 +118,37 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="UIguncelle.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>154, 17</value>
+  </metadata>
+  <data name="label2.Text" xml:space="preserve">
+    <value>Konum-X       :  123,456 m
+Konum-Y       :  123,456 m
+Konum-Z       :  123,456 m
+
+Hız                 :  123,456 m/s
+Hız-X             :  123,456 m/s
+Hız-Y             :  123,456 m/s
+Hız-Z             :  123,456 m/s
+
+İvme              :  123,456 m/s^2
+İvme-X          :  123,456 m/s^2
+İvme-Y          :  123,456 m/s^2
+İvme-Z          :  123,456 m/s^2
+
+Pitch              :  123,456 °
+Roll                :  123,456 °
+Yaw                :  123,456 °
+
+Açısal Hız      :  123,456 dps
+Açısal Hız-X  :  123,456 dps
+Açısal Hız-Y  :  123,456 dps
+Açısal Hız-Z  :  123,456 dps
+
+Voltaj            :  123,456 V
+Akım             :  123,456 A
+Tüketilen       :  123,456 mAh</value>
+  </data>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>25</value>
   </metadata>
 </root>
