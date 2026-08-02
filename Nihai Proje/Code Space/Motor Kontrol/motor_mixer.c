@@ -1,22 +1,33 @@
 /*
  * motor_mixer.c
  *
- * Varsayilan motor yerlesimi:
+ * Govde koordinat sistemi:
  *
- *                 ON
+ * +X: Aracin sagi
+ * +Y: Aracin onu
+ * +Z: Aracin alti / ekranin ici
  *
- *       M1 On-Sol CCW      M2 On-Sag CW
+ * Roll : Y ekseni etrafinda
+ * Pitch: X ekseni etrafinda
+ * Yaw  : Z ekseni etrafinda
  *
- *       M4 Arka-Sol CW     M3 Arka-Sag CCW
+ * Motor yerlesimi:
  *
- * Gercek motor yerlesimi veya donus yonleri farkliysa
- * mixer isaretleri testlerden sonra duzeltilmeli.
+ *                 -Y / Arka
+ *
+ *       M3 Arka-Sol CCW    M4 Arka-Sag CW
+ *
+ *       M2 On-Sol CW       M1 On-Sag CCW
+ *
+ *                 +Y / On
+ *
+ * Motor itkisi -Z yonundedir.
  */
 
 #include "motor_mixer.h"
 #include <stddef.h>
 
-/* Throttle degerini 0.0 - 1.0 araliginda tutar. */
+
 static float ClampThrottle(float throttle)
 {
     if (throttle < 0.0f)
@@ -32,6 +43,7 @@ static float ClampThrottle(float throttle)
     return throttle;
 }
 
+
 void MotorMixer_Calculate(float collective,
                           float roll,
                           float pitch,
@@ -43,16 +55,10 @@ void MotorMixer_Calculate(float collective,
         return;
     }
 
-    /*
-     * collective: Dort motorun ortak temel gucu
-     * roll:       Sag-sol denge duzeltmesi
-     * pitch:      On-arka denge duzeltmesi
-     * yaw:        CW-CCW motor cifti duzeltmesi
-     */
-    outputs->m1 = collective - roll + pitch + yaw;
-    outputs->m2 = collective + roll + pitch - yaw;
-    outputs->m3 = collective + roll - pitch + yaw;
-    outputs->m4 = collective - roll - pitch - yaw;
+    outputs->m1 = collective + roll - pitch + yaw;
+    outputs->m2 = collective - roll - pitch - yaw;
+    outputs->m3 = collective - roll + pitch + yaw;
+    outputs->m4 = collective + roll + pitch - yaw;
 
     outputs->m1 = ClampThrottle(outputs->m1);
     outputs->m2 = ClampThrottle(outputs->m2);
