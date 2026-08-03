@@ -2,6 +2,7 @@
 #include "Filter_Config.h"
 #include <string.h>
 #include <math.h>
+#include <stddef.h>
 
 /* ========================================================================== */
 /*  M5_Altitude_Init – AGL = 0 olarak başlat                                 */
@@ -19,7 +20,7 @@ void M5_Altitude_Init(M5_EKF_Altitude_t *ekf) {
     ekf->P[8] = 0.1f;    /* P(2,2) bias belirsizliği  */
 
     /* Station modülü zemin referansını halleder */
-
+}
 /* ========================================================================== */
 /*  M5_Altitude_Update                                                        */
 /*                                                                            */
@@ -65,9 +66,9 @@ void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC,
 
     /* Q Matrisi (süreç gürültüsü) */
     float Q[9] = {
-        EKF_Q_Z_POS, 0.0f, 0.0f,
-        0.0f, EKF_Q_Z_VEL, 0.0f,
-        0.0f, 0.0f, EKF_Q_Z_ACC_BIAS
+        EKF_Q_Z_POS * dt_seconds, 0.0f, 0.0f,
+        0.0f, EKF_Q_Z_VEL * dt_seconds, 0.0f,
+        0.0f, 0.0f, EKF_Q_Z_ACC_BIAS * dt_seconds
     };
 
     /* P = F * P * F^T + Q */

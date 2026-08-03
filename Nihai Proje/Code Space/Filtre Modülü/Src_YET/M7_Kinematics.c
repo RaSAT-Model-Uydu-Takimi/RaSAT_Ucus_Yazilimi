@@ -1,6 +1,7 @@
 #include "M7_Kinematics.h"
 #include "Filter_Config.h"
 #include <math.h>
+#include <stddef.h>
 
 void Kinematics_BodyToEarth(DataCenter *dc) {
     if (dc == NULL) return;

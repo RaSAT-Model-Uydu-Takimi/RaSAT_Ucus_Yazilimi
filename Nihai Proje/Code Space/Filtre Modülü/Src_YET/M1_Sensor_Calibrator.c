@@ -1,5 +1,6 @@
 #include "M1_Sensor_Calibrator.h"
 #include <math.h>
+#include <stddef.h>
 
 /* ========================================================================== */
 /*  SensorCalib_Init – Kalibrasyon Sabitlerini Yükle                          */

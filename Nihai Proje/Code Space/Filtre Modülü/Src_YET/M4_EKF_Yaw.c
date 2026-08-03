@@ -1,6 +1,7 @@
 #include "M4_EKF_Yaw.h"
 #include "Filter_Config.h"
 #include <math.h>
+#include <stddef.h>
 
 /* -------------------------------------------------------------------------- */
 /*  Açıyı -180..+180 derece aralığına sığdır                                 */
@@ -43,8 +44,10 @@ void M4_Yaw_Update(M4_EKF_Yaw_t *ekf, DataCenter *dataC, float dt_seconds) {
     /*     φ = roll, θ = pitch, ω = gyro [rad/s]                          */
     /* ================================================================== */
     float gx = dataC->gyro.x.calibratedValue;  /* rad/s */
-    float gy = dataC->gyro.y.calibratedValue;
-    float gz = dataC->gyro.z.calibratedValue;
+    /* M3 EKF tarafından tahmin edilen jiroskop biaslarını (kaymaları) çıkar! */
+    /* EğER BİAS ÇIKARILMAZSA YAW SÜREKLİ OLARAK KAYAR (DRIFT YAPAR) */
+    float gy = dataC->gyro.y.calibratedValue - dataC->estimated.gyro_bias_y.value;
+    float gz = dataC->gyro.z.calibratedValue - dataC->estimated.gyro_bias_z.value;
 
     float pitch_rad = dataC->estimated.pitch.value * DEG2RAD;
     float roll_rad  = dataC->estimated.roll.value  * DEG2RAD;
@@ -63,8 +66,8 @@ void M4_Yaw_Update(M4_EKF_Yaw_t *ekf, DataCenter *dataC, float dt_seconds) {
     ekf->state_yaw += yaw_rate_dps * dt_seconds;
     ekf->state_yaw = wrap_180(ekf->state_yaw);
 
-    /* Kovaryans tahmini: P = P + Q */
-    ekf->P += EKF_Q_YAW_ANGLE;
+    /* Kovaryans tahmini: P = P + Q * dt */
+    ekf->P += EKF_Q_YAW_ANGLE * dt_seconds;
 
     /* ================================================================== */
     /*  2. ÖLÇÜM 1 – Tilt-kompanse manyetometre heading                   */
@@ -95,8 +98,9 @@ void M4_Yaw_Update(M4_EKF_Yaw_t *ekf, DataCenter *dataC, float dt_seconds) {
         float S_mag = ekf->P + dynamic_R_mag;
 
         /* FDI: Mahalanobis Uzaklığı Testi */
+        /* Manyetometre açısal hataları (derece) büyük olabileceği için Gate'i daha geniş tutuyoruz (Örn: 25 katı) */
         float mahalanobis_sq = (y_mag * y_mag) / (S_mag + 1e-12f);
-        if (mahalanobis_sq > EKF_INNOVATION_GATE_3SIGMA) {
+        if (mahalanobis_sq > (EKF_INNOVATION_GATE_3SIGMA * 25.0f)) {
             dataC->mag.x.confidence = 0.0f;
             dataC->mag.y.confidence = 0.0f;
             dataC->mag.z.confidence = 0.0f;
@@ -107,6 +111,12 @@ void M4_Yaw_Update(M4_EKF_Yaw_t *ekf, DataCenter *dataC, float dt_seconds) {
             ekf->state_yaw = wrap_180(ekf->state_yaw + K_mag * y_mag);
             ekf->P = (1.0f - K_mag) * ekf->P;
         }
+    }
+
+    // --- COVARIANCE ANTI-WINDUP (Kovaryans Sınırlandırma) ---
+    // Güven katsayısının gereksiz yere 0'a inmesini önlemek için max P sınırı
+    if (ekf->P > 0.1f) {
+        ekf->P = 0.1f;
     }
 
     /* ================================================================== */

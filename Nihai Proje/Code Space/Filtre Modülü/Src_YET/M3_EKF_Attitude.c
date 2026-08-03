@@ -105,8 +105,8 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
     // Q Matrisi 7x7
     float Q[49];
     memset(Q, 0, sizeof(Q));
-    for (int i = 0; i < 4; i++) Q[i * 7 + i] = EKF_Q_ATT_Q;
-    for (int i = 4; i < 7; i++) Q[i * 7 + i] = EKF_Q_ATT_BIAS;
+    for (int i = 0; i < 4; i++) Q[i * 7 + i] = EKF_Q_ATT_Q * dt_seconds;
+    for (int i = 4; i < 7; i++) Q[i * 7 + i] = EKF_Q_ATT_BIAS * dt_seconds;
 
     // P = F * P * F^T + Q
     float FP[49], FT[49], FPFT[49];
@@ -209,6 +209,20 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
                 // Güncelleme sonrası kuaterniyon normalizasyonu
                 norm = invSqrt(ekf->x[0]*ekf->x[0] + ekf->x[1]*ekf->x[1] + ekf->x[2]*ekf->x[2] + ekf->x[3]*ekf->x[3]);
                 ekf->x[0] *= norm; ekf->x[1] *= norm; ekf->x[2] *= norm; ekf->x[3] *= norm;
+            }
+        }
+    }
+
+    // --- COVARIANCE ANTI-WINDUP (Kovaryans Sınırlandırma) ---
+    // YAW ve Kuaterniyon uzunluğu ivmeölçer ile gözlemlenemez (unobservable).
+    // Bu yüzden bu eksenlerdeki varyans sonsuza doğru büyür ve P matrisini patlatır.
+    // Bunu engellemek için P matrisinin köşegenlerini sınırlandırıyoruz (Clamp).
+    for (int i = 0; i < 7; i++) {
+        if (ekf->P[i*7 + i] > 0.1f) {
+            float s = sqrtf(0.1f / ekf->P[i*7 + i]);
+            for (int j = 0; j < 7; j++) {
+                ekf->P[i*7 + j] *= s;
+                if (i != j) ekf->P[j*7 + i] *= s;
             }
         }
     }

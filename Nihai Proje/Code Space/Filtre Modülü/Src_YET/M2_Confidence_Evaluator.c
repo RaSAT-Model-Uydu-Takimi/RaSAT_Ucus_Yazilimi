@@ -28,10 +28,9 @@ static void EvaluateChannel(float curr_val, float *last_val, float *curr_conf,
         *last_val = curr_val;
     }
 
-    /* 3. MİNİMUM GÜVEN EŞİĞİ */
-    if (*curr_conf < CONFIDENCE_MIN_VALID) {
-        *curr_conf = 0.0f;
-    }
+    /* 3. EKF'ler zaten kendi içlerinde CONFIDENCE_MIN_VALID kontrolü yaptıkları için 
+       burada 0'a eşitlemek (resetlemek) toparlanmayı (recovery) imkansız kılan bir dead-lock yaratıyordu. 
+       Bu yüzden 0'a zorlama kısmı kaldırıldı. Güven adım adım artarak eşiği geçebilecek. */
 }
 
 /* ========================================================================== */

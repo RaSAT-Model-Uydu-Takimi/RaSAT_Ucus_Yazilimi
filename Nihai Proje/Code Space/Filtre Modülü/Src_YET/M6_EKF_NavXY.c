@@ -2,6 +2,7 @@
 #include "Filter_Config.h"
 #include <string.h>
 #include <math.h>
+#include <stddef.h>
 
 /* ========================================================================== */
 /*  M6_NavXY_Init                                                            */
@@ -19,7 +20,7 @@ void M6_NavXY_Init(M6_EKF_NavXY_t *ekf) {
     ekf->P[15] = 1.0f;   /* P(Vy, Vy) */
 
     /* Referans istasyon modülünden alınır */
-
+}
 /* ========================================================================== */
 /*  M6_NavXY_Update                                                           */
 /*                                                                            */
@@ -58,10 +59,10 @@ void M6_NavXY_Update(M6_EKF_NavXY_t *ekf, DataCenter *dataC, const Station_Refer
 
     /* Q Matrisi (süreç gürültüsü) */
     float Q[16] = {
-        EKF_Q_XY_POS, 0.0f, 0.0f, 0.0f,
-        0.0f, EKF_Q_XY_POS, 0.0f, 0.0f,
-        0.0f, 0.0f, EKF_Q_XY_VEL, 0.0f,
-        0.0f, 0.0f, 0.0f, EKF_Q_XY_VEL
+        EKF_Q_XY_POS * dt_seconds, 0.0f, 0.0f, 0.0f,
+        0.0f, EKF_Q_XY_POS * dt_seconds, 0.0f, 0.0f,
+        0.0f, 0.0f, EKF_Q_XY_VEL * dt_seconds, 0.0f,
+        0.0f, 0.0f, 0.0f, EKF_Q_XY_VEL * dt_seconds
     };
 
     /* P = F * P * F^T + Q */
