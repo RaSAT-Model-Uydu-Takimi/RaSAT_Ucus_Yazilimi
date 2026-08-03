@@ -123,6 +123,11 @@ typedef struct {
     DerivedData earth_a_y;
     DerivedData earth_a_z;
 
+    // Jiroskop Kaymaları (M3 7-Durumlu EKF'den gelir)
+    DerivedData gyro_bias_x; // Jiroskop X ekseni termal/mekanik kayması [rad/s]
+    DerivedData gyro_bias_y; // Jiroskop Y ekseni termal/mekanik kayması [rad/s]
+    DerivedData gyro_bias_z; // Jiroskop Z ekseni termal/mekanik kayması [rad/s]
+
     // 
     DerivedData q0; // Kuaterniyon w (real)
     DerivedData q1; // Kuaterniyon x

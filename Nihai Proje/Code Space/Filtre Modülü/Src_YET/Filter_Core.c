@@ -35,7 +35,7 @@ void Filter_Init(Filter_System_t *sys)
     CE_Init(&sys->conf_eval);
 
     /* 5. M3: Yönelim Kestirici (Pitch/Roll/Yaw kuaterniyon) */
-    M3_Attitude_Init(&sys->dataC);
+    M3_Attitude_Init(&sys->ekf_attitude);
 
     /* 6. M4: Yaw EKF */
     M4_Yaw_Init(&sys->ekf_yaw);
@@ -101,7 +101,7 @@ void Filter_Update(Filter_System_t *sys, uint32_t curr_time_us)
     CE_Update(&sys->conf_eval, &sys->dataC, curr_time_us);
 
     /* ADIM 3: (M3) Yönelim – Pitch, Roll, Yaw (kuaterniyon) */
-    M3_Attitude_Update(&sys->dataC, dt_seconds);
+    M3_Attitude_Update(&sys->ekf_attitude, &sys->dataC, dt_seconds);
 
     /* ADIM 4: (M4) Yaw düzeltmesi (GPS course + manyetometre) */
     M4_Yaw_Update(&sys->ekf_yaw, &sys->dataC, dt_seconds);

@@ -96,26 +96,32 @@ void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC,
         /* S = H*P*H^T + R = P[0][0] + R */
         float S = ekf->P[0] + R_baro;
 
-        /* K = P*H^T / S (3×1) */
-        float K[3];
-        K[0] = ekf->P[0] / (S + 1e-12f);
-        K[1] = ekf->P[3] / (S + 1e-12f);
-        K[2] = ekf->P[6] / (S + 1e-12f);
+        /* FDI: Mahalanobis Uzaklığı Testi */
+        float mahalanobis_sq = (y * y) / (S + 1e-12f);
+        if (mahalanobis_sq > EKF_INNOVATION_GATE_3SIGMA) {
+            dataC->baro.press.confidence = 0.0f;
+        } else {
+            /* K = P*H^T / S (3×1) */
+            float K[3];
+            K[0] = ekf->P[0] / (S + 1e-12f);
+            K[1] = ekf->P[3] / (S + 1e-12f);
+            K[2] = ekf->P[6] / (S + 1e-12f);
 
-        /* x = x + K*y */
-        ekf->x[0] += K[0] * y;
-        ekf->x[1] += K[1] * y;
-        ekf->x[2] += K[2] * y;
+            /* x = x + K*y */
+            ekf->x[0] += K[0] * y;
+            ekf->x[1] += K[1] * y;
+            ekf->x[2] += K[2] * y;
 
-        /* P = (I - K*H) * P */
-        float I_KH[9] = {
-            1.0f - K[0], 0.0f, 0.0f,
-            0.0f - K[1], 1.0f, 0.0f,
-            0.0f - K[2], 0.0f, 1.0f
-        };
-        float P_new[9];
-        mat_mult(3, 3, 3, I_KH, ekf->P, P_new);
-        memcpy(ekf->P, P_new, sizeof(P_new));
+            /* P = (I - K*H) * P */
+            float I_KH[9] = {
+                1.0f - K[0], 0.0f, 0.0f,
+                0.0f - K[1], 1.0f, 0.0f,
+                0.0f - K[2], 0.0f, 1.0f
+            };
+            float P_new[9];
+            mat_mult(3, 3, 3, I_KH, ekf->P, P_new);
+            memcpy(ekf->P, P_new, sizeof(P_new));
+        }
     }
 
     /* ================================================================== */
@@ -129,23 +135,29 @@ void M5_Altitude_Update(M5_EKF_Altitude_t *ekf, DataCenter *dataC,
         float y = z_gps - ekf->x[0];
         float S = ekf->P[0] + R_gps;
 
-        float K[3];
-        K[0] = ekf->P[0] / (S + 1e-12f);
-        K[1] = ekf->P[3] / (S + 1e-12f);
-        K[2] = ekf->P[6] / (S + 1e-12f);
+        /* FDI: Mahalanobis Uzaklığı Testi */
+        float mahalanobis_sq = (y * y) / (S + 1e-12f);
+        if (mahalanobis_sq > EKF_INNOVATION_GATE_3SIGMA) {
+            dataC->gps.z.confidence = 0.0f;
+        } else {
+            float K[3];
+            K[0] = ekf->P[0] / (S + 1e-12f);
+            K[1] = ekf->P[3] / (S + 1e-12f);
+            K[2] = ekf->P[6] / (S + 1e-12f);
 
-        ekf->x[0] += K[0] * y;
-        ekf->x[1] += K[1] * y;
-        ekf->x[2] += K[2] * y;
+            ekf->x[0] += K[0] * y;
+            ekf->x[1] += K[1] * y;
+            ekf->x[2] += K[2] * y;
 
-        float I_KH[9] = {
-            1.0f - K[0], 0.0f, 0.0f,
-            0.0f - K[1], 1.0f, 0.0f,
-            0.0f - K[2], 0.0f, 1.0f
-        };
-        float P_new[9];
-        mat_mult(3, 3, 3, I_KH, ekf->P, P_new);
-        memcpy(ekf->P, P_new, sizeof(P_new));
+            float I_KH[9] = {
+                1.0f - K[0], 0.0f, 0.0f,
+                0.0f - K[1], 1.0f, 0.0f,
+                0.0f - K[2], 0.0f, 1.0f
+            };
+            float P_new[9];
+            mat_mult(3, 3, 3, I_KH, ekf->P, P_new);
+            memcpy(ekf->P, P_new, sizeof(P_new));
+        }
     }
 
     /* ================================================================== */

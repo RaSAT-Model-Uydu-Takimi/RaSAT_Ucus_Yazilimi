@@ -111,11 +111,18 @@ extern "C" {
 #define CONFIDENCE_MAX_SPIKE_BARO_PA     500.0f   /* Basınçta max adım değişim [Pa]         */
 #define CONFIDENCE_MAX_SPIKE_MAG_UT      50.0f    /* Manyetometrede max adım değişim [µT]   */
 
+/* FDI (Hata Tespiti ve İzolasyon) Sabitleri */
+#define EKF_INNOVATION_GATE_3SIGMA       9.0f     /* 3-Sigma kuralı (İstatistikte %99.7 sınır) */
+
 /* =========================================================================
  * 5. EKF SÜREÇ GÜRÜLTÜSÜ (PROCESS NOISE - Q)
  * Modelin kendi fiziksel/matematiksel belirsizliğidir.
  * Ne kadar küçük olursa EKF tahmine o kadar güvenir.
  * ========================================================================= */
+
+// M3_EKF_ATTITUDE (Yönelim - 7 Durumlu) Q Matrisi Değerleri
+#define EKF_Q_ATT_Q                  0.001f  /* Kuaterniyon tahmini belirsizliği */
+#define EKF_Q_ATT_BIAS               0.0001f /* Jiroskop bias (kayma) belirsizliği */
 
 // M5_EKF_Z (İrtifa ve Dikey Hız) Q Matrisi Değerleri
 #define EKF_Q_Z_POS                  0.01f   /* İrtifa tahminindeki belirsizlik       */

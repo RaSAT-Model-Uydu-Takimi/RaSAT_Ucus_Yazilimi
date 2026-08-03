@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 // Başlangıç
-#define MAX_MATRIX_SIZE 4
+#define MAX_MATRIX_SIZE 7
 
 void mat_add(int rows, int cols, const float *A, const float *B, float *C);
 void mat_sub(int rows, int cols, const float *A, const float *B, float *C);

@@ -18,6 +18,7 @@ typedef struct {
     DataCenter dataC;
     SensorCalib_t calib;
     Confidence_Evaluator_t conf_eval;
+    M3_EKF_Attitude_t ekf_attitude;
     M4_EKF_Yaw_t ekf_yaw;
     M5_EKF_Altitude_t ekf_altitude;
     M6_EKF_NavXY_t ekf_nav_xy;

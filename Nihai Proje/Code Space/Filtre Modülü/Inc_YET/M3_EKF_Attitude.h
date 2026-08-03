@@ -7,19 +7,26 @@
 extern "C" {
 #endif
 
+typedef struct {
+    float x[7];   /* State: [q0, q1, q2, q3, bias_x, bias_y, bias_z] */
+    float P[49];  /* Covariance: 7x7 Matris */
+} M3_EKF_Attitude_t;
+
 /*
  * Fonksiyon: M3_Attitude_Init
  * Görevi: Kuaterniyonları roketin dik (ufuk çizgisine paralel) durumuna göre sıfırlar.
+ * Bias değerlerini sıfırlar ve P matrisini başlatır.
  */
-void M3_Attitude_Init(DataCenter *dataC);
+void M3_Attitude_Init(M3_EKF_Attitude_t *ekf);
 
 /*
  * Fonksiyon: M3_Attitude_Update
- * Görevi: G-Kompansasyonlu Yönelim Kestiricisi (Pitch ve Roll).
+ * Görevi: 7-Durumlu Genişletilmiş Kalman Filtresi (EKF).
+ * Jiroskop kaymalarını (bias) dinamik olarak tahmin eder.
  * M2'den gelen güven değerlerini ve Filter_Config'teki ağırlıkları kullanır.
- * Roketin fırlatma anındaki aşırı ivmelenmelerinde ivmeölçeri yoksayar (G-Comp).
+ * İnovasyon (FDI) testi ile hatalı ivme okumalarını reddeder.
  */
-void M3_Attitude_Update(DataCenter *dataC, float dt_seconds);
+void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seconds);
 
 #ifdef __cplusplus
 }

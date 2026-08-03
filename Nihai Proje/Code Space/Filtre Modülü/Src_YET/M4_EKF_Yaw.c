@@ -93,11 +93,20 @@ void M4_Yaw_Update(M4_EKF_Yaw_t *ekf, DataCenter *dataC, float dt_seconds) {
 
         /* Kalman kazancı */
         float S_mag = ekf->P + dynamic_R_mag;
-        float K_mag = ekf->P / (S_mag + 1e-12f);
 
-        /* Düzeltme */
-        ekf->state_yaw = wrap_180(ekf->state_yaw + K_mag * y_mag);
-        ekf->P = (1.0f - K_mag) * ekf->P;
+        /* FDI: Mahalanobis Uzaklığı Testi */
+        float mahalanobis_sq = (y_mag * y_mag) / (S_mag + 1e-12f);
+        if (mahalanobis_sq > EKF_INNOVATION_GATE_3SIGMA) {
+            dataC->mag.x.confidence = 0.0f;
+            dataC->mag.y.confidence = 0.0f;
+            dataC->mag.z.confidence = 0.0f;
+        } else {
+            float K_mag = ekf->P / (S_mag + 1e-12f);
+
+            /* Düzeltme */
+            ekf->state_yaw = wrap_180(ekf->state_yaw + K_mag * y_mag);
+            ekf->P = (1.0f - K_mag) * ekf->P;
+        }
     }
 
     /* ================================================================== */

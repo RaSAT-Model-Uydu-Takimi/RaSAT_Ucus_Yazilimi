@@ -108,30 +108,42 @@ void M6_NavXY_Update(M6_EKF_NavXY_t *ekf, DataCenter *dataC, const Station_Refer
             S_inv[2] = -S[2] / det;
             S_inv[3] =  S[0] / det;
 
-            /* K = P * H^T * S^-1 (4×2) */
-            float K[8];
-            for (int i = 0; i < 4; i++) {
-                K[i * 2 + 0] = ekf->P[i * 4 + 0] * S_inv[0] + ekf->P[i * 4 + 1] * S_inv[2];
-                K[i * 2 + 1] = ekf->P[i * 4 + 0] * S_inv[1] + ekf->P[i * 4 + 1] * S_inv[3];
-            }
+            /* FDI: Mahalanobis Uzaklığı Testi */
+            /* D^2 = y^T * S^-1 * y */
+            float y_Sinv[2];
+            y_Sinv[0] = y[0]*S_inv[0] + y[1]*S_inv[2];
+            y_Sinv[1] = y[0]*S_inv[1] + y[1]*S_inv[3];
+            float mahalanobis_sq = y_Sinv[0]*y[0] + y_Sinv[1]*y[1];
 
-            /* x = x + K*y */
-            for (int i = 0; i < 4; i++) {
-                ekf->x[i] += K[i * 2 + 0] * y[0] + K[i * 2 + 1] * y[1];
-            }
+            if (mahalanobis_sq > EKF_INNOVATION_GATE_3SIGMA) {
+                dataC->gps.x.confidence = 0.0f;
+                dataC->gps.y.confidence = 0.0f;
+            } else {
+                /* K = P * H^T * S^-1 (4×2) */
+                float K[8];
+                for (int i = 0; i < 4; i++) {
+                    K[i * 2 + 0] = ekf->P[i * 4 + 0] * S_inv[0] + ekf->P[i * 4 + 1] * S_inv[2];
+                    K[i * 2 + 1] = ekf->P[i * 4 + 0] * S_inv[1] + ekf->P[i * 4 + 1] * S_inv[3];
+                }
 
-            /* P = (I - K*H) * P */
-            float I_KH[16];
-            memset(I_KH, 0, sizeof(I_KH));
-            for (int i = 0; i < 4; i++) {
-                I_KH[i * 4 + i] = 1.0f;
-                I_KH[i * 4 + 0] -= K[i * 2 + 0];
-                I_KH[i * 4 + 1] -= K[i * 2 + 1];
-            }
+                /* x = x + K*y */
+                for (int i = 0; i < 4; i++) {
+                    ekf->x[i] += K[i * 2 + 0] * y[0] + K[i * 2 + 1] * y[1];
+                }
 
-            float P_new[16];
-            mat_mult(4, 4, 4, I_KH, ekf->P, P_new);
-            memcpy(ekf->P, P_new, sizeof(P_new));
+                /* P = (I - K*H) * P */
+                float I_KH[16];
+                memset(I_KH, 0, sizeof(I_KH));
+                for (int i = 0; i < 4; i++) {
+                    I_KH[i * 4 + i] = 1.0f;
+                    I_KH[i * 4 + 0] -= K[i * 2 + 0];
+                    I_KH[i * 4 + 1] -= K[i * 2 + 1];
+                }
+
+                float P_new[16];
+                mat_mult(4, 4, 4, I_KH, ekf->P, P_new);
+                memcpy(ekf->P, P_new, sizeof(P_new));
+            }
         }
     }
 
