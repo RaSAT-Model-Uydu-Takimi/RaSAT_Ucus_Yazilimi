@@ -3,43 +3,195 @@
   "WorkspaceRootPath": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\fizik_isleticileri\\fm_fizik_sabitler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:fizik_isleticileri\\fm_fizik_sabitler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\properties\\resources.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:properties\\resources.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\loglama_modulu\\fm_logging.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:loglama_modulu\\fm_logging.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\fizik_isleticileri\\fm_fizik_structlari.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:fizik_isleticileri\\fm_fizik_structlari.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\sensor_jeneratoru\\fm_sensor_ayarlari.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:sensor_jeneratoru\\fm_sensor_ayarlari.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\fizik_isleticileri\\fm_fizik_durum_hesaplayici.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:fizik_isleticileri\\fm_fizik_durum_hesaplayici.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\fizik_isleticileri\\fm_fizik_fonksiyonlari.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:fizik_isleticileri\\fm_fizik_fonksiyonlari.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\simulasyon_fonksiyonlari\\fm_sistem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:simulasyon_fonksiyonlari\\fm_sistem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\filtreleme_modulu\\filter_core.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:filtreleme_modulu\\filter_core.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|c:\\users\\abduh\\desktop\\antigravity icin okunacak dosyalar\\rasat_fizik_motoru_stm32_ile_senkron3.1\\haberlesme_modulu\\fm_haberlesme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB1C7047-7A56-4D00-8CF3-A12BA0439C6D}|RASAT_Fizik_Motoru_STM32_ile_senkron3.1.csproj|solutionrelative:haberlesme_modulu\\fm_haberlesme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
     {
-      "Orientation": 0,
+      "Orientation": 1,
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "DockedHeight": 350,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Resources.resx",
-              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Properties\\Resources.resx",
-              "RelativeDocumentMoniker": "Properties\\Resources.resx",
-              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Properties\\Resources.resx",
-              "RelativeToolTip": "Properties\\Resources.resx",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
-              "WhenOpened": "2026-07-28T18:46:06.353Z",
+              "DocumentIndex": 8,
+              "Title": "Filter_Core.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Filtreleme_Modulu\\Filter_Core.cs",
+              "RelativeDocumentMoniker": "Filtreleme_Modulu\\Filter_Core.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Filtreleme_Modulu\\Filter_Core.cs",
+              "RelativeToolTip": "Filtreleme_Modulu\\Filter_Core.cs",
+              "ViewState": "AgIAAEoAAAAAAAAAAAAgwFcAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:13:32.484Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "FM_Sensor_Ayarlari.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Sensor_Jeneratoru\\FM_Sensor_Ayarlari.cs",
+              "RelativeDocumentMoniker": "Sensor_Jeneratoru\\FM_Sensor_Ayarlari.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Sensor_Jeneratoru\\FM_Sensor_Ayarlari.cs",
+              "RelativeToolTip": "Sensor_Jeneratoru\\FM_Sensor_Ayarlari.cs",
+              "ViewState": "AgIAAHYAAAAAAAAAAAAQwIsAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T03:19:20.285Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "FM_Fizik_Sabitler.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Sabitler.cs",
+              "RelativeDocumentMoniker": "Fizik_Isleticileri\\FM_Fizik_Sabitler.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Sabitler.cs",
+              "RelativeToolTip": "Fizik_Isleticileri\\FM_Fizik_Sabitler.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAowEwAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-28T19:32:46.692Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Form1.Designer.cs",
+              "RelativeToolTip": "Form1.Designer.cs",
+              "ViewState": "AgIAAPwBAAAAAAAAAAAgwAYCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T02:02:36.921Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "FM_Fizik_Fonksiyonlari.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Fonksiyonlari.cs",
+              "RelativeDocumentMoniker": "Fizik_Isleticileri\\FM_Fizik_Fonksiyonlari.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Fonksiyonlari.cs",
+              "RelativeToolTip": "Fizik_Isleticileri\\FM_Fizik_Fonksiyonlari.cs",
+              "ViewState": "AgIAANgBAAAAAAAAAAAAAMEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T17:35:00.778Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FM_Fizik_Structlari.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Structlari.cs",
+              "RelativeDocumentMoniker": "Fizik_Isleticileri\\FM_Fizik_Structlari.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Structlari.cs",
+              "RelativeToolTip": "Fizik_Isleticileri\\FM_Fizik_Structlari.cs",
+              "ViewState": "AgIAAKsAAAAAAAAAAAAUwMEAAABdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T13:11:36.515Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "FM_sistem.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Simulasyon_Fonksiyonlari\\FM_sistem.cs",
+              "RelativeDocumentMoniker": "Simulasyon_Fonksiyonlari\\FM_sistem.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Simulasyon_Fonksiyonlari\\FM_sistem.cs",
+              "RelativeToolTip": "Simulasyon_Fonksiyonlari\\FM_sistem.cs",
+              "ViewState": "AgIAAMcAAAAAAAAAAAAwwHcAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T11:22:29.145Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FM_logging.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Loglama_Modulu\\FM_logging.cs",
+              "RelativeDocumentMoniker": "Loglama_Modulu\\FM_logging.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Loglama_Modulu\\FM_logging.cs",
+              "RelativeToolTip": "Loglama_Modulu\\FM_logging.cs",
+              "ViewState": "AgIAAF8AAAAAAAAAAAAAwGwAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T03:55:07.085Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "FM_haberlesme.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Haberlesme_Modulu\\FM_haberlesme.cs",
+              "RelativeDocumentMoniker": "Haberlesme_Modulu\\FM_haberlesme.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Haberlesme_Modulu\\FM_haberlesme.cs",
+              "RelativeToolTip": "Haberlesme_Modulu\\FM_haberlesme.cs",
+              "ViewState": "AgIAAMAAAAAAAAAAAAAIwFMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T02:51:26.858Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FM_Fizik_Durum_Hesaplayici.cs",
+              "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Durum_Hesaplayici.cs",
+              "RelativeDocumentMoniker": "Fizik_Isleticileri\\FM_Fizik_Durum_Hesaplayici.cs",
+              "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Fizik_Isleticileri\\FM_Fizik_Durum_Hesaplayici.cs",
+              "RelativeToolTip": "Fizik_Isleticileri\\FM_Fizik_Durum_Hesaplayici.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAYwEUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-28T19:31:06.457Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "Form1.cs [Tasar\u0131m]",
               "DocumentMoniker": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
@@ -57,10 +209,24 @@
               "RelativeDocumentMoniker": "Form1.cs",
               "ToolTip": "C:\\Users\\abduh\\Desktop\\ANTIGRAVITY ICIN OKUNACAK DOSYALAR\\RASAT_Fizik_Motoru_STM32_ile_senkron3.1\\Form1.cs",
               "RelativeToolTip": "Form1.cs",
-              "ViewState": "AgIAAHgAAAAAAAAAAAAqwCAAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAE0BAAAAAAAAAAAIwFoBAAB7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T14:39:18.863Z",
               "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedHeight": 50,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         }

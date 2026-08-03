@@ -1,4 +1,4 @@
-namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
+﻿namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 {
     partial class Form1
     {
@@ -18,9 +18,20 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             UIguncelle = new System.Windows.Forms.Timer(components);
             tabControl1 = new TabControl();
             tabIzleme = new TabPage();
+            label2 = new Label();
+            labelKestirimBaslik = new Label();
+            labelKestirimVeri = new Label();
+            labelHataBaslik = new Label();
+            labelHataVeri = new Label();
+            label1 = new Label();
+            formsPlotXY = new ScottPlot.WinForms.FormsPlot();
+            formsPlotZ = new ScottPlot.WinForms.FormsPlot();
+            watchDogLbl = new Label();
+            pnlYonelim = new Wireframe3DPanel();
             lblZaman = new Label();
             lblGiden = new Label();
             lblGelen = new Label();
@@ -82,11 +93,21 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1200, 700);
+            tabControl1.Size = new Size(1924, 730);
             tabControl1.TabIndex = 0;
             // 
             // tabIzleme
             // 
+            tabIzleme.Controls.Add(label2);
+            tabIzleme.Controls.Add(labelKestirimBaslik);
+            tabIzleme.Controls.Add(labelKestirimVeri);
+            tabIzleme.Controls.Add(labelHataBaslik);
+            tabIzleme.Controls.Add(labelHataVeri);
+            tabIzleme.Controls.Add(label1);
+            tabIzleme.Controls.Add(formsPlotXY);
+            tabIzleme.Controls.Add(formsPlotZ);
+            tabIzleme.Controls.Add(watchDogLbl);
+            tabIzleme.Controls.Add(pnlYonelim);
             tabIzleme.Controls.Add(lblZaman);
             tabIzleme.Controls.Add(lblGiden);
             tabIzleme.Controls.Add(lblGelen);
@@ -116,14 +137,102 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             tabIzleme.Location = new Point(4, 29);
             tabIzleme.Name = "tabIzleme";
             tabIzleme.Padding = new Padding(3);
-            tabIzleme.Size = new Size(1192, 667);
+            tabIzleme.Size = new Size(1916, 697);
             tabIzleme.TabIndex = 0;
             tabIzleme.Text = "İzleme Ekranı";
             tabIzleme.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(1152, 51);
+            label2.Name = "label2";
+            label2.Size = new Size(206, 520);
+            label2.TabIndex = 63;
+            label2.Text = resources.GetString("label2.Text");            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 162);
+            label1.Location = new Point(1149, 17);
+            label1.Name = "label1";
+            label1.Size = new Size(209, 23);
+            label1.TabIndex = 62;
+            label1.Text = "UYDU DİNAMİK DURUMU";
+            //
+            // labelKestirimBaslik
+            //
+            labelKestirimBaslik.AutoSize = true;
+            labelKestirimBaslik.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 162);
+            labelKestirimBaslik.Location = new Point(1370, 17);
+            labelKestirimBaslik.Name = "labelKestirimBaslik";
+            labelKestirimBaslik.Size = new Size(180, 23);
+            labelKestirimBaslik.TabIndex = 64;
+            labelKestirimBaslik.Text = "KESTİRİM SONUÇLARI";
+            //
+            // labelKestirimVeri
+            //
+            labelKestirimVeri.AutoSize = true;
+            labelKestirimVeri.Location = new Point(1370, 51);
+            labelKestirimVeri.Name = "labelKestirimVeri";
+            labelKestirimVeri.Size = new Size(206, 520);
+            labelKestirimVeri.TabIndex = 65;
+            labelKestirimVeri.Text = "Veri bekleniyor...";
+            //
+            // labelHataBaslik
+            //
+            labelHataBaslik.AutoSize = true;
+            labelHataBaslik.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 162);
+            labelHataBaslik.Location = new Point(1590, 17);
+            labelHataBaslik.Name = "labelHataBaslik";
+            labelHataBaslik.Size = new Size(120, 23);
+            labelHataBaslik.TabIndex = 66;
+            labelHataBaslik.Text = "HATA ORANI";
+            //
+            // labelHataVeri
+            //
+            labelHataVeri.AutoSize = true;
+            labelHataVeri.Location = new Point(1590, 51);
+            labelHataVeri.Name = "labelHataVeri";
+            labelHataVeri.Size = new Size(206, 520);
+            labelHataVeri.TabIndex = 67;
+            labelHataVeri.Text = "Hesaplanıyor...";
+            // 
+            // formsPlotXY
+            // 
+            formsPlotXY.BackColor = Color.FromArgb(20, 20, 25);
+            formsPlotXY.Location = new Point(553, 296);
+            formsPlotXY.Name = "formsPlotXY";
+            formsPlotXY.Size = new Size(300, 300);
+            formsPlotXY.TabIndex = 60;
+            // 
+            // formsPlotZ
+            // 
+            formsPlotZ.BackColor = Color.FromArgb(20, 20, 25);
+            formsPlotZ.Location = new Point(553, 6);
+            formsPlotZ.Name = "formsPlotZ";
+            formsPlotZ.Size = new Size(590, 280);
+            formsPlotZ.TabIndex = 61;
+            // 
+            // watchDogLbl
+            // 
+            watchDogLbl.AutoSize = true;
+            watchDogLbl.Location = new Point(84, 671);
+            watchDogLbl.Name = "watchDogLbl";
+            watchDogLbl.Size = new Size(50, 20);
+            watchDogLbl.TabIndex = 52;
+            watchDogLbl.Text = "label1";
+            // 
+            // pnlYonelim
+            // 
+            pnlYonelim.BackColor = Color.FromArgb(20, 20, 25);
+            pnlYonelim.Location = new Point(859, 296);
+            pnlYonelim.Name = "pnlYonelim";
+            pnlYonelim.Size = new Size(284, 317);
+            pnlYonelim.TabIndex = 30;
+            // 
             // lblZaman
             // 
-            lblZaman.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblZaman.Location = new Point(300, 60);
             lblZaman.Name = "lblZaman";
             lblZaman.Size = new Size(200, 20);
@@ -172,7 +281,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM1Name.Location = new Point(20, 100);
             lblM1Name.Name = "lblM1Name";
             lblM1Name.Size = new Size(35, 25);
-            lblM1Name.TabIndex = 6;
+            lblM1Name.TabIndex = 31;
             lblM1Name.Text = "M1:";
             // 
             // lblM2Name
@@ -181,7 +290,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM2Name.Location = new Point(20, 140);
             lblM2Name.Name = "lblM2Name";
             lblM2Name.Size = new Size(35, 25);
-            lblM2Name.TabIndex = 7;
+            lblM2Name.TabIndex = 32;
             lblM2Name.Text = "M2:";
             // 
             // lblM3Name
@@ -190,7 +299,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM3Name.Location = new Point(20, 180);
             lblM3Name.Name = "lblM3Name";
             lblM3Name.Size = new Size(35, 25);
-            lblM3Name.TabIndex = 8;
+            lblM3Name.TabIndex = 33;
             lblM3Name.Text = "M3:";
             // 
             // lblM4Name
@@ -199,7 +308,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM4Name.Location = new Point(20, 220);
             lblM4Name.Name = "lblM4Name";
             lblM4Name.Size = new Size(35, 25);
-            lblM4Name.TabIndex = 9;
+            lblM4Name.TabIndex = 34;
             lblM4Name.Text = "M4:";
             // 
             // pbMotor1
@@ -207,35 +316,35 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             pbMotor1.Location = new Point(60, 100);
             pbMotor1.Name = "pbMotor1";
             pbMotor1.Size = new Size(210, 25);
-            pbMotor1.TabIndex = 10;
+            pbMotor1.TabIndex = 35;
             // 
             // pbMotor2
             // 
             pbMotor2.Location = new Point(60, 140);
             pbMotor2.Name = "pbMotor2";
             pbMotor2.Size = new Size(210, 25);
-            pbMotor2.TabIndex = 11;
+            pbMotor2.TabIndex = 36;
             // 
             // pbMotor3
             // 
             pbMotor3.Location = new Point(60, 180);
             pbMotor3.Name = "pbMotor3";
             pbMotor3.Size = new Size(210, 25);
-            pbMotor3.TabIndex = 12;
+            pbMotor3.TabIndex = 37;
             // 
             // pbMotor4
             // 
             pbMotor4.Location = new Point(60, 220);
             pbMotor4.Name = "pbMotor4";
             pbMotor4.Size = new Size(210, 25);
-            pbMotor4.TabIndex = 13;
+            pbMotor4.TabIndex = 38;
             // 
             // lblM1
             // 
             lblM1.Location = new Point(280, 103);
             lblM1.Name = "lblM1";
             lblM1.Size = new Size(280, 25);
-            lblM1.TabIndex = 14;
+            lblM1.TabIndex = 39;
             lblM1.Text = "%0.00 | 0.00 N | 0 RPM (CCW)";
             // 
             // lblM2
@@ -243,7 +352,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM2.Location = new Point(280, 143);
             lblM2.Name = "lblM2";
             lblM2.Size = new Size(280, 25);
-            lblM2.TabIndex = 15;
+            lblM2.TabIndex = 40;
             lblM2.Text = "%0.00 | 0.00 N | 0 RPM (CW)";
             // 
             // lblM3
@@ -251,7 +360,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM3.Location = new Point(280, 183);
             lblM3.Name = "lblM3";
             lblM3.Size = new Size(280, 25);
-            lblM3.TabIndex = 16;
+            lblM3.TabIndex = 41;
             lblM3.Text = "%0.00 | 0.00 N | 0 RPM (CCW)";
             // 
             // lblM4
@@ -259,7 +368,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblM4.Location = new Point(280, 223);
             lblM4.Name = "lblM4";
             lblM4.Size = new Size(280, 25);
-            lblM4.TabIndex = 17;
+            lblM4.TabIndex = 42;
             lblM4.Text = "%0.00 | 0.00 N | 0 RPM (CW)";
             // 
             // lblFlagSEP
@@ -269,7 +378,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagSEP.Location = new Point(20, 280);
             lblFlagSEP.Name = "lblFlagSEP";
             lblFlagSEP.Size = new Size(30, 30);
-            lblFlagSEP.TabIndex = 18;
+            lblFlagSEP.TabIndex = 43;
             // 
             // lblFlagSGM
             // 
@@ -278,7 +387,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagSGM.Location = new Point(140, 280);
             lblFlagSGM.Name = "lblFlagSGM";
             lblFlagSGM.Size = new Size(30, 30);
-            lblFlagSGM.TabIndex = 19;
+            lblFlagSGM.TabIndex = 44;
             // 
             // lblFlagAPAM
             // 
@@ -287,7 +396,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagAPAM.Location = new Point(260, 280);
             lblFlagAPAM.Name = "lblFlagAPAM";
             lblFlagAPAM.Size = new Size(30, 30);
-            lblFlagAPAM.TabIndex = 20;
+            lblFlagAPAM.TabIndex = 45;
             // 
             // lblFlagBUZZ
             // 
@@ -296,7 +405,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagBUZZ.Location = new Point(380, 280);
             lblFlagBUZZ.Name = "lblFlagBUZZ";
             lblFlagBUZZ.Size = new Size(30, 30);
-            lblFlagBUZZ.TabIndex = 21;
+            lblFlagBUZZ.TabIndex = 46;
             // 
             // lblFlagTextSEP
             // 
@@ -304,7 +413,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagTextSEP.Location = new Point(60, 285);
             lblFlagTextSEP.Name = "lblFlagTextSEP";
             lblFlagTextSEP.Size = new Size(60, 25);
-            lblFlagTextSEP.TabIndex = 22;
+            lblFlagTextSEP.TabIndex = 47;
             lblFlagTextSEP.Text = "SEP";
             // 
             // lblFlagTextSGM
@@ -313,7 +422,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagTextSGM.Location = new Point(180, 285);
             lblFlagTextSGM.Name = "lblFlagTextSGM";
             lblFlagTextSGM.Size = new Size(60, 25);
-            lblFlagTextSGM.TabIndex = 23;
+            lblFlagTextSGM.TabIndex = 48;
             lblFlagTextSGM.Text = "SGM";
             // 
             // lblFlagTextAPAM
@@ -322,7 +431,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagTextAPAM.Location = new Point(300, 285);
             lblFlagTextAPAM.Name = "lblFlagTextAPAM";
             lblFlagTextAPAM.Size = new Size(60, 25);
-            lblFlagTextAPAM.TabIndex = 24;
+            lblFlagTextAPAM.TabIndex = 49;
             lblFlagTextAPAM.Text = "APAM";
             // 
             // lblFlagTextBUZZ
@@ -331,18 +440,18 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             lblFlagTextBUZZ.Location = new Point(420, 285);
             lblFlagTextBUZZ.Name = "lblFlagTextBUZZ";
             lblFlagTextBUZZ.Size = new Size(60, 25);
-            lblFlagTextBUZZ.TabIndex = 25;
+            lblFlagTextBUZZ.TabIndex = 50;
             lblFlagTextBUZZ.Text = "BUZZ";
             // 
             // pbUyduPlan
             // 
             pbUyduPlan.BorderStyle = BorderStyle.FixedSingle;
             pbUyduPlan.Image = Properties.Resources.uydu_plan;
-            pbUyduPlan.Location = new Point(20, 339);
+            pbUyduPlan.Location = new Point(84, 325);
             pbUyduPlan.Name = "pbUyduPlan";
-            pbUyduPlan.Size = new Size(180, 182);
+            pbUyduPlan.Size = new Size(340, 343);
             pbUyduPlan.SizeMode = PictureBoxSizeMode.Zoom;
-            pbUyduPlan.TabIndex = 26;
+            pbUyduPlan.TabIndex = 51;
             pbUyduPlan.TabStop = false;
             // 
             // tabMudahale
@@ -355,7 +464,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             tabMudahale.Location = new Point(4, 29);
             tabMudahale.Name = "tabMudahale";
             tabMudahale.Padding = new Padding(3);
-            tabMudahale.Size = new Size(1192, 667);
+            tabMudahale.Size = new Size(1476, 697);
             tabMudahale.TabIndex = 1;
             tabMudahale.Text = "Canlı Müdahale & Senaryo";
             tabMudahale.UseVisualStyleBackColor = true;
@@ -430,7 +539,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             tabAyarlar.Location = new Point(4, 29);
             tabAyarlar.Name = "tabAyarlar";
             tabAyarlar.Padding = new Padding(3);
-            tabAyarlar.Size = new Size(1192, 667);
+            tabAyarlar.Size = new Size(1476, 697);
             tabAyarlar.TabIndex = 2;
             tabAyarlar.Text = "Gelişmiş Ayarlar";
             tabAyarlar.UseVisualStyleBackColor = true;
@@ -445,7 +554,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             // cbAyarSecim
             // 
             cbAyarSecim.FormattingEnabled = true;
-            cbAyarSecim.Items.AddRange(new object[] { "Simülasyon Çevre Şartları (Fizik)", "IMU Sensör Profili", "Barometre Sensör Profili", "GPS Sensör Profili", "Güç Sensörü Profili" });
+            cbAyarSecim.Items.AddRange(new object[] { "Simülasyon Çevre Å\u009eartları (Fizik)", "IMU Sensör Profili", "Barometre Sensör Profili", "GPS Sensör Profili", "Güç Sensörü Profili" });
             cbAyarSecim.Location = new Point(20, 20);
             cbAyarSecim.Name = "cbAyarSecim";
             cbAyarSecim.Size = new Size(300, 28);
@@ -456,7 +565,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1200, 700);
+            ClientSize = new Size(1924, 730);
             Controls.Add(tabControl1);
             Name = "Form1";
             Text = "HIL Yer Kontrol İstasyonu v1.0";
@@ -464,6 +573,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             Load += Form1_Load;
             tabControl1.ResumeLayout(false);
             tabIzleme.ResumeLayout(false);
+            tabIzleme.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pbUyduPlan).EndInit();
             tabMudahale.ResumeLayout(false);
             tabMudahale.PerformLayout();
@@ -516,8 +626,25 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         private System.Windows.Forms.Label lblFlagTextBUZZ;
         
         private System.Windows.Forms.PictureBox pbUyduPlan;
+        private Wireframe3DPanel pnlYonelim;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private Label watchDogLbl;
+        
+        private ScottPlot.WinForms.FormsPlot formsPlotXY;
+        private ScottPlot.WinForms.FormsPlot formsPlotZ;
+        private Label label1;
+        private Label label2;
+        private Label labelKestirimBaslik;
+        private Label labelKestirimVeri;
+        private Label labelHataBaslik;
+        private Label labelHataVeri;
     }
 }
+
+
+
+
+
+

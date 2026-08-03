@@ -15,19 +15,33 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
 
 
-        public static Vektor_t[] Motor_Tekil_Itkilerini_Hesapla(Uydu_Kontrol_Girdisi_t girdi, double v_pil, Simulasyon_Cevre_Sartlari_t cevre)
+        public static Vektor_t[] Motor_Tekil_Itkilerini_Hesapla(ref Uydu_Dinamik_Durum_t durum, Uydu_Kontrol_Girdisi_t girdi, double v_pil, Simulasyon_Cevre_Sartlari_t cevre, double deltaT_s)
         {
             // Ham sinyalleri 0.0 - 1.0 arası gaz oranına (Throttle Ratio) çevir
-            double g1 = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi1_raw, girdi.Protokol);
-            double g2 = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi2_raw, girdi.Protokol);
-            double g3 = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi3_raw, girdi.Protokol);
-            double g4 = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi4_raw, girdi.Protokol);
+            double g1_hedef = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi1_raw, girdi.Protokol);
+            double g2_hedef = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi2_raw, girdi.Protokol);
+            double g3_hedef = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi3_raw, girdi.Protokol);
+            double g4_hedef = Uydu_Kontrol_Girdisi_t.HamSinyali_Gaza_Cevir(girdi.mi4_raw, girdi.Protokol);
 
             // SATÜRASYON HATASI: Motorların ulaşabileceği tavan limiti kırpması
-            if (g1 > cevre.Motor_1_Maks_Guc_Siniri) g1 = cevre.Motor_1_Maks_Guc_Siniri;
-            if (g2 > cevre.Motor_2_Maks_Guc_Siniri) g2 = cevre.Motor_2_Maks_Guc_Siniri;
-            if (g3 > cevre.Motor_3_Maks_Guc_Siniri) g3 = cevre.Motor_3_Maks_Guc_Siniri;
-            if (g4 > cevre.Motor_4_Maks_Guc_Siniri) g4 = cevre.Motor_4_Maks_Guc_Siniri;
+            if (g1_hedef > cevre.Motor_1_Maks_Guc_Siniri) g1_hedef = cevre.Motor_1_Maks_Guc_Siniri;
+            if (g2_hedef > cevre.Motor_2_Maks_Guc_Siniri) g2_hedef = cevre.Motor_2_Maks_Guc_Siniri;
+            if (g3_hedef > cevre.Motor_3_Maks_Guc_Siniri) g3_hedef = cevre.Motor_3_Maks_Guc_Siniri;
+            if (g4_hedef > cevre.Motor_4_Maks_Guc_Siniri) g4_hedef = cevre.Motor_4_Maks_Guc_Siniri;
+
+            // LOW-PASS FILTER (PT1) - Motor Ataleti (Gecikmesi)
+            double katsayi = deltaT_s / FM_Fizik_Sabitler.MOTOR_TEPKI_SURESI_TAU_S;
+            if (katsayi > 1.0) katsayi = 1.0; // Matematiksel koruma
+
+            durum.Motor_1_Gazi += (g1_hedef - durum.Motor_1_Gazi) * katsayi;
+            durum.Motor_2_Gazi += (g2_hedef - durum.Motor_2_Gazi) * katsayi;
+            durum.Motor_3_Gazi += (g3_hedef - durum.Motor_3_Gazi) * katsayi;
+            durum.Motor_4_Gazi += (g4_hedef - durum.Motor_4_Gazi) * katsayi;
+
+            double g1 = durum.Motor_1_Gazi;
+            double g2 = durum.Motor_2_Gazi;
+            double g3 = durum.Motor_3_Gazi;
+            double g4 = durum.Motor_4_Gazi;
 
             // RPM_gercek = Gaz * V_pil * KV * 0.788 (Yük altındaki gerçek devir)
             double rpm_carpan = v_pil * FM_Fizik_Sabitler.MOTOR_KV * FM_Fizik_Sabitler.MOTOR_YUK_VERIMI;
@@ -114,7 +128,73 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             return F_aero_body;
         }
 
-        
+
+
+
+
+
+
+
+        public static Vektor_t[] Zemin_Tekil_Kuvvetlerini_Hesapla(Uydu_Dinamik_Durum_t mevcutDurum)
+        {
+            // 8 temas noktası için ayrı ayrı kuvvet tutacak diziyi oluşturuyoruz
+            Vektor_t[] f_zemin_noktalar = new Vektor_t[FM_Fizik_Sabitler.Temas_Noktalari.Length];
+
+
+            // Zemin Yay (Hooke), Sönümleme ve Sürtünme Katsayıları
+            double k_zemin = FM_Fizik_Sabitler.ZEMIN_YAY_KATSAYISI;
+            double c_zemin = FM_Fizik_Sabitler.ZEMIN_SONUMLEME_KATSAYISI;
+            double fric_zemin = FM_Fizik_Sabitler.ZEMIN_SURTUNME_KATSAYISI;
+            double zemin_rakimi = FM_Fizik_Sabitler.ZEMIN_RAKIMI_M;
+
+
+            // Uydunun dönüş hızını Dünya (ENU) eksenine çeviriyoruz 
+            // Neden? Çünkü V_nokta = V_merkez + W x R formülünde W (Açısal hız) Dünya ekseninde olmalıdır.
+            Vektor_t acisalHiz_Dunya = mevcutDurum.Yonelim.GovdedenDunyayaCevir(mevcutDurum.Acisal_Hiz_rad_s_body);
+
+
+            for (int i = 0; i < FM_Fizik_Sabitler.Temas_Noktalari.Length; i++)
+            {
+
+                // 1. Temas noktasının lokal (Gövde) konumu
+                Vektor_t r_temas_lokal = FM_Fizik_Sabitler.Temas_Noktalari[i];
+
+                // 2. Noktayı Dünya eksenine çevir ve mutlak Z (rakım) konumunu bul
+                Vektor_t r_temas_dunya = mevcutDurum.Yonelim.GovdedenDunyayaCevir(r_temas_lokal);
+                double noktaZ_Rakim = (mevcutDurum.Konum_m_dunya + r_temas_dunya).Z;
+
+                // 3. Nokta zeminin altına girdi mi?
+                if (noktaZ_Rakim < zemin_rakimi)
+                {
+
+                    // A) Ne kadar gömüldü? (Yay/Tepki kuvveti için x mesafesi)
+                    double batma = zemin_rakimi - noktaZ_Rakim;
+
+                    // B) Noktanın dünya eksenindeki anlık hızını bul (Sönümleme ve sürtünme için)
+                    Vektor_t v_nokta_dunya = mevcutDurum.Hiz_m_s_dunya + Vektor_t.CaprazCarpim(acisalHiz_Dunya, r_temas_dunya);
+
+                    // C) Z Ekseni Tepki Kuvvetini Hesaplanması (F_z = k*x - c*v)
+                    double fZ_tepki = (k_zemin * batma) - (c_zemin * v_nokta_dunya.Z);
+                    if (fZ_tepki < 0) fZ_tepki = 0; // Zemin noktayı aşağı çekemez, sadece yukarı itebilir
+
+                    // Elde edilen 3 eksenli tepki kuvvetini diziye ekle (Sürtünme kaldırıldı, X ve Y sıfır)
+                    f_zemin_noktalar[i] = new Vektor_t(0, 0, fZ_tepki, Kordinat_Sistemi_t.DUNYA_ENU);
+                }
+
+                else
+                {
+                    // Nokta havadaysa herhangi bir tepki kuvveti yoktur
+                    f_zemin_noktalar[i] = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.DUNYA_ENU);
+                }
+
+            }
+
+            return f_zemin_noktalar;
+
+        }
+
+
+
 
 
 
@@ -188,12 +268,53 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
 
 
+
+
+
+        public static Vektor_t Zemin_Torklarini_Hesapla(Uydu_Dinamik_Durum_t mevcutDurum, Vektor_t[] f_zemin_noktalar_dunya)
+        {
+            // Gövde ekseninde net torku tutacağımız değişken
+            Vektor_t net_zemin_torku_body = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.GOVDE_BODY);
+
+            for (int i = 0; i < FM_Fizik_Sabitler.Temas_Noktalari.Length; i++)
+            {
+
+                Vektor_t kuvvet_dunya = f_zemin_noktalar_dunya[i];
+
+                // Eğer o noktada bir kuvvet oluşmamışsa (nokta havadaysa) tork işlemi yaparak işlemciyi yormaya gerek yok
+                if (kuvvet_dunya.X == 0 && kuvvet_dunya.Y == 0 && kuvvet_dunya.Z == 0)
+                { continue; }
+
+                // 1. Temas noktasının lokal (Gövde) konumu (Yani moment kolumuz olan 'r' vektörü)
+                Vektor_t r_temas_lokal = FM_Fizik_Sabitler.Temas_Noktalari[i];
+
+                // 2. Dünya eksenindeki kuvveti Gövde (Body) eksenine çevir
+                // Neden? Çünkü çapraz çarpım (r x F) yapabilmemiz için 'r' ve 'F' vektörlerinin mutlaka aynı referans ekseninde (BODY) olması gerekir.
+                Vektor_t kuvvet_body = mevcutDurum.Yonelim.DunyadanGovdeyeCevir(kuvvet_dunya);
+
+                // 3. Tork (Moment) Hesabı: T = r x F
+                Vektor_t tekil_tork_body = Vektor_t.CaprazCarpim(r_temas_lokal, kuvvet_body);
+
+                // 4. Bulunan tekil torku toplam net torka ekle
+                net_zemin_torku_body = net_zemin_torku_body + tekil_tork_body;
+
+            }
+
+            return net_zemin_torku_body;
+
+        }
+
+
+
+
+
+
+
+
+
         // ========================================================================
         // İNTEGRASYON YARDIMCI FONKSİYONLARI (CEBİRSEL / YÖNTEMDEN BAĞIMSIZ)
         // ========================================================================
-
-
-
 
         public static Vektor_t Dogrusal_Ivme_Hesapla(Vektor_t F_net_dunya, double kutle)
         {
@@ -317,6 +438,127 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             // Matematiksel bozulmayı (drift) önlemek için her adımda mutlaka Normalize edilmeli
             q_yeni.Normalize();
             return q_yeni;
+        }
+
+
+
+
+
+
+
+
+
+        // ========================================================================
+        // 9) LCP TABANLI NOKTASAL SÜRTÜNME ÇÖZÜCÜ (Sequential Impulse / Gauss-Seidel)
+        // ========================================================================
+        public static void Noktasal_Surtunme_Cozucu(
+            ref Vektor_t F_net_dunya, 
+            ref Vektor_t T_net_body, 
+            Uydu_Dinamik_Durum_t mevcutDurum, 
+            Uydu_Mekanik_Parametreler_t sabitler, 
+            Vektor_t[] f_zemin_noktalar, 
+            double deltaT_s)
+        {
+            double mu = FM_Fizik_Sabitler.ZEMIN_SURTUNME_KATSAYISI;
+            double m = sabitler.Kutle_kg;
+
+            // Ters atalet katsayısı (İzotropik yaklaşım: Uzayda her yöne benzer atalet varsayımı)
+            // Bu, LCP çözücünün stabil çalışması için yeterlidir.
+            double I_ortalama = (sabitler.Ixx + sabitler.Iyy + sabitler.Izz) / 3.0;
+            double I_inv = 1.0 / I_ortalama;
+
+            // 1. İLERİ BAKIŞ (PREDICT): Newton-Euler integrasyonunun öncü tahmini
+            Vektor_t v_cm_next = mevcutDurum.Hiz_m_s_dunya + (F_net_dunya / m) * deltaT_s;
+            Vektor_t w_next_body = mevcutDurum.Acisal_Hiz_rad_s_body + Acisal_Ivme_Hesapla(T_net_body, mevcutDurum.Acisal_Hiz_rad_s_body, sabitler) * deltaT_s;
+            Vektor_t w_next_dunya = mevcutDurum.Yonelim.GovdedenDunyayaCevir(w_next_body);
+
+            int noktaSayisi = FM_Fizik_Sabitler.Temas_Noktalari.Length;
+            
+            // Sürtünme Kuvveti Havuzu ve Dünya Eksenindeki Noktalar (Optimizasyon)
+            Vektor_t[] F_surtunme_biriken = new Vektor_t[noktaSayisi];
+            Vektor_t[] r_dunya_noktalar = new Vektor_t[noktaSayisi];
+            for (int i = 0; i < noktaSayisi; i++)
+            {
+                F_surtunme_biriken[i] = new Vektor_t(0, 0, 0, Kordinat_Sistemi_t.DUNYA_ENU);
+                r_dunya_noktalar[i] = mevcutDurum.Yonelim.GovdedenDunyayaCevir(FM_Fizik_Sabitler.Temas_Noktalari[i]);
+            }
+
+            // 2. KISIT DÖNGÜSÜ (Gauss-Seidel Iteration)
+            int num_iterations = 10;
+            for (int iter = 0; iter < num_iterations; iter++)
+            {
+                for (int i = 0; i < noktaSayisi; i++)
+                {
+                    double N = f_zemin_noktalar[i].Z;
+                    if (N <= 0.001) continue; // Yere temas etmeyen nokta için sürtünme çözülmez
+
+                    double max_fric = mu * N;
+                    Vektor_t r = r_dunya_noktalar[i];
+
+                    // Noktanın anlık tahmini hızı: V_p = V_cm + W x R
+                    Vektor_t v_nokta = v_cm_next + Vektor_t.CaprazCarpim(w_next_dunya, r);
+                    Vektor_t v_yatay = new Vektor_t(v_nokta.X, v_nokta.Y, 0, Kordinat_Sistemi_t.DUNYA_ENU);
+
+                    // --- Efektif Kütle Matrisi (K) ---
+                    // K = (1/m)*I - r_cross * I_inv * r_cross (Sadece 2x2 XY bloğu hesaplanır)
+                    double Kxx = (1.0 / m) + I_inv * (r.Y * r.Y + r.Z * r.Z);
+                    double Kyy = (1.0 / m) + I_inv * (r.X * r.X + r.Z * r.Z);
+                    double Kxy = I_inv * (-r.X * r.Y);
+
+                    // K_inv (Matris Tersi)
+                    double detK = Kxx * Kyy - Kxy * Kxy;
+                    if (detK < 1e-8) detK = 1e-8; // Singularite koruması
+
+                    double invKxx = Kyy / detK;
+                    double invKyy = Kxx / detK;
+                    double invKxy = -Kxy / detK;
+
+                    // Bu noktanın yatay hızını tamamen sıfırlamak için gereken kuvvet değişimi: F = - K_inv * (V / dt)
+                    double v_hedef_x = v_yatay.X / deltaT_s;
+                    double v_hedef_y = v_yatay.Y / deltaT_s;
+
+                    double dFx = -(invKxx * v_hedef_x + invKxy * v_hedef_y);
+                    double dFy = -(invKxy * v_hedef_x + invKyy * v_hedef_y);
+
+                    // Yeni toplam sürtünme kuvveti (Geçici)
+                    Vektor_t F_eski = F_surtunme_biriken[i];
+                    Vektor_t F_yeni = new Vektor_t(F_eski.X + dFx, F_eski.Y + dFy, 0, Kordinat_Sistemi_t.DUNYA_ENU);
+
+                    // Friction Cone (Sürtünme Konisi) Kırpması
+                    double f_yeni_kare = F_yeni.X * F_yeni.X + F_yeni.Y * F_yeni.Y;
+                    if (f_yeni_kare > max_fric * max_fric)
+                    {
+                        double oran = max_fric / Math.Sqrt(f_yeni_kare);
+                        F_yeni.X *= oran;
+                        F_yeni.Y *= oran;
+                    }
+
+                    // Gerçekte bu iterasyonda uygulanabilen fark
+                    Vektor_t dF_uygulanan = new Vektor_t(F_yeni.X - F_eski.X, F_yeni.Y - F_eski.Y, 0, Kordinat_Sistemi_t.DUNYA_ENU);
+                    F_surtunme_biriken[i] = F_yeni; // Kuvveti havuza kaydet
+
+                    // Tahmini hızları bu fark kadar esnet (Bir sonraki iterasyon ayak uydursun)
+                    v_cm_next.X += (dF_uygulanan.X / m) * deltaT_s;
+                    v_cm_next.Y += (dF_uygulanan.Y / m) * deltaT_s;
+
+                    Vektor_t tork_dF_dunya = Vektor_t.CaprazCarpim(r, dF_uygulanan);
+                    w_next_dunya.X += (tork_dF_dunya.X * I_inv) * deltaT_s;
+                    w_next_dunya.Y += (tork_dF_dunya.Y * I_inv) * deltaT_s;
+                    w_next_dunya.Z += (tork_dF_dunya.Z * I_inv) * deltaT_s;
+                }
+            }
+
+            // 3. UYGULAMA (APPLY): İterasyonlar bitti, hiperstatik dengeler kuruldu. Toplamları Net kuvvetlere göm.
+            for (int i = 0; i < noktaSayisi; i++)
+            {
+                if (F_surtunme_biriken[i].X == 0 && F_surtunme_biriken[i].Y == 0) continue;
+
+                F_net_dunya = F_net_dunya + F_surtunme_biriken[i];
+
+                Vektor_t tork_fric_dunya = Vektor_t.CaprazCarpim(r_dunya_noktalar[i], F_surtunme_biriken[i]);
+                Vektor_t tork_fric_body = mevcutDurum.Yonelim.DunyadanGovdeyeCevir(tork_fric_dunya);
+                T_net_body = T_net_body + tork_fric_body;
+            }
         }
     }
 }

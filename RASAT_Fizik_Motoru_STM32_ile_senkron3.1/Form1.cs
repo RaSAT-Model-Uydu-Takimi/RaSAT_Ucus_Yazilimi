@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,6 +10,16 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         private FM_haberlesme haberlesme;
         private FM_sistem fizikMotoru;
         private FM_logging logging;
+        private double gecenZaman = 0;
+
+        private List<double> pathXs = new List<double>();
+        private List<double> pathYs = new List<double>();
+        private ScottPlot.Plottables.DataLogger loggerZ;
+
+        private bool autoTakipXY = true;
+        private bool autoTakipZ = true;
+        private Button btnTakipXY;
+        private Button btnTakipZ;
 
         private CancellationTokenSource cts;
         private Task motorTask;
@@ -19,6 +29,8 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         private Alim_Paketi_t gidenPaket = new Alim_Paketi_t();
         private readonly object _paketKilidi = new object();
         private bool uiguncelle = false;
+        private string zamanGelen;
+        private string zamanGiden;
 
         public Form1()
         {
@@ -30,17 +42,71 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             haberlesme = new FM_haberlesme("COM5", 921600);
             fizikMotoru = new FM_sistem();
             logging = new FM_logging();
-            
+
             // Ayarlar penceresi icin baslangic atamalari
             pgAyarlar.SelectedObject = fizikMotoru.cevreSartlari;
-            pgDurum.SelectedObject = fizikMotoru.uyduDurumu; // Izleme
-            
-            // Görseli Yükle
-            try
-            {
-                pbUyduPlan.ImageLocation = System.IO.Path.Combine(Application.StartupPath, @"..\..\..\Resources\uydu_plan.jpg");
-            }
-            catch (Exception) { }
+            SetupScottPlot();
+        }
+
+        private void SetupScottPlot()
+        {
+            // XY Haritası Kurulumu (DataLogger yatay eksende hep artan değerler istediği için XY haritası Scatter ile çizilmeli)
+            formsPlotXY.Plot.Title("X-Y Konum Haritası (Kuşbakışı)");
+            formsPlotXY.Plot.XLabel("X Konumu (m)");
+            formsPlotXY.Plot.YLabel("Y Konumu (m)");
+            formsPlotXY.Plot.FigureBackground.Color = ScottPlot.Color.FromHex("#141419");
+            formsPlotXY.Plot.DataBackground.Color = ScottPlot.Color.FromHex("#141419");
+            formsPlotXY.Plot.Axes.Color(ScottPlot.Color.FromHex("#aaaaaa"));
+
+            // XY Izgarasını belirginleştir
+            formsPlotXY.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("#333333");
+            formsPlotXY.Plot.Grid.MinorLineColor = ScottPlot.Color.FromHex("#222222");
+
+            // Z Grafiği Kurulumu 
+            loggerZ = formsPlotZ.Plot.Add.DataLogger();
+            loggerZ.ManageAxisLimits = false; // Kendi eksen mantığımızı (Oto Takip) kullanacağız
+            loggerZ.LineStyle.Color = ScottPlot.Colors.LimeGreen;
+            loggerZ.LineStyle.Width = 2;
+
+            formsPlotZ.Plot.Title("Z-Zaman İrtifa Grafiği");
+            formsPlotZ.Plot.XLabel("Zaman (sn)");
+            formsPlotZ.Plot.YLabel("Rakım (m)");
+            formsPlotZ.Plot.FigureBackground.Color = ScottPlot.Color.FromHex("#141419");
+            formsPlotZ.Plot.DataBackground.Color = ScottPlot.Color.FromHex("#141419");
+            formsPlotZ.Plot.Axes.Color(ScottPlot.Color.FromHex("#aaaaaa"));
+            formsPlotZ.Plot.Grid.MajorLineColor = ScottPlot.Color.FromHex("#333333");
+
+            // Zemin Rakımı Referans Çizgisi (980m)
+            var groundLine = formsPlotZ.Plot.Add.HorizontalLine(FM_Fizik_Sabitler.ZEMIN_RAKIMI_M);
+            groundLine.LineStyle.Color = ScottPlot.Colors.Orange;
+            groundLine.LineStyle.Width = 2;
+            groundLine.LineStyle.Pattern = ScottPlot.LinePattern.Dashed;
+            groundLine.Text = ""; // Etiket fazla yer kapladığı için kaldırıldı
+
+            // İlk yenileme (Siyah arkaplanın uygulanması için)
+            formsPlotXY.Refresh();
+            formsPlotZ.Refresh();
+
+            // Oto Takip Butonlarını Oluştur ve Arayüze Ekle
+            btnTakipXY = new Button() { Text = "Takip: AÇIK", BackColor = Color.LimeGreen, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Size = new Size(110, 30) };
+            btnTakipXY.Location = new Point(formsPlotXY.Right - 115, formsPlotXY.Top + 5); // Sağ üste taşı
+            btnTakipXY.Click += (s, e) => { autoTakipXY = true; btnTakipXY.BackColor = Color.LimeGreen; btnTakipXY.Text = "Takip: AÇIK"; };
+
+            btnTakipZ = new Button() { Text = "Takip: AÇIK", BackColor = Color.LimeGreen, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Size = new Size(110, 30) };
+            btnTakipZ.Location = new Point(formsPlotZ.Right - 115, formsPlotZ.Top + 5); // Sağ üste taşı
+            btnTakipZ.Click += (s, e) => { autoTakipZ = true; btnTakipZ.BackColor = Color.LimeGreen; btnTakipZ.Text = "Takip: AÇIK"; };
+
+            tabIzleme.Controls.Add(btnTakipXY);
+            tabIzleme.Controls.Add(btnTakipZ);
+            btnTakipXY.BringToFront();
+            btnTakipZ.BringToFront();
+
+            // Kullanıcı grafikle oynadığında (Pan/Zoom) Oto Takibi kapat
+            formsPlotXY.MouseDown += (s, e) => { autoTakipXY = false; btnTakipXY.BackColor = Color.Gray; btnTakipXY.Text = "Takip: KAPALI"; };
+            formsPlotXY.MouseWheel += (s, e) => { autoTakipXY = false; btnTakipXY.BackColor = Color.Gray; btnTakipXY.Text = "Takip: KAPALI"; };
+
+            formsPlotZ.MouseDown += (s, e) => { autoTakipZ = false; btnTakipZ.BackColor = Color.Gray; btnTakipZ.Text = "Takip: KAPALI"; };
+            formsPlotZ.MouseWheel += (s, e) => { autoTakipZ = false; btnTakipZ.BackColor = Color.Gray; btnTakipZ.Text = "Takip: KAPALI"; };
         }
 
         private void btnBaslat_Click(object sender, EventArgs e)
@@ -53,7 +119,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             isRunning = true;
             UIguncelle.Enabled = true;
             logging.LoglamayiBaslat();
-            
+
             motorTask = Task.Factory.StartNew(() => AnaFizikDongusu(cts.Token),
                                               cts.Token,
                                               TaskCreationOptions.LongRunning,
@@ -62,10 +128,10 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
         private void btnDurdur_Click(object sender, EventArgs e)
         {
-            UIguncelle.Enabled = false;            
+            UIguncelle.Enabled = false;
             isRunning = false;
             cts?.Cancel();
-            logging.LoglamayiDurdur();            
+            logging.LoglamayiDurdur();
             Thread.Sleep(200);
             haberlesme.PortKapat();
         }
@@ -76,52 +142,79 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             if (haberlesme != null) haberlesme.PortKapat();
         }
 
+        private void UpdateWatchDog(string message)
+        {
+            if (this.IsHandleCreated && !this.IsDisposed)
+            {
+                this.BeginInvoke((MethodInvoker)delegate { watchDogLbl.Text = message; });
+            }
+        }
+
         private void AnaFizikDongusu(CancellationToken token)
         {
-            Iletim_Paketi_t gelenPaketbuff;
-            Alim_Paketi_t gidenPaketbuff = FM_sistem.BAS_PAKETI;
-            byte[] rawBuffer;
-
-            fizikMotoru.Index_Artir();
-            fizikMotoru.Alim_Paketini_Olustur(ref gidenPaketbuff);
-            haberlesme.Gonder(gidenPaketbuff);
-
-            lock (_paketKilidi) { gidenPaket = gidenPaketbuff; uiguncelle = true; }
-
-            while (!token.IsCancellationRequested)
+            try
             {
-                Paket_Durum_t sonuc = haberlesme.Iletim_Paketini_Al(out gelenPaketbuff, out rawBuffer);
+                Iletim_Paketi_t gelenPaketbuff = new Iletim_Paketi_t();
+                Alim_Paketi_t gidenPaketbuff = FM_sistem.BAS_PAKETI;
+                byte[] rawBuffer;
 
-                if (sonuc == Paket_Durum_t.PAKET_EKSIK || haberlesme.Bozuk_Paket_Mi(gelenPaketbuff, rawBuffer))
-                {
-                    haberlesme.Gonder(FM_sistem.ALARM_PAKETI);
-                    goto atla;
-                }
-                else if (sonuc == Paket_Durum_t.PAKET_HATA)
-                {
-                    Thread.Sleep(500);
-                    goto atla;
-                }
-                else if (haberlesme.Alarm_Paketi_Mi(gelenPaketbuff))
-                {
-                    fizikMotoru.En_Son_Paketi_Bir_Daha_Olustur(ref gidenPaketbuff);
-                    haberlesme.Gonder(gidenPaketbuff);
-                    goto atla;
-                }
-                
                 fizikMotoru.Index_Artir();
                 fizikMotoru.Fizigi_Calistir(ref gelenPaketbuff, ref gidenPaketbuff);
                 fizikMotoru.Alim_Paketini_Olustur(ref gidenPaketbuff);
-                
                 haberlesme.Gonder(gidenPaketbuff);
 
-                atla:;
-                lock (_paketKilidi)
+                lock (_paketKilidi) { gidenPaket = gidenPaketbuff; uiguncelle = true; }
+
+                zamanGiden = DateTime.Now.ToString("HH:mm:ss.fff");
+
+                while (!token.IsCancellationRequested)
                 {
-                    gelenPaket = gelenPaketbuff;
-                    gidenPaket = gidenPaketbuff;
-                    uiguncelle = true;
+                    UpdateWatchDog("Durum: STM32'den Paket Bekleniyor (BytesToRead == 0)");
+                    Paket_Durum_t sonuc = haberlesme.Iletim_Paketini_Al(out gelenPaketbuff, out rawBuffer);
+                    UpdateWatchDog("Durum: STM32'den Paket Geldi, İşleniyor...");
+
+
+                    lock (_paketKilidi) { zamanGelen = DateTime.Now.ToString("HH:mm:ss.fff"); }
+                    logging.KuyrugaLogEkle(gidenPaketbuff, zamanGiden, gelenPaketbuff, zamanGelen);
+
+
+                    if (sonuc == Paket_Durum_t.PAKET_EKSIK || haberlesme.Bozuk_Paket_Mi(gelenPaketbuff, rawBuffer))
+                    {
+                        haberlesme.Gonder(FM_sistem.ALARM_PAKETI);
+                        goto atla;
+                    }
+                    else if (sonuc == Paket_Durum_t.PAKET_HATA)
+                    {
+                        Thread.Sleep(500);
+                        goto atla;
+                    }
+                    else if (haberlesme.Alarm_Paketi_Mi(gelenPaketbuff))
+                    {
+                        fizikMotoru.En_Son_Paketi_Bir_Daha_Olustur(ref gidenPaketbuff);
+                        haberlesme.Gonder(gidenPaketbuff);
+                        goto atla;
+                    }
+
+                    fizikMotoru.Index_Artir();
+                    fizikMotoru.Fizigi_Calistir(ref gelenPaketbuff, ref gidenPaketbuff);
+                    fizikMotoru.Alim_Paketini_Olustur(ref gidenPaketbuff);
+
+                    haberlesme.Gonder(gidenPaketbuff);
+
+                    lock (_paketKilidi) { zamanGiden = DateTime.Now.ToString("HH:mm:ss.fff"); }
+
+                atla:;
+                    lock (_paketKilidi)
+                    {
+                        gelenPaket = gelenPaketbuff;
+                        gidenPaket = gidenPaketbuff;
+                        uiguncelle = true;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                UpdateWatchDog($"HATA OLUÅTU: {ex.Message}");
             }
         }
 
@@ -139,9 +232,211 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
                 uiguncelle = false;
                 lblGiden.Text = "Giden Index: " + yerelGiden.index.ToString();
                 lblGelen.Text = "Gelen Index: " + yerelGelen.index.ToString();
+
+                double zamanSaniye = yerelGelen.index * FM_sistem.TIMESTEP_S;
+                lblZaman.Text = "Zaman: " + zamanSaniye.ToString("F2") + " sn";
+
+                pnlYonelim.DurumGuncelle(fizikMotoru.uyduDurumu.Yonelim);
+
+                Uydu_Kontrol_Girdisi_t girdi = fizikMotoru.aktifGirdi;
+                double v_pil = fizikMotoru.uyduDurumu.Batarya_Voltaj_V;
+                Simulasyon_Cevre_Sartlari_t cevre = fizikMotoru.cevreSartlari;
+
+                double g1 = fizikMotoru.uyduDurumu.Motor_1_Gazi;
+                double g2 = fizikMotoru.uyduDurumu.Motor_2_Gazi;
+                double g3 = fizikMotoru.uyduDurumu.Motor_3_Gazi;
+                double g4 = fizikMotoru.uyduDurumu.Motor_4_Gazi;
+
+                if (g1 > cevre.Motor_1_Maks_Guc_Siniri) g1 = cevre.Motor_1_Maks_Guc_Siniri;
+                if (g2 > cevre.Motor_2_Maks_Guc_Siniri) g2 = cevre.Motor_2_Maks_Guc_Siniri;
+                if (g3 > cevre.Motor_3_Maks_Guc_Siniri) g3 = cevre.Motor_3_Maks_Guc_Siniri;
+                if (g4 > cevre.Motor_4_Maks_Guc_Siniri) g4 = cevre.Motor_4_Maks_Guc_Siniri;
+
+                double rpm_carpan = v_pil * FM_Fizik_Sabitler.MOTOR_KV * FM_Fizik_Sabitler.MOTOR_YUK_VERIMI;
+                double rpm1 = g1 * rpm_carpan;
+                double rpm2 = g2 * rpm_carpan;
+                double rpm3 = g3 * rpm_carpan;
+                double rpm4 = g4 * rpm_carpan;
+
+                double f1 = FM_Fizik_Sabitler.MOTOR_ITKI_KATSAYISI * (rpm1 * rpm1) * cevre.Motor_1_Verim_Carpani;
+                double f2 = FM_Fizik_Sabitler.MOTOR_ITKI_KATSAYISI * (rpm2 * rpm2) * cevre.Motor_2_Verim_Carpani;
+                double f3 = FM_Fizik_Sabitler.MOTOR_ITKI_KATSAYISI * (rpm3 * rpm3) * cevre.Motor_3_Verim_Carpani;
+                double f4 = FM_Fizik_Sabitler.MOTOR_ITKI_KATSAYISI * (rpm4 * rpm4) * cevre.Motor_4_Verim_Carpani;
+
+                pbMotor1.Value = (int)(g1 * 100);
+                pbMotor2.Value = (int)(g2 * 100);
+                pbMotor3.Value = (int)(g3 * 100);
+                pbMotor4.Value = (int)(g4 * 100);
+
+                lblM1.Text = $"%{g1 * 100:0.00} | {f1:0.00} N | {(int)rpm1} RPM (CCW)";
+                lblM2.Text = $"%{g2 * 100:0.00} | {f2:0.00} N | {(int)rpm2} RPM (CW)";
+                lblM3.Text = $"%{g3 * 100:0.00} | {f3:0.00} N | {(int)rpm3} RPM (CCW)";
+                lblM4.Text = $"%{g4 * 100:0.00} | {f4:0.00} N | {(int)rpm4} RPM (CW)";
+
+                lblFlagSEP.BackColor = girdi.SEP ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Gray;
+                lblFlagSGM.BackColor = girdi.SGM ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Gray;
+                lblFlagAPAM.BackColor = girdi.APAM ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Gray;
+                lblFlagBUZZ.BackColor = girdi.BUZZ ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Gray;
+
+                Uydu_Dinamik_Durum_t durum = fizikMotoru.uyduDurumu;
+                double q0 = durum.Yonelim.W, q1 = durum.Yonelim.X, q2 = durum.Yonelim.Y, q3 = durum.Yonelim.Z;
+                double roll = Math.Atan2(2.0 * (q0 * q1 + q2 * q3), 1.0 - 2.0 * (q1 * q1 + q2 * q2)) * 180.0 / Math.PI;
+                double pitch = Math.Asin(Math.Max(-1.0, Math.Min(1.0, 2.0 * (q0 * q2 - q3 * q1)))) * 180.0 / Math.PI;
+                double yaw = Math.Atan2(2.0 * (q0 * q3 + q1 * q2), 1.0 - 2.0 * (q2 * q2 + q3 * q3)) * 180.0 / Math.PI;
+
+                                // Anlık Dinamik Durum Verilerini Güncelle
+                double hMag = Math.Sqrt(durum.Hiz_m_s_dunya.X*durum.Hiz_m_s_dunya.X + durum.Hiz_m_s_dunya.Y*durum.Hiz_m_s_dunya.Y + durum.Hiz_m_s_dunya.Z*durum.Hiz_m_s_dunya.Z);
+                double aMag = Math.Sqrt(durum.Ivme_m_s2_dunya.X*durum.Ivme_m_s2_dunya.X + durum.Ivme_m_s2_dunya.Y*durum.Ivme_m_s2_dunya.Y + durum.Ivme_m_s2_dunya.Z*durum.Ivme_m_s2_dunya.Z);
                 
-                // Durum penceresini (PropertyGrid) yenile (Sadece gorsel guncelleme, referans ayni kalir)
-                pgDurum.Refresh();
+                double wX = durum.Acisal_Hiz_rad_s_body.X * 180.0 / Math.PI;
+                double wY = durum.Acisal_Hiz_rad_s_body.Y * 180.0 / Math.PI;
+                double wZ = durum.Acisal_Hiz_rad_s_body.Z * 180.0 / Math.PI;
+                double wMag = Math.Sqrt(wX*wX + wY*wY + wZ*wZ);
+
+                string labelFormat = @"Konum-X       :  {0,7:0.000} m
+Konum-Y       :  {1,7:0.000} m
+Konum-Z       :  {2,7:0.000} m
+
+Hız                 :  {3,7:0.000} m/s
+Hız-X             :  {4,7:0.000} m/s
+Hız-Y             :  {5,7:0.000} m/s
+Hız-Z             :  {6,7:0.000} m/s
+
+İvme              :  {7,7:0.000} m/s^2
+İvme-X          :  {8,7:0.000} m/s^2
+İvme-Y          :  {9,7:0.000} m/s^2
+İvme-Z          :  {10,7:0.000} m/s^2
+
+Pitch              :  {11,7:0.000} °
+Roll                :  {12,7:0.000} °
+Yaw                :  {13,7:0.000} °
+
+Açısal Hız      :  {14,7:0.000} dps
+Açısal Hız-X  :  {15,7:0.000} dps
+Açısal Hız-Y  :  {16,7:0.000} dps
+Açısal Hız-Z  :  {17,7:0.000} dps
+
+Voltaj            :  {18,7:0.000} V
+Akım             :  {19,7:0.000} A
+Tüketilen       :  {20,7:0.000} mAh";
+
+                label2.Text = string.Format(labelFormat, 
+                durum.Konum_m_dunya.X, durum.Konum_m_dunya.Y, durum.Konum_m_dunya.Z,
+                hMag, durum.Hiz_m_s_dunya.X, durum.Hiz_m_s_dunya.Y, durum.Hiz_m_s_dunya.Z,
+                aMag, durum.Ivme_m_s2_dunya.X, durum.Ivme_m_s2_dunya.Y, durum.Ivme_m_s2_dunya.Z,
+                pitch, roll, yaw,
+                wMag, wX, wY, wZ,
+                durum.Batarya_Voltaj_V, durum.Batarya_Akim_A, durum.Tuketilen_mAh);
+
+                if (fizikMotoru != null)
+                {
+                var est = fizikMotoru.estimatorSys.dataC.estimated;
+                var batt = fizikMotoru.estimatorSys.dataC.batt;
+                var g = fizikMotoru.estimatorSys.dataC.gyro;
+
+                double est_vMag = Math.Sqrt(est.vel_x.value*est.vel_x.value + est.vel_y.value*est.vel_y.value + est.vel_z.value*est.vel_z.value);
+                double est_aMag = Math.Sqrt(est.earth_a_x.value*est.earth_a_x.value + est.earth_a_y.value*est.earth_a_y.value + est.earth_a_z.value*est.earth_a_z.value);
+
+                double est_wX = g.x.calibratedValue * 180.0 / Math.PI;
+                double est_wY = g.y.calibratedValue * 180.0 / Math.PI;
+                double est_wZ = g.z.calibratedValue * 180.0 / Math.PI;
+                double est_wMag = Math.Sqrt(est_wX*est_wX + est_wY*est_wY + est_wZ*est_wZ);
+
+                double err_pos_x = Math.Abs(durum.Konum_m_dunya.X - est.pos_x.value);
+                double err_pos_y = Math.Abs(durum.Konum_m_dunya.Y - est.pos_y.value);
+                double err_pos_z = Math.Abs(durum.Konum_m_dunya.Z - est.pos_z.value - FM_Fizik_Sabitler.ZEMIN_RAKIMI_M-1000);
+
+                double err_vel_x = Math.Abs(durum.Hiz_m_s_dunya.X - est.vel_x.value);
+                double err_vel_y = Math.Abs(durum.Hiz_m_s_dunya.Y - est.vel_y.value);
+                double err_vel_z = Math.Abs(durum.Hiz_m_s_dunya.Z - est.vel_z.value);
+                double err_vMag = Math.Abs(hMag - est_vMag);
+
+                double err_acc_x = Math.Abs(durum.Ivme_m_s2_dunya.X - est.earth_a_x.value);
+                double err_acc_y = Math.Abs(durum.Ivme_m_s2_dunya.Y - est.earth_a_y.value);
+                double err_acc_z = Math.Abs(durum.Ivme_m_s2_dunya.Z - est.earth_a_z.value);
+                double err_aMag = Math.Abs(aMag - est_aMag);
+
+                double err_pitch = Math.Abs(pitch - est.pitch.value);
+                double err_roll = Math.Abs(roll - est.roll.value);
+                double err_yaw = Math.Abs(yaw - est.yaw.value);
+                if (err_yaw > 180.0) err_yaw = 360.0 - err_yaw;
+
+                double err_wX = Math.Abs(wX - est_wX);
+                double err_wY = Math.Abs(wY - est_wY);
+                double err_wZ = Math.Abs(wZ - est_wZ);
+                double err_wMag = Math.Abs(wMag - est_wMag);
+
+                double err_volt = Math.Abs(durum.Batarya_Voltaj_V - batt.battVolt.calibratedValue);
+                double err_curr = Math.Abs(durum.Batarya_Akim_A - batt.battCurr.calibratedValue);
+
+                labelKestirimVeri.Text = string.Format(labelFormat,
+                    est.pos_x.value, est.pos_y.value, est.pos_z.value + FM_Fizik_Sabitler.ZEMIN_RAKIMI_M+1000,
+                    est_vMag, est.vel_x.value, est.vel_y.value, est.vel_z.value,
+                    est_aMag, est.earth_a_x.value, est.earth_a_y.value, est.earth_a_z.value,
+                    est.pitch.value, est.roll.value, est.yaw.value,
+                    est_wMag, est_wX, est_wY, est_wZ,
+                    batt.battVolt.calibratedValue, batt.battCurr.calibratedValue, durum.Tuketilen_mAh);
+
+                labelHataVeri.Text = string.Format(labelFormat,
+                    err_pos_x, err_pos_y, err_pos_z,
+                    err_vMag, err_vel_x, err_vel_y, err_vel_z,
+                    err_aMag, err_acc_x, err_acc_y, err_acc_z,
+                    err_pitch, err_roll, err_yaw,
+                    err_wMag, err_wX, err_wY, err_wZ,
+                    err_volt, err_curr, 0.0);
+                }
+                // --- Grafik ve Çizim Geçmişi Güncellemeleri ---
+                gecenZaman = gecenZaman + 0.033; // 33ms timer
+
+                // XY Haritası için listeleri güncelle
+                pathXs.Add(durum.Konum_m_dunya.X);
+                pathYs.Add(durum.Konum_m_dunya.Y);
+                if (pathXs.Count > 1000)
+                {
+                    pathXs.RemoveAt(0);
+                    pathYs.RemoveAt(0);
+                }
+
+                // XY için Scatter (Dağılım/Çizgi) grafiği kullan (Çünkü X konumu geriye doğru da gidebilir, azalan olabilir)
+                formsPlotXY.Plot.Clear(); // Eski çizgiyi sil
+                if (pathXs.Count > 1)
+                {
+                    var scatter = formsPlotXY.Plot.Add.ScatterLine(pathXs.ToArray(), pathYs.ToArray());
+                    scatter.LineStyle.Color = ScottPlot.Colors.Cyan;
+                    scatter.LineStyle.Width = 2;
+                    // Anlık konumu belirten imleç (Kırmızı nokta)
+                    var marker = formsPlotXY.Plot.Add.Marker(durum.Konum_m_dunya.X, durum.Konum_m_dunya.Y);
+                    marker.MarkerStyle.Shape = ScottPlot.MarkerShape.FilledCircle;
+                    marker.MarkerStyle.FillColor = ScottPlot.Colors.Red;
+                    marker.MarkerStyle.Size = 10;
+                }
+
+                // XY Grafiği Eksen Takibi (Yakın çekim - 20 metrelik pencere)
+                if (autoTakipXY && pathXs.Count > 0)
+                {
+                    double curX = pathXs[pathXs.Count - 1];
+                    double curY = pathYs[pathYs.Count - 1];
+                    double span = 20.0; // Daha yakın takip
+                    formsPlotXY.Plot.Axes.SetLimits(curX - span / 2, curX + span / 2, curY - span / 2, curY + span / 2);
+                }
+
+                // Z Grafiği (Zaman hep arttığı için DataLogger doğrudan kullanılabilir)
+                loggerZ.Add(gecenZaman, durum.Konum_m_dunya.Z);
+
+                // Z Grafiği Eksen Takibi (Son 30 Saniye ve Dinamik Rakım Penceresi)
+                if (autoTakipZ)
+                {
+                    double xMax = Math.Max(30.0, gecenZaman);
+                    double xMin = xMax - 30.0;
+
+                    // Z ekseni (Rakım) için ufak bir pay bırakarak auto-scale simülasyonu
+                    double curZ = durum.Konum_m_dunya.Z;
+                    formsPlotZ.Plot.Axes.SetLimits(xMin, xMax, Math.Min(970, curZ - 20), Math.Max(1050, curZ + 20));
+                }
+
+                // ScottPlot panellerini yeniden çizdir
+                formsPlotXY.Refresh();
+                formsPlotZ.Refresh();
             }
         }
 
@@ -149,7 +444,19 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         {
             if (cbAyarSecim.SelectedIndex == 0)
                 pgAyarlar.SelectedObject = fizikMotoru.cevreSartlari;
-            // Diger sekmeler henuz tam baglanmadi (Sadece gorsel tasarim gosterimi icin)
         }
+
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +26,8 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         public Uydu_Mekanik_Parametreler_t uyduSabitleri;
         public Simulasyon_Cevre_Sartlari_t cevreSartlari;
         public Uydu_Kontrol_Girdisi_t aktifGirdi;
+        public FilterModule.Filter_System_t estimatorSys;
+        private uint _gecenZamanUs = 0;
 
 
         // Sabit alarm paketi: İndex ve diğer her şey sabit.
@@ -72,13 +74,15 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             sonUretilenPaket.rezerve = 0x00;
 
             fizikMotoru = new FM_Fizik_Motoru();
-            uyduDurumu = new Uydu_Dinamik_Durum_t();
-            uyduDurumu.Yonelim = new Kuaterniyon_t(1, 0, 0, 0); // Gimbal Lock önleyici başlangıç durumu
+            uyduDurumu = Uydu_Dinamik_Durum_t.VarsayilanOlustur();
+            // uyduDurumu.Yonelim zaten VarsayilanOlustur içinde BirimKuaterniyon olarak ayarlandı,
+            // ekstra atama yapmaya gerek kalmadı.
             
             uyduSabitleri = FM_Fizik_Sabitler.Tasiyici_Faz; // Varsayılan olarak Taşıyıcı fazında başlat
-            cevreSartlari = new Simulasyon_Cevre_Sartlari_t();
+            cevreSartlari = Simulasyon_Cevre_Sartlari_t.VarsayilanOlustur();
             
             aktifGirdi = new Uydu_Kontrol_Girdisi_t();
+            FilterModule.Filter_Core.Filter_Init(ref estimatorSys);
             aktifGirdi.Protokol = Motor_Protokol_t.PWM_1000_2000; // Varsayılan protokol
             
             // Sensör simülatörü hata profillerini varsayılan (düşük gürültülü) değerlerle başlat
@@ -103,10 +107,55 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
             // ADIM 2: Fizik Motorunu 1 Adım İleri Sar (Saf Euler İntegrasyonu)
             uyduDurumu = fizikMotoru.Fizik_Adimi_Hesapla(uyduDurumu, uyduSabitleri, aktifGirdi, cevreSartlari, TIMESTEP_S);
 
-            // ADIM 3: Sensör Simülasyonu 
+                        // ADIM 3: Sensör Simülasyonu 
             FM_Sensor_Simulatoru.Paket_Icin_Veri_Uret(uyduDurumu, ref giden_paket);
+
+            // ADIM 4: Filtreleme Modülünü Besle (SITL Kestirim)
+            _gecenZamanUs += (uint)(TIMESTEP_S * 1000000.0);
+            FiltreyeVeriAktar(ref giden_paket);
+            FilterModule.Filter_Core.Filter_Update(ref estimatorSys, _gecenZamanUs);
         }
 
+
+        private void FiltreyeVeriAktar(ref Alim_Paketi_t paket)
+        {
+            // Acc (short) -> m/s^2 -> divided by g
+            estimatorSys.dataC.acc.x.rawValue = (paket.acc_x / 2048.0f);
+            estimatorSys.dataC.acc.y.rawValue = (paket.acc_y / 2048.0f);
+            estimatorSys.dataC.acc.z.rawValue = (paket.acc_z / 2048.0f);
+
+            // Gyro (short) -> dps
+            estimatorSys.dataC.gyro.x.rawValue = (paket.gyro_x / 16.4f);
+            estimatorSys.dataC.gyro.y.rawValue = (paket.gyro_y / 16.4f);
+            estimatorSys.dataC.gyro.z.rawValue = (paket.gyro_z / 16.4f);
+
+            // Mag (short) -> uT
+            estimatorSys.dataC.mag.x.rawValue = (paket.mag_y * 0.15f);
+            estimatorSys.dataC.mag.y.rawValue = (paket.mag_x * 0.15f);
+            estimatorSys.dataC.mag.z.rawValue = (-paket.mag_z * 0.15f);
+
+            // Baro (uint Pa, short C)
+            estimatorSys.dataC.baro.press.rawValue = paket.basinc;
+            estimatorSys.dataC.baro.temp.rawValue = (paket.sicaklik / 100.0f);
+
+            // GPS (int -> degrees/meters)
+            estimatorSys.dataC.gps.x.rawValue = (paket.gps_lat / 10000000.0);
+            estimatorSys.dataC.gps.y.rawValue = (paket.gps_lon / 10000000.0);
+            estimatorSys.dataC.gps.z.rawValue = (paket.gps_alt / 1000.0f);
+            estimatorSys.dataC.gps.speed.rawValue = (paket.gps_vel / 100.0f);
+            estimatorSys.dataC.gps.course.rawValue = 0.0f; 
+
+            // Batt
+            estimatorSys.dataC.batt.battVolt.rawValue = (paket.bat_v / 1000.0f);
+            estimatorSys.dataC.batt.battCurr.rawValue = (paket.bat_a / 1000.0f);
+            
+            estimatorSys.dataC.acc.UpdateTime = _gecenZamanUs;
+            estimatorSys.dataC.gyro.UpdateTime = _gecenZamanUs;
+            estimatorSys.dataC.mag.UpdateTime = _gecenZamanUs;
+            estimatorSys.dataC.baro.UpdateTime = _gecenZamanUs;
+            estimatorSys.dataC.gps.UpdateTime = _gecenZamanUs;
+            estimatorSys.dataC.batt.UpdateTime = _gecenZamanUs;
+        }
 
         public void Davranisi_Uygula(ref Iletim_Paketi_t gelen_paket)
         {
@@ -228,3 +277,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
 
     }
 }
+
+
+
+

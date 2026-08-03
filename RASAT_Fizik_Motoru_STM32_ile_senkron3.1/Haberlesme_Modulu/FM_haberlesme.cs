@@ -86,8 +86,11 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
         public FM_haberlesme(string portAdi, int baudRate)
         {
             _seriPort = new SerialPort(portAdi, baudRate, Parity.None, 8, StopBits.One);
-            _seriPort.ReadTimeout = 50;  
+            _seriPort.ReadTimeout = 50;
             _seriPort.WriteTimeout = 50;
+            // .NET 8 STM32 USB CDC (Virtual Com Port) uyumluluğu için DTR ve RTS aktif edilmeli!
+            _seriPort.DtrEnable = true;
+            _seriPort.RtsEnable = true;
         }
 
         public void PortAc()
@@ -140,7 +143,7 @@ namespace RASAT_Fizik_Motoru_STM32_ile_senkron3._1
                 // Eğer ilk bayttan sonra veri akışı kesilir ve paketin tamamlanması 100ms'yi geçerse
                 if (sw.ElapsedMilliseconds > 100)
                 {
-                    _seriPort.DiscardInBuffer(); // Kalan çöp verileri temizle
+                    //_seriPort.DiscardInBuffer(); // Kalan çöp verileri temizle
                     return Paket_Durum_t.PAKET_EKSIK; // Sistem kopuk veya eksik veri geldi
                 }
             }
