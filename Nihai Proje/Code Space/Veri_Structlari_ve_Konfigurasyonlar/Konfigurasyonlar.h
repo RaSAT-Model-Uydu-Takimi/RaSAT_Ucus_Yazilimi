@@ -106,6 +106,107 @@ static inline float CSF3_7(float x){ return fmaxf(0.0f,fminf(1.0f,(x - 90.0f)/20
 #define ESC_MIN_US     1000U
 #define ESC_MAX_US     2000U
 
+//*****************************ARAC VE MOTOR MODELI********************************
+
+#define MOTOR_MODELI_AKTIF                 0U
+
+#define ARAC_KUTLESI_KG                    1.25f
+
+#define YERCEKIMI_IVMESI_MPS2              9.80665f
+
+#define MOTOR_KV_RPM_V                     1800.0f
+
+/*
+ * Bu iki deger motor-pervane testinde tekrar dogrulanmalidir.
+ */
+#define MOTOR_YUK_FAKTORU                  0.788f
+#define MOTOR_ITKI_KATSAYISI_N_RPM2        1.5e-8f
+
+#define BATARYA_VARSAYILAN_GERILIM_V       14.8f
+#define BATARYA_MIN_GUVEN                  0.50f
+
+
+//*****************************PID GENEL AYARLARI**********************************
+
+#define PID_TUREV_FILTRE_ALPHA             0.20f
+
+
+//*****************************YUKSEKLIK PID***************************************
+
+#define YUKSEKLIK_PID_KP                   0.08f
+#define YUKSEKLIK_PID_KI                   0.00f
+#define YUKSEKLIK_PID_KD                   0.02f
+
+#define YUKSEKLIK_PID_CIKIS_MIN_MPS       -5.0f
+#define YUKSEKLIK_PID_CIKIS_MAX_MPS        2.0f
+
+
+//*****************************DIKEY HIZ PID***************************************
+
+#define DIKEY_HIZ_PID_KP                   0.06f
+#define DIKEY_HIZ_PID_KI                   0.02f
+#define DIKEY_HIZ_PID_KD                   0.01f
+
+#define DIKEY_HIZ_PID_CIKIS_MIN           -0.20f
+#define DIKEY_HIZ_PID_CIKIS_MAX            0.20f
+
+
+//*****************************ROLL ACI KONTROLU***********************************
+
+/*
+ * Dis kontrol:
+ *
+ * Roll aci hatasi [deg]
+ *      ->
+ * Hedef roll acisal hizi [deg/s]
+ *
+ * Birim:
+ * (deg/s) / deg = 1/s
+ */
+#define ROLL_ACI_KP                        3.0f
+#define ROLL_HEDEF_HIZ_MAX_DPS            60.0f
+
+
+/*
+ * Ic kontrol:
+ *
+ * Hedef roll hizi - Gyro Y
+ *      ->
+ * Mixer roll throttle duzeltmesi
+ */
+#define ROLL_HIZ_PID_KP                    0.0012f
+#define ROLL_HIZ_PID_KI                    0.0003f
+#define ROLL_HIZ_PID_KD                    0.00002f
+
+#define ROLL_HIZ_PID_CIKIS_MIN            -0.08f
+#define ROLL_HIZ_PID_CIKIS_MAX             0.08f
+
+
+//*****************************PITCH ACI KONTROLU**********************************
+
+#define PITCH_ACI_KP                       3.0f
+#define PITCH_HEDEF_HIZ_MAX_DPS           60.0f
+
+#define PITCH_HIZ_PID_KP                   0.0012f
+#define PITCH_HIZ_PID_KI                   0.0003f
+#define PITCH_HIZ_PID_KD                   0.00002f
+
+#define PITCH_HIZ_PID_CIKIS_MIN           -0.08f
+#define PITCH_HIZ_PID_CIKIS_MAX            0.08f
+
+
+//*****************************YAW ACI KONTROLU************************************
+
+#define YAW_ACI_KP                         2.0f
+#define YAW_HEDEF_HIZ_MAX_DPS             30.0f
+
+#define YAW_HIZ_PID_KP                     0.00075f
+#define YAW_HIZ_PID_KI                     0.00015f
+#define YAW_HIZ_PID_KD                     0.00001f
+
+#define YAW_HIZ_PID_CIKIS_MIN             -0.04f
+#define YAW_HIZ_PID_CIKIS_MAX              0.04f
+
 ////////////////////////////////////////////////////////////////////////////////
 
 //*****************************EYLEM BLOKLARI KONFİGÜRASYON SABİTLERİ***********************
