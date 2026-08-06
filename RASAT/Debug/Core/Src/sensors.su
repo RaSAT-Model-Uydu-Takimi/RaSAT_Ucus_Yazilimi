@@ -1,0 +1,14 @@
+../Core/Src/sensors.c:93:14:Sensors_LowPass	24	static
+../Core/Src/sensors.c:101:14:Sensors_PressureToAltitude	24	static
+../Core/Src/sensors.c:125:14:Sensors_GetDeltaTimeSeconds	24	static
+../Core/Src/sensors.c:158:13:Sensors_UpdateAltitudeAndVelocity	32	static
+../Core/Src/sensors.c:234:13:Sensors_UpdateLandingDetection	24	static
+../Core/Src/sensors.c:295:9:Sensors_Init	24	static
+../Core/Src/sensors.c:355:6:Sensors_Update	104	static
+../Core/Src/sensors.c:452:12:Sensors_GetData	16	static
+../Core/Src/sensors.c:458:6:Sensors_ToFlightControlInput	16	static
+../Core/Src/sensors.c:476:6:Sensors_UART_RxCpltCallback	16	static
+../Core/Src/sensors.c:482:6:Sensors_ResetAltitudeReference	4	static
+../Core/Src/sensors.c:506:6:Sensors_SetPayloadSeparated	16	static
+../Core/Src/sensors.c:512:6:Sensors_SetExternalApamRequest	16	static
+../Core/Src/sensors.c:518:9:Sensors_IsReady	4	static

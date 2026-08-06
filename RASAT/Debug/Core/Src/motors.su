@@ -1,0 +1,7 @@
+../Core/Src/motors.c:19:6:Motors_Init	8	static
+../Core/Src/motors.c:35:6:Motors_Arm	4	static
+../Core/Src/motors.c:47:6:Motors_Disarm	8	static
+../Core/Src/motors.c:54:6:Motors_StopAll	4	static
+../Core/Src/motors.c:67:6:Motors_SetThrottle	16	static
+../Core/Src/motors.c:110:7:Motors_GetThrottle	4	static
+../Core/Src/motors.c:115:10:Motors_GetPWM	4	static
