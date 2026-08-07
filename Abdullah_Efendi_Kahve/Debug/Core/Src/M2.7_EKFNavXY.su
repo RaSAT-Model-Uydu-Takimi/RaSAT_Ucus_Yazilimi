@@ -1,0 +1,2 @@
+../Core/Src/M2.7_EKFNavXY.c:10:6:M6_NavXY_Init	16	static
+../Core/Src/M2.7_EKFNavXY.c:35:6:M6_NavXY_Update	632	static

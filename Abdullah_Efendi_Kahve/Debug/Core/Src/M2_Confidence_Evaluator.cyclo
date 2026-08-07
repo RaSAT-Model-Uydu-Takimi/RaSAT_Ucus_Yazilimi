@@ -1,0 +1,3 @@
+../Core/Src/M2_Confidence_Evaluator.c:8:13:EvaluateChannel	4
+../Core/Src/M2_Confidence_Evaluator.c:39:6:CE_Init	2
+../Core/Src/M2_Confidence_Evaluator.c:58:6:CE_Update	6

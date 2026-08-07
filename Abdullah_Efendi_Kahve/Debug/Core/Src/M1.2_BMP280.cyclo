@@ -1,0 +1,10 @@
+../Core/Src/M1.2_BMP280.c:123:16:BMP280_ReadRegister	4
+../Core/Src/M1.2_BMP280.c:148:16:BMP280_WriteRegister	3
+../Core/Src/M1.2_BMP280.c:172:17:BMP280_U16_LE	1
+../Core/Src/M1.2_BMP280.c:178:16:BMP280_S16_LE	1
+../Core/Src/M1.2_BMP280.c:184:16:BMP280_ReadCalibration	3
+../Core/Src/M1.2_BMP280.c:221:14:BMP280_CompensateTemperature	1
+../Core/Src/M1.2_BMP280.c:250:14:BMP280_CompensatePressure	2
+../Core/Src/M1.2_BMP280.c:298:9:BMP280_Init	7
+../Core/Src/M1.2_BMP280.c:382:9:BMP280_Read	5
+../Core/Src/M1.2_BMP280.c:447:9:BMP280_IsReady	1

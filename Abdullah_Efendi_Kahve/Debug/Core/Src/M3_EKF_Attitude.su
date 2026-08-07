@@ -1,0 +1,3 @@
+../Core/Src/M3_EKF_Attitude.c:10:14:invSqrt	32	static
+../Core/Src/M3_EKF_Attitude.c:24:6:M3_Attitude_Init	24	static
+../Core/Src/M3_EKF_Attitude.c:41:6:M3_Attitude_Update	2392	static

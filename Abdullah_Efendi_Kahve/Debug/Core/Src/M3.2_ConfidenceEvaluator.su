@@ -1,0 +1,3 @@
+../Core/Src/M3.2_ConfidenceEvaluator.c:8:13:EvaluateChannel	40	static
+../Core/Src/M3.2_ConfidenceEvaluator.c:42:6:CE_Init	16	static
+../Core/Src/M3.2_ConfidenceEvaluator.c:62:6:CE_Update	24	static

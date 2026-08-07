@@ -1,0 +1,7 @@
+../Core/Src/M2.0_FactoryCalibrator.c:7:6:SensorCalib_Init	3
+../Core/Src/M2.0_FactoryCalibrator.c:38:6:SensorCalibApply	3
+../Core/Src/M2.0_FactoryCalibrator.c:63:6:SensorCalib_ApplyBoardAlignment	4
+../Core/Src/M2.0_FactoryCalibrator.c:69:6:SensorCalib_SetLevel	2
+../Core/Src/M2.0_FactoryCalibrator.c:75:6:SensorCalib_StartAdvanced	5
+../Core/Src/M2.0_FactoryCalibrator.c:98:6:SensorCalib_ProcessAdvanced	30
+../Core/Src/M2.0_FactoryCalibrator.c:209:6:SensorCalib_QuickRun	8
