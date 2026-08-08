@@ -35,7 +35,7 @@ void Filter_Init(Filter_System_t *sys, DataCenter *dc)
     CE_Init(&sys->conf_eval);
 
     /* 5. M3: Yönelim Kestirici (Pitch/Roll/Yaw kuaterniyon) */
-    M3_Attitude_Init(&sys->ekf_attitude);
+    M3_Attitude_Init(&sys->attitude);
 
     /* 6. M4: Yaw EKF */
     M4_Yaw_Init(&sys->ekf_yaw);
@@ -103,7 +103,7 @@ void Filter_Update(Filter_System_t *sys, DataCenter *dc, uint32_t curr_time_us)
     CE_Update(&sys->conf_eval, dc, curr_time_us);
 
     /* ADIM 3: (M3) Yönelim – Pitch, Roll, Yaw (kuaterniyon) */
-    M3_Attitude_Update(&sys->ekf_attitude, dc, dt_seconds);
+    M3_Attitude_Update(&sys->attitude, dc, dt_seconds);
     
     // Montaj/Pcb yamukluklarını çıkar (Set Level ofsetleri)
     SensorCalib_ApplyBoardAlignment(&sys->calib, &dc->estimated.pitch.value, &dc->estimated.roll.value);

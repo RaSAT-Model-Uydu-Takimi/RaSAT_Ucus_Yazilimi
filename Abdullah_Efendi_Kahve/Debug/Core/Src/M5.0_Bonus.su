@@ -1,0 +1,4 @@
+../Core/Src/M5.0_Bonus.c:9:16:Calculate_CRC8	24	static
+../Core/Src/M5.0_Bonus.c:24:6:M_Bonus_Init	16	static
+../Core/Src/M5.0_Bonus.c:30:10:M_Bonus_PackTelemetry	24	static
+../Core/Src/M5.0_Bonus.c:62:6:M_Bonus_ParseCommand	24	static

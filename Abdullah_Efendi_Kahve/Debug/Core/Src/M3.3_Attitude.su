@@ -1,0 +1,2 @@
+../Core/Src/M3.3_Attitude.c:11:6:M3_Attitude_Init	16	static
+../Core/Src/M3.3_Attitude.c:25:6:M3_Attitude_Update	128	static

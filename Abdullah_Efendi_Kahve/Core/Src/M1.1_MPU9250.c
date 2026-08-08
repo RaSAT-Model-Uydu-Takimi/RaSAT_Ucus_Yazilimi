@@ -73,9 +73,9 @@
 
 #define MPU9250_DLPF_CFG_41HZ          0x03U
 
-#define MPU9250_GYRO_FS_500DPS         0x01U
+#define MPU9250_GYRO_FS_250DPS         0x00U
 
-#define MPU9250_ACCEL_FS_4G            0x01U
+#define MPU9250_ACCEL_FS_2G            0x00U
 
 #define MPU9250_ACCEL_DLPF_41HZ        0x03U
 
@@ -93,18 +93,18 @@
  *==================================================*/
 
 /*
- * ±4g için:
+ * ±2g için:
  *
- * 32768 LSB / 4g = 8192 LSB/g
+ * 32768 LSB / 2g = 16384 LSB/g
  */
-#define MPU9250_ACCEL_SCALE_4G         8192.0f
+#define MPU9250_ACCEL_SCALE_2G         16384.0f
 
 /*
- * ±500 dps için:
+ * ±250 dps için:
  *
- * 32768 LSB / 500 dps ≈ 65.5 LSB/dps
+ * 32768 LSB / 250 dps = 131.0 LSB/dps
  */
-#define MPU9250_GYRO_SCALE_500DPS      65.5f
+#define MPU9250_GYRO_SCALE_250DPS      131.0f
 
 
 /*==================================================
@@ -554,12 +554,12 @@ uint8_t MPU9250_Init(I2C_HandleTypeDef *i2c_handle)
     }
 
     /*
-     * Gyroscope full-scale = ±500 dps.
+     * Gyroscope full-scale = ±250 dps (Default state of clones).
      *
      * GYRO_FS_SEL bitleri 4:3 konumunda.
      */
     gyro_config =
-        (uint8_t)(MPU9250_GYRO_FS_500DPS << 3);
+        (uint8_t)(MPU9250_GYRO_FS_250DPS << 3);
 
     if(MPU9250_WriteRegister(MPU9250_REG_GYRO_CONFIG,
                              gyro_config) == 0U)
@@ -568,12 +568,12 @@ uint8_t MPU9250_Init(I2C_HandleTypeDef *i2c_handle)
     }
 
     /*
-     * Accelerometer full-scale = ±4g.
+     * Accelerometer full-scale = ±2g (Default state of clones).
      *
      * ACCEL_FS_SEL bitleri 4:3 konumunda.
      */
     accel_config =
-        (uint8_t)(MPU9250_ACCEL_FS_4G << 3);
+        (uint8_t)(MPU9250_ACCEL_FS_2G << 3);
 
     if(MPU9250_WriteRegister(MPU9250_REG_ACCEL_CONFIG,
                              accel_config) == 0U)
@@ -635,11 +635,6 @@ uint8_t MPU9250_Read(DataCenter *data)
     {
         return 0U;
     }
-
-    data->mag.x.rawValue = 0.0f;
-    data->mag.y.rawValue = 0.0f;
-    data->mag.z.rawValue = 0.0f;
-
     if(mpu9250_ready == 0U)
     {
         return 0U;
@@ -669,25 +664,25 @@ uint8_t MPU9250_Read(DataCenter *data)
      * Raw accel -> g
      */
     data->acc.x.rawValue =
-        (float)raw_accel_x / MPU9250_ACCEL_SCALE_4G;
+        (float)raw_accel_x / MPU9250_ACCEL_SCALE_2G;
 
     data->acc.y.rawValue =
-        (float)raw_accel_y / MPU9250_ACCEL_SCALE_4G;
+        (float)raw_accel_y / MPU9250_ACCEL_SCALE_2G;
 
     data->acc.z.rawValue =
-        (float)raw_accel_z / MPU9250_ACCEL_SCALE_4G;
+        (float)raw_accel_z / MPU9250_ACCEL_SCALE_2G;
 
     /*
      * Raw gyro -> dps
      */
     data->gyro.x.rawValue =
-        (float)raw_gyro_x / MPU9250_GYRO_SCALE_500DPS;
+        (float)raw_gyro_x / MPU9250_GYRO_SCALE_250DPS;
 
     data->gyro.y.rawValue =
-        (float)raw_gyro_y / MPU9250_GYRO_SCALE_500DPS;
+        (float)raw_gyro_y / MPU9250_GYRO_SCALE_250DPS;
 
     data->gyro.z.rawValue =
-        (float)raw_gyro_z / MPU9250_GYRO_SCALE_500DPS;
+        (float)raw_gyro_z / MPU9250_GYRO_SCALE_250DPS;
 
     /*
      * Magnetometer okumayı dene.

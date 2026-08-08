@@ -1,33 +1,29 @@
-#include "M3.3_EKFAttitude.h"
+#include "M3.3_Attitude.h"
 #include "M0.1_FilterConfig.h"
-#include "M3.1_MatrixOps.h"
 #include <math.h>
 #include <string.h>
 
-// Donanımsal FPU (1.0f / sqrtf(x)) kullanılacak. Quake III hack'ine gerek yok!
+// Donanmsal FPU (1.0f / sqrtf(x)) kullanlacak.
 
 /* ========================================================================== */
 /*  M3_Attitude_Init                                                          */
 /* ========================================================================== */
-void M3_Attitude_Init(M3_EKF_Attitude_t *ekf) {
-    if (ekf == NULL) return;
+void M3_Attitude_Init(M3_Attitude_t *attitude) {
+    if (attitude == NULL) return;
 
-    memset(ekf->x, 0, sizeof(ekf->x));
-    ekf->x[0] = 1.0f; // q0
+    memset(attitude->q, 0, sizeof(attitude->q));
+    attitude->q[0] = 1.0f; // q0
     // q1=0, q2=0, q3=0
-    // bias_x=0, bias_y=0, bias_z=0
 
-    memset(ekf->P, 0, sizeof(ekf->P));
-    // Başlangıç belirsizlikleri
-    for (int i = 0; i < 4; i++) ekf->P[i * 7 + i] = 1.0f;     /* Kuaterniyonlar */
-    for (int i = 4; i < 7; i++) ekf->P[i * 7 + i] = 0.01f;    /* Biaslar */
+    memset(attitude->integralFB, 0, sizeof(attitude->integralFB));
+    // integralFB_x=0, integralFB_y=0, integralFB_z=0
 }
 
 /* ========================================================================== */
 /*  M3_Attitude_Update                                                        */
 /* ========================================================================== */
-void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seconds) {
-    if (ekf == NULL || dataC == NULL || dt_seconds <= 0.0f) return;
+void M3_Attitude_Update(M3_Attitude_t *attitude, DataCenter *dataC, float dt_seconds) {
+    if (attitude == NULL || dataC == NULL || dt_seconds <= 0.0f) return;
 
     float ax = dataC->acc.x.calibratedValue;
     float ay = dataC->acc.y.calibratedValue;
@@ -37,29 +33,23 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
     float gy = dataC->gyro.y.calibratedValue;
     float gz = dataC->gyro.z.calibratedValue;
 
-    float q0 = ekf->x[0];
-    float q1 = ekf->x[1];
-    float q2 = ekf->x[2];
-    float q3 = ekf->x[3];
-    float bx = ekf->x[4];
-    float by = ekf->x[5];
-    float bz = ekf->x[6];
+    float q0 = attitude->q[0];
+    float q1 = attitude->q[1];
+    float q2 = attitude->q[2];
+    float q3 = attitude->q[3];
     
-    // Bias'ı çıkar (Integral kazancı eklersek buralar güncellenecek)
-    gx -= bx;
-    gy -= by;
-    gz -= bz;
+    // Mahony Filter kazançları
+    float Kp = ORIENTATION_SYSTEM_GAIN * 2.0f;
+    float Ki = Kp * 0.1f; // Integral gain, Kp'nin %10'u kadar (ince ayar yapılabilir)
 
     /* ================================================================== */
     /*  MAHONY COMPLEMENTARY FILTER (TAMAMLAYICI FİLTRE) ADIMI            */
-    /*  Kullanıcının isteği üzerine ağır EKF matrisleri yerine endüstri   */
-    /*  standardı olan Mahony filtresi entegre edilmiştir.                */
     /* ================================================================== */
     
     // Sadece ivmeölçer mantıklı veriler üretiyorsa düzeltme yap
     if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
         
-        // İvmeölçer vektörünü donanımsal FPU ile normalize et
+        // İvmeölçer vektörünü normalize et
         float recipNorm = 1.0f / sqrtf(ax * ax + ay * ay + az * az);
         ax *= recipNorm;
         ay *= recipNorm;
@@ -75,10 +65,26 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
         float halfey = (az * halfvx - ax * halfvz);
         float halfez = (ax * halfvy - ay * halfvx);
 
+        // Integral hatayı hesapla ve biriktir (Ki > 0 ise)
+        if (Ki > 0.0f) {
+            attitude->integralFB[0] += Ki * halfex * dt_seconds;
+            attitude->integralFB[1] += Ki * halfey * dt_seconds;
+            attitude->integralFB[2] += Ki * halfez * dt_seconds;
+            
+            // Integral hatayı jiroskoba uygula
+            gx += attitude->integralFB[0];
+            gy += attitude->integralFB[1];
+            gz += attitude->integralFB[2];
+        } else {
+            attitude->integralFB[0] = 0.0f;
+            attitude->integralFB[1] = 0.0f;
+            attitude->integralFB[2] = 0.0f;
+        }
+
         // Oransal (Proportional) düzeltmeyi jiroskoba uygula
-        gx += (ORIENTATION_SYSTEM_GAIN * 2.0f) * halfex;
-        gy += (ORIENTATION_SYSTEM_GAIN * 2.0f) * halfey;
-        gz += (ORIENTATION_SYSTEM_GAIN * 2.0f) * halfez;
+        gx += Kp * halfex;
+        gy += Kp * halfey;
+        gz += Kp * halfez;
     }
 
     // Jiroskop verisini kullanarak kuaterniyon türevini entegre et
@@ -97,22 +103,22 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
 
     // Yeni kuaterniyonu normalize et
     float recipNorm = 1.0f / sqrtf(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-    ekf->x[0] = q0 * recipNorm;
-    ekf->x[1] = q1 * recipNorm;
-    ekf->x[2] = q2 * recipNorm;
-    ekf->x[3] = q3 * recipNorm;
+    attitude->q[0] = q0 * recipNorm;
+    attitude->q[1] = q1 * recipNorm;
+    attitude->q[2] = q2 * recipNorm;
+    attitude->q[3] = q3 * recipNorm;
 
     /* ================================================================== */
-    /*  3. ÇIKTILAR (DataCenter'a Kayıt)                                  */
+    /*  ÇIKTILAR (DataCenter'a Kayıt)                                     */
     /* ================================================================== */
-    q0 = ekf->x[0]; q1 = ekf->x[1]; q2 = ekf->x[2]; q3 = ekf->x[3];
+    q0 = attitude->q[0]; q1 = attitude->q[1]; q2 = attitude->q[2]; q3 = attitude->q[3];
 
     // Euler Açıları (Yaw dahil - fakat M4 bunu ezecek/düzeltecektir)
     dataC->estimated.roll.value  = atan2f(2.0f * (q0 * q1 + q2 * q3), 1.0f - 2.0f * (q1 * q1 + q2 * q2)) * RAD2DEG;
     float sinP = 2.0f * (q0 * q2 - q3 * q1);
     if (sinP >  1.0f) sinP =  1.0f;
     if (sinP < -1.0f) sinP = -1.0f;
-    dataC->estimated.pitch.value = -asinf(sinP) * RAD2DEG; // Eksi işareti ile Havacılık Standardı (Burun Yukarı = Pozitif)
+    dataC->estimated.pitch.value = -asinf(sinP) * RAD2DEG; // Eksi işareti ile Havacılık Standardı
     dataC->estimated.yaw.value = atan2f(2.0f * (q0 * q3 + q1 * q2), 1.0f - 2.0f * (q2 * q2 + q3 * q3)) * RAD2DEG;
 
     dataC->estimated.q0.value = q0;
@@ -120,13 +126,14 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
     dataC->estimated.q2.value = q2;
     dataC->estimated.q3.value = q3;
 
-    // Jiroskop Bias Kayıtları
-    dataC->estimated.gyro_bias_x.value = ekf->x[4];
-    dataC->estimated.gyro_bias_y.value = ekf->x[5];
-    dataC->estimated.gyro_bias_z.value = ekf->x[6];
+    // Jiroskop Bias Kayıtları (Ters işaretli olarak tutulabilir, integral hatası bias'ı temsil eder)
+    dataC->estimated.gyro_bias_x.value = -attitude->integralFB[0];
+    dataC->estimated.gyro_bias_y.value = -attitude->integralFB[1];
+    dataC->estimated.gyro_bias_z.value = -attitude->integralFB[2];
 
-    // Tahmin güveni (Kovaryansın köşegenine ters orantılı)
-    float conf = 1.0f / (1.0f + ekf->P[0]); // q0 belirsizliği
+    // Mahony'de EKF gibi bir kovaryans matrisi (P) yoktur. 
+    // Ancak confidence olarak 1.0f gönderebiliriz.
+    float conf = 1.0f; 
     dataC->estimated.pitch.confidence = conf;
     dataC->estimated.roll.confidence  = conf;
     dataC->estimated.q0.confidence    = conf;
@@ -134,7 +141,7 @@ void M3_Attitude_Update(M3_EKF_Attitude_t *ekf, DataCenter *dataC, float dt_seco
     dataC->estimated.q2.confidence    = conf;
     dataC->estimated.q3.confidence    = conf;
     
-    dataC->estimated.gyro_bias_x.confidence = 1.0f / (1.0f + ekf->P[4*7+4]);
-    dataC->estimated.gyro_bias_y.confidence = 1.0f / (1.0f + ekf->P[5*7+5]);
-    dataC->estimated.gyro_bias_z.confidence = 1.0f / (1.0f + ekf->P[6*7+6]);
+    dataC->estimated.gyro_bias_x.confidence = conf;
+    dataC->estimated.gyro_bias_y.confidence = conf;
+    dataC->estimated.gyro_bias_z.confidence = conf;
 }

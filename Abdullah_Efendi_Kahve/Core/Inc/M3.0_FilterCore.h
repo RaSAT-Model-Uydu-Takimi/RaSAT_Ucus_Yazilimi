@@ -4,7 +4,7 @@
 #include "M0.0_DataCenter.h"
 #include "M2.0_FactoryCalibrator.h"
 #include "M3.2_ConfidenceEvaluator.h"
-#include "M3.3_EKFAttitude.h"
+#include "M3.3_Attitude.h"
 #include "M3.4_EKFYaw.h"
 #include "M3.5_EKFAltitude.h"
 #include "M3.6_EKFNavXY.h"
@@ -17,7 +17,7 @@ extern "C" {
 typedef struct {
     SensorCalib_t calib;
     Confidence_Evaluator_t conf_eval;
-    M3_EKF_Attitude_t ekf_attitude;
+    M3_Attitude_t attitude;
     M4_EKF_Yaw_t ekf_yaw;
     M5_EKF_Altitude_t ekf_altitude;
     M6_EKF_NavXY_t ekf_nav_xy;

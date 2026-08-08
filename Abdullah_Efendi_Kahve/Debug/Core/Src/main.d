@@ -30,12 +30,13 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/M1.0_SensorReaderCore.h ../Core/Inc/main.h \
  ../Core/Inc/M0.0_DataCenter.h ../Core/Inc/M3.0_FilterCore.h \
  ../Core/Inc/M2.0_FactoryCalibrator.h ../Core/Inc/M0.1_FilterConfig.h \
- ../Core/Inc/M3.2_ConfidenceEvaluator.h ../Core/Inc/M3.3_EKFAttitude.h \
+ ../Core/Inc/M3.2_ConfidenceEvaluator.h ../Core/Inc/M3.3_Attitude.h \
  ../Core/Inc/M3.4_EKFYaw.h ../Core/Inc/M3.5_EKFAltitude.h \
  ../Core/Inc/M3.1_MatrixOps.h ../Core/Inc/M3.8_StationReference.h \
  ../Core/Inc/M3.6_EKFNavXY.h ../Core/Inc/M3.7_Kinematics.h \
  ../Core/Inc/M2.0_FactoryCalibrator.h ../Core/Inc/M2.1_CalibrationUI.h \
- ../Core/Inc/M0.1_FilterConfig.h ../Core/Inc/M0.0_DataCenter.h
+ ../Core/Inc/M0.1_FilterConfig.h ../Core/Inc/M5.0_Bonus.h \
+ ../Core/Inc/M0.0_DataCenter.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -72,7 +73,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/M2.0_FactoryCalibrator.h:
 ../Core/Inc/M0.1_FilterConfig.h:
 ../Core/Inc/M3.2_ConfidenceEvaluator.h:
-../Core/Inc/M3.3_EKFAttitude.h:
+../Core/Inc/M3.3_Attitude.h:
 ../Core/Inc/M3.4_EKFYaw.h:
 ../Core/Inc/M3.5_EKFAltitude.h:
 ../Core/Inc/M3.1_MatrixOps.h:
@@ -82,4 +83,5 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/M2.0_FactoryCalibrator.h:
 ../Core/Inc/M2.1_CalibrationUI.h:
 ../Core/Inc/M0.1_FilterConfig.h:
+../Core/Inc/M5.0_Bonus.h:
 ../Core/Inc/M0.0_DataCenter.h:

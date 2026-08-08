@@ -1,4 +1,4 @@
-﻿/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -26,6 +26,7 @@
 #include "M2.0_FactoryCalibrator.h"
 #include "M2.1_CalibrationUI.h"
 #include "M0.1_FilterConfig.h"
+#include "M5.0_Bonus.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -119,13 +120,15 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   
-  // 1. SensÃƒÂ¶rlerin donanÃ„Â±msal kurulumlarÃ„Â±nÃ„Â± ve bypass iÃ…Å¸lemlerini yap
+  // 1. Sensörlerin donanımsal kurulumlarını ve bypass işlemlerini yap
   SensorReaderCore_Init(&hi2c1);
 
-  // 2. Filtre sistemini, kalibrasyon parametrelerini ve EKF'yi baÃ…Å¸lat
+  // 2. Filtre sistemini, kalibrasyon parametrelerini ve EKF'yi başlat
   Filter_Init(&filterSystem, &datacenter);
   SensorCalib_Init(&calibrator);
 
+  // 3. Telemetri paketleyiciyi baslat (Takim no 1234)
+  M_Bonus_Init(1234);
 
   /* USER CODE END 2 */
 
@@ -155,6 +158,15 @@ int main(void)
 #else
       // Diger modlar (ornek: MODE_3_ALT_CALIB) buraya gelecek
 #endif
+
+      // 1 Saniyede bir telemetri gonder (1000 ms)
+      static uint32_t last_telemetry_time = 0;
+      if (current_time - last_telemetry_time >= 1000) {
+          last_telemetry_time = current_time;
+          
+          uint8_t* tx_buffer = M_Bonus_PackTelemetry(&datacenter);
+          HAL_UART_Transmit(&huart2, tx_buffer, 77, 100);
+      }
 
   }
   /* USER CODE END 3 */

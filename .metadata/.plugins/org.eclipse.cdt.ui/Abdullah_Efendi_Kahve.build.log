@@ -1,0 +1,24 @@
+14:37:47 **** Incremental Build of configuration Debug for project Abdullah_Efendi_Kahve ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/M5.0_Bonus.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/M5.0_Bonus.d" -MT"Core/Src/M5.0_Bonus.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/M5.0_Bonus.o"
+../Core/Src/M5.0_Bonus.c: In function 'M_Bonus_PackTelemetry':
+../Core/Src/M5.0_Bonus.c:45:5: warning: 'strncpy' output truncated before terminating nul copying 4 bytes from a string of the same length [-Wstringop-truncation]
+   45 |     strncpy(tx_packet.error_code, "0000", 4);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/M5.0_Bonus.c:46:5: warning: 'strncpy' output truncated before terminating nul copying 19 bytes from a string of the same length [-Wstringop-truncation]
+   46 |     strncpy(tx_packet.time_str, "08/08/2026 15:30:00", 19);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "Abdullah_Efendi_Kahve.elf" @"objects.list"   -mcpu=cortex-m4 -T"M:\Godot\Projeler\RaSAT_Ucus_Yazilimi\Abdullah_Efendi_Kahve\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Abdullah_Efendi_Kahve.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Abdullah_Efendi_Kahve.elf
+ 
+arm-none-eabi-size  Abdullah_Efendi_Kahve.elf 
+arm-none-eabi-objdump -h -S Abdullah_Efendi_Kahve.elf  > "Abdullah_Efendi_Kahve.list"
+   text	   data	    bss	    dec	    hex	filename
+  45032	    108	   3632	  48772	   be84	Abdullah_Efendi_Kahve.elf
+Finished building: default.size.stdout
+ 
+Finished building: Abdullah_Efendi_Kahve.list
+ 
+
+14:37:49 Build Finished. 0 errors, 2 warnings. (took 1s.125ms)
+

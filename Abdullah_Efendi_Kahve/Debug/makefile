@@ -60,8 +60,8 @@ all: main-build
 main-build: Abdullah_Efendi_Kahve.elf secondary-outputs
 
 # Tool invocations
-Abdullah_Efendi_Kahve.elf Abdullah_Efendi_Kahve.map: $(OBJS) $(USER_OBJS) C:\Users\dryem.EMRE\OneDrive\Belgeler\CubeIDE_WorkSpace\Abdullah_Efendi_Kahve\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Abdullah_Efendi_Kahve.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\dryem.EMRE\OneDrive\Belgeler\CubeIDE_WorkSpace\Abdullah_Efendi_Kahve\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Abdullah_Efendi_Kahve.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Abdullah_Efendi_Kahve.elf Abdullah_Efendi_Kahve.map: $(OBJS) $(USER_OBJS) M:\Godot\Projeler\RaSAT_Ucus_Yazilimi\Abdullah_Efendi_Kahve\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Abdullah_Efendi_Kahve.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"M:\Godot\Projeler\RaSAT_Ucus_Yazilimi\Abdullah_Efendi_Kahve\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Abdullah_Efendi_Kahve.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
