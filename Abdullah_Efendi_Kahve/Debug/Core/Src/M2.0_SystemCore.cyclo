@@ -1,0 +1,3 @@
+../Core/Src/M2.0_SystemCore.c:13:6:SystemCore_Init	1
+../Core/Src/M2.0_SystemCore.c:21:6:SystemCore_Run	4
+../Core/Src/M2.0_SystemCore.c:37:12:SystemCore_GetMode	1

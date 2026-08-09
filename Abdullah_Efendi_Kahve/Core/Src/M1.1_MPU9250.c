@@ -18,6 +18,7 @@
  */
 
 #include "M1.1_MPU9250.h"
+#include "M0.1_FilterConfig.h"
 #include "M1.0_SensorReaderCore.h"
 #include <string.h>
 
@@ -72,12 +73,14 @@
 #define MPU9250_SMPLRT_DIV_200HZ       4U
 
 #define MPU9250_DLPF_CFG_41HZ          0x03U
+#define MPU9250_DLPF_CFG_20HZ          0x04U
 
 #define MPU9250_GYRO_FS_250DPS         0x00U
 
 #define MPU9250_ACCEL_FS_2G            0x00U
 
 #define MPU9250_ACCEL_DLPF_41HZ        0x03U
+#define MPU9250_ACCEL_DLPF_20HZ        0x04U
 
 /*
  * INT_PIN_CFG register:
@@ -260,6 +263,12 @@ static int16_t MPU9250_ToInt16(uint8_t msb,
     return (int16_t)(((uint16_t)msb << 8) | lsb);
 }
 
+void MPU9250_EnableBypass(void)
+{
+    if(mpu9250_i2c == NULL) return;
+    MPU9250_WriteRegister(MPU9250_REG_INT_PIN_CFG, 0x02U);
+}
+
 
 static int16_t AK8963_ToInt16_LE(uint8_t lsb,
                                  uint8_t msb)
@@ -434,13 +443,13 @@ static uint8_t AK8963_Read(DataCenter *data)
     raw_mag_y = AK8963_ToInt16_LE(buffer[2], buffer[3]);
     raw_mag_z = AK8963_ToInt16_LE(buffer[4], buffer[5]);
 
-    data->mag.x.rawValue =
+    data->mag.raw_x =
         (float)raw_mag_x * AK8963_MAG_SCALE_16BIT * ak8963_adj_x;
 
-    data->mag.y.rawValue =
+    data->mag.raw_y =
         (float)raw_mag_y * AK8963_MAG_SCALE_16BIT * ak8963_adj_y;
 
-    data->mag.z.rawValue =
+    data->mag.raw_z =
         (float)raw_mag_z * AK8963_MAG_SCALE_16BIT * ak8963_adj_z;
 
     data->mag.UpdateTime = HAL_GetTick() * 1000;
@@ -536,10 +545,10 @@ uint8_t MPU9250_Init(I2C_HandleTypeDef *i2c_handle)
     }
 
     /*
-     * Gyro DLPF ayarı.
+     * Gyro DLPF ayarı. (Titreşimi kesmek için 41Hz'den 20Hz'e düşürüldü)
      */
     if(MPU9250_WriteRegister(MPU9250_REG_CONFIG,
-                             MPU9250_DLPF_CFG_41HZ) == 0U)
+                             MPU9250_DLPF_CFG_20HZ) == 0U)
     {
         return 0U;
     }
@@ -582,9 +591,9 @@ uint8_t MPU9250_Init(I2C_HandleTypeDef *i2c_handle)
     }
 
     /*
-     * Accelerometer DLPF ayarı.
+     * Accelerometer DLPF ayarı. (Titreşimi kesmek için 41Hz'den 20Hz'e düşürüldü)
      */
-    accel_config2 = MPU9250_ACCEL_DLPF_41HZ;
+    accel_config2 = MPU9250_ACCEL_DLPF_20HZ;
 
     if(MPU9250_WriteRegister(MPU9250_REG_ACCEL_CONFIG2,
                              accel_config2) == 0U)
@@ -663,32 +672,32 @@ uint8_t MPU9250_Read(DataCenter *data)
     /*
      * Raw accel -> g
      */
-    data->acc.x.rawValue =
-        (float)raw_accel_x / MPU9250_ACCEL_SCALE_2G;
+    data->acc.raw_x = (float)raw_accel_x / MPU9250_ACCEL_SCALE_2G;
+    data->acc.raw_y = (float)raw_accel_y / MPU9250_ACCEL_SCALE_2G;
+    data->acc.raw_z = (float)raw_accel_z / MPU9250_ACCEL_SCALE_2G;
 
-    data->acc.y.rawValue =
-        (float)raw_accel_y / MPU9250_ACCEL_SCALE_2G;
-
-    data->acc.z.rawValue =
-        (float)raw_accel_z / MPU9250_ACCEL_SCALE_2G;
+    // Apply Calibration Profile (Acc) and convert to m/s^2
+    data->acc.calibrated_x = (data->acc.raw_x - data->calibProfile.acc_bias_x) * data->calibProfile.acc_scale_x * GRAVITY_MSS;
+    data->acc.calibrated_y = (data->acc.raw_y - data->calibProfile.acc_bias_y) * data->calibProfile.acc_scale_y * GRAVITY_MSS;
+    data->acc.calibrated_z = (data->acc.raw_z - data->calibProfile.acc_bias_z) * data->calibProfile.acc_scale_z * GRAVITY_MSS;
 
     /*
      * Raw gyro -> dps
      */
-    data->gyro.x.rawValue =
-        (float)raw_gyro_x / MPU9250_GYRO_SCALE_250DPS;
+    data->gyro.raw_x = (float)raw_gyro_x / MPU9250_GYRO_SCALE_250DPS;
+    data->gyro.raw_y = (float)raw_gyro_y / MPU9250_GYRO_SCALE_250DPS;
+    data->gyro.raw_z = (float)raw_gyro_z / MPU9250_GYRO_SCALE_250DPS;
 
-    data->gyro.y.rawValue =
-        (float)raw_gyro_y / MPU9250_GYRO_SCALE_250DPS;
-
-    data->gyro.z.rawValue =
-        (float)raw_gyro_z / MPU9250_GYRO_SCALE_250DPS;
+    // Apply Calibration Profile (Gyro)
+    data->gyro.calibrated_x = (data->gyro.raw_x - data->calibProfile.gyro_bias_x) * data->calibProfile.gyro_scale_x;
+    data->gyro.calibrated_y = (data->gyro.raw_y - data->calibProfile.gyro_bias_y) * data->calibProfile.gyro_scale_y;
+    data->gyro.calibrated_z = (data->gyro.raw_z - data->calibProfile.gyro_bias_z) * data->calibProfile.gyro_scale_z;
 
     /*
-     * Magnetometer okumayı dene.
-     * Başarısız olursa accel + gyro verisini bozma.
+     * Magnetometer klon sensörlerde olmadığı için okuma iptal edildi.
+     * SystemCore_Init içindeki memset ile 0 kalması sağlanacaktır.
      */
-    (void)AK8963_Read(data);
+    // (void)AK8963_Read(data);
 
     data->acc.UpdateTime = HAL_GetTick() * 1000;
     data->gyro.UpdateTime = HAL_GetTick() * 1000;

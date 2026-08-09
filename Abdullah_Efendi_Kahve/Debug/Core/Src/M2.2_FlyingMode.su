@@ -1,0 +1,2 @@
+../Core/Src/M2.2_FlyingMode.c:14:6:FlyingMode_Init	16	static
+../Core/Src/M2.2_FlyingMode.c:21:6:FlyingMode_Run	24	static

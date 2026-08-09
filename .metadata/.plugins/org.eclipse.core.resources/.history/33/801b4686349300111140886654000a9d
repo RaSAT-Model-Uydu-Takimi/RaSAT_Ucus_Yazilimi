@@ -1,0 +1,38 @@
+/*
+ * M1.3_SensorWatchdog.h
+ *
+ * Sensörlerden gelen verilerin zaman damgasını kontrol eder.
+ * I2C kilitlenmesi veya sensör bağlantı kopması durumunda hattı fiziksel olarak
+ * temizler (Bus Clear) ve sensörleri yeniden başlatır.
+ */
+
+#ifndef INC_M1_3_SENSORWATCHDOG_H_
+#define INC_M1_3_SENSORWATCHDOG_H_
+
+#include "main.h"
+#include "M0.0_DataCenter.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Timeout Sınırı (Milisaniye) - Bu süre boyunca veri güncellenmezse reset atılır
+#define SENSOR_TIMEOUT_MS 200
+
+/*
+ * Sistem döngüsü içinde sürekli çağrılır. Veri gelip gelmediğini kontrol eder.
+ */
+void SensorWatchdog_Check(DataCenter *dc, I2C_HandleTypeDef *hi2c, uint32_t current_time);
+
+/*
+ * Sensör donanımı kilitlendiğinde manuel I2C reset işlemi yapar.
+ * Bu fonksiyon SensorWatchdog_Check içinden otomatik çağrılır.
+ */
+void SensorWatchdog_RecoverI2CBus(I2C_HandleTypeDef *hi2c, DataCenter *dc);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INC_M1_3_SENSORWATCHDOG_H_ */

@@ -6,5 +6,6 @@
 ../Core/Src/M1.2_BMP280.c:221:14:BMP280_CompensateTemperature	1
 ../Core/Src/M1.2_BMP280.c:250:14:BMP280_CompensatePressure	2
 ../Core/Src/M1.2_BMP280.c:298:9:BMP280_Init	7
-../Core/Src/M1.2_BMP280.c:382:9:BMP280_Read	5
-../Core/Src/M1.2_BMP280.c:447:9:BMP280_IsReady	1
+../Core/Src/M1.2_BMP280.c:381:6:BMP280_ReInit	2
+../Core/Src/M1.2_BMP280.c:394:9:BMP280_Read	7
+../Core/Src/M1.2_BMP280.c:472:9:BMP280_IsReady	1

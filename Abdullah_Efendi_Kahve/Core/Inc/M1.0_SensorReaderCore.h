@@ -17,7 +17,7 @@ extern "C" {
  * Görevi: Tüm sensörleri (MPU9250, BMP280 vb.) başlatır.
  *         I2C Bypass modunu açar ve hattı tarar.
  */
-void SensorReaderCore_Init(I2C_HandleTypeDef *hi2c);
+void SensorReaderCore_Init(I2C_HandleTypeDef *hi2c, DataCenter *dc);
 
 /*
  * Fonksiyon: SensorReaderCore_Update

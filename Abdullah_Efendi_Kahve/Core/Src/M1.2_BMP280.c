@@ -1,4 +1,4 @@
-﻿/*
+/*
  * bmp280.c
  *
  *  Created on: Jul 11, 2026
@@ -378,6 +378,18 @@ uint8_t BMP280_Init(I2C_HandleTypeDef *i2c_handle)
     return 1U;
 }
 
+void BMP280_ReInit(void)
+{
+    if(bmp280_i2c == NULL) return;
+    
+    // Normal mod, temp x1, press x4
+    BMP280_WriteRegister(BMP280_REG_CTRL_MEAS, 
+        (uint8_t)(BMP280_OSRS_T_X1 << 5) | (uint8_t)(BMP280_OSRS_P_X4 << 2) | BMP280_MODE_NORMAL);
+        
+    // Standby 0.5ms, filter off (Init kısmındaki değerlerle aynı)
+    BMP280_WriteRegister(BMP280_REG_CONFIG, 
+        (uint8_t)(BMP280_STANDBY_0_5_MS << 5) | (uint8_t)(BMP280_FILTER_OFF << 2));
+}
 
 uint8_t BMP280_Read(DataCenter *data)
 {
@@ -426,14 +438,27 @@ uint8_t BMP280_Read(DataCenter *data)
         ((int32_t)buffer[4] << 4)  |
         ((int32_t)buffer[5] >> 4);
 
+    /* 
+     * Eger sensor Sleep Mode'a gectiyse veya kilitlendiyse, ADC registerlari
+     * varsayilan deger olan 0x80000 (524288) degerinde sabit kalir. 
+     * Bu durumu yakalarsak, olcum sahtedir (donmustur), hata dondur!
+     */
+    if (adc_P == 524288 && adc_T == 524288) {
+        return 0U; 
+    }
+
     /*
      * Ã–nce temperature hesaplanÄ±r.
      * Ã‡Ã¼nkÃ¼ pressure compensation iÃ§in t_fine gerekiyor.
      */
-    data->baro.temp.rawValue = BMP280_CompensateTemperature(adc_T);
-    data->baro.press.rawValue = BMP280_CompensatePressure(adc_P);
+    data->baro.raw_temp = BMP280_CompensateTemperature(adc_T);
+    data->baro.raw_press = BMP280_CompensatePressure(adc_P);
 
-    if(data->baro.press.rawValue <= 0.0f)
+    // Kalibrasyon Profilini Uygula (Bias ve Scale)
+    data->baro.calibrated_temp = (data->baro.raw_temp - data->calibProfile.baro_temp_bias) * data->calibProfile.baro_temp_scale;
+    data->baro.calibrated_press = (data->baro.raw_press - data->calibProfile.baro_press_bias) * data->calibProfile.baro_press_scale;
+
+    if(data->baro.raw_press <= 0.0f)
     {
         return 0U;
     }

@@ -1,0 +1,4 @@
+../Core/Src/M2.3_HardwareFeedback.c:15:6:M2_3_HardwareFeedback_RegisterCallback	2
+../Core/Src/M2.3_HardwareFeedback.c:22:6:M2_3_HardwareFeedback_Init	1
+../Core/Src/M2.3_HardwareFeedback.c:30:6:M2_3_HardwareFeedback_SetState	4
+../Core/Src/M2.3_HardwareFeedback.c:43:6:M2_3_HardwareFeedback_Run	3

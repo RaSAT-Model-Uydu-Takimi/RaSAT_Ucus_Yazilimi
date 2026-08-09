@@ -1,12 +1,73 @@
 #include "M1.0_SensorReaderCore.h"
 #include "M1.1_MPU9250.h"
 #include "M1.2_BMP280.h"
+#include "M0.1_FilterConfig.h"
+#include <string.h>
 
 extern uint8_t discovered_i2c_addr; // main.c'den alınan global değişken (Eğer hala lazımsa)
 extern uint8_t watchDog;
 extern void Error_Handler(void);
 
-void SensorReaderCore_Init(I2C_HandleTypeDef *hi2c) {
+void SensorReaderCore_Init(I2C_HandleTypeDef *hi2c, DataCenter *dc) {
+    // 0. İlk kurulumda tüm DataCenter'ı sıfırla (Çöp verileri temizle)
+    if(dc != NULL) {
+        memset(dc, 0, sizeof(DataCenter));
+        
+        // Kalibrasyon profiline varsayılan değerleri (makroları) yükle
+        dc->calibProfile.acc_bias_x = ACC_BIAS_X;
+        dc->calibProfile.acc_bias_y = ACC_BIAS_Y;
+        dc->calibProfile.acc_bias_z = ACC_BIAS_Z;
+        dc->calibProfile.acc_scale_x = ACC_SCALE_X;
+        dc->calibProfile.acc_scale_y = ACC_SCALE_Y;
+        dc->calibProfile.acc_scale_z = ACC_SCALE_Z;
+        dc->calibProfile.acc_noise_x = ACC_NOISE_X;
+        dc->calibProfile.acc_noise_y = ACC_NOISE_Y;
+        dc->calibProfile.acc_noise_z = ACC_NOISE_Z;
+        
+        dc->calibProfile.gyro_bias_x = GYRO_BIAS_X;
+        dc->calibProfile.gyro_bias_y = GYRO_BIAS_Y;
+        dc->calibProfile.gyro_bias_z = GYRO_BIAS_Z;
+        dc->calibProfile.gyro_scale_x = GYRO_SCALE_X;
+        dc->calibProfile.gyro_scale_y = GYRO_SCALE_Y;
+        dc->calibProfile.gyro_scale_z = GYRO_SCALE_Z;
+        dc->calibProfile.gyro_noise_x = GYRO_NOISE_X;
+        dc->calibProfile.gyro_noise_y = GYRO_NOISE_Y;
+        dc->calibProfile.gyro_noise_z = GYRO_NOISE_Z;
+        
+        // Yeni eklenen sensör varsayılanları
+        dc->calibProfile.mag_bias_x = MAG_BIAS_X;
+        dc->calibProfile.mag_bias_y = MAG_BIAS_Y;
+        dc->calibProfile.mag_bias_z = MAG_BIAS_Z;
+        dc->calibProfile.mag_scale_x = MAG_SCALE_X;
+        dc->calibProfile.mag_scale_y = MAG_SCALE_Y;
+        dc->calibProfile.mag_scale_z = MAG_SCALE_Z;
+        dc->calibProfile.mag_noise_x = MAG_NOISE_X;
+        dc->calibProfile.mag_noise_y = MAG_NOISE_Y;
+        dc->calibProfile.mag_noise_z = MAG_NOISE_Z;
+        
+        dc->calibProfile.baro_press_bias = BARO_PRESS_BIAS;
+        dc->calibProfile.baro_press_scale = BARO_PRESS_SCALE;
+        dc->calibProfile.baro_press_noise = BARO_PRESS_NOISE;
+        dc->calibProfile.baro_temp_bias = BARO_TEMP_BIAS;
+        dc->calibProfile.baro_temp_scale = BARO_TEMP_SCALE;
+        dc->calibProfile.baro_temp_noise = BARO_TEMP_NOISE;
+        
+        dc->calibProfile.gps_lat_bias = GPS_LAT_BIAS;
+        dc->calibProfile.gps_lat_scale = GPS_LAT_SCALE;
+        dc->calibProfile.gps_lon_bias = GPS_LON_BIAS;
+        dc->calibProfile.gps_lon_scale = GPS_LON_SCALE;
+        dc->calibProfile.gps_alt_bias = GPS_ALT_BIAS;
+        dc->calibProfile.gps_alt_scale = GPS_ALT_SCALE;
+        dc->calibProfile.gps_noise = GPS_NOISE;
+        
+        dc->calibProfile.batt_volt_bias = BATT_VOLT_BIAS;
+        dc->calibProfile.batt_volt_scale = BATT_VOLT_SCALE;
+        dc->calibProfile.batt_volt_noise = BATT_VOLT_NOISE;
+        dc->calibProfile.batt_curr_bias = BATT_CURR_BIAS;
+        dc->calibProfile.batt_curr_scale = BATT_CURR_SCALE;
+        dc->calibProfile.batt_curr_noise = BATT_CURR_NOISE;
+    }
+
     // 1. Önce MPU9250 Init yapılır (Bu sayede I2C Bypass modu açılır)
     if(MPU9250_Init(hi2c) == 0U){
         watchDog = 1;
@@ -47,7 +108,13 @@ void SensorReaderCore_Update(DataCenter *dc, uint32_t current_time_ms) {
     // Sadece zamanı geldiyse veya ilk okumaysa Barometreyi oku
     if (first_run || (current_time_ms - last_baro_time) >= BARO_PERIOD_MS) {
         last_baro_time = current_time_ms;
-        BMP280_Read(dc);
+        if (BMP280_Read(dc) == 0U) {
+            // Barometre okuması başarısız oldu. Sensör modülündeki MPU9250'nin 
+            // Bypass kapısı bir hata yüzünden kapanmış olabilir. Tekrar açmayı deniyoruz.
+            MPU9250_EnableBypass();
+            // Barometre reset yemiş ve uyku moduna geçmiş olabilir, onu da uyandır.
+            BMP280_ReInit();
+        }
     }
     
     first_run = 0;

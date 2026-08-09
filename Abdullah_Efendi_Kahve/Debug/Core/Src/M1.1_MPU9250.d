@@ -28,7 +28,8 @@ Core/Src/M1.1_MPU9250.o: ../Core/Src/M1.1_MPU9250.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Core/Inc/M0.0_DataCenter.h ../Core/Inc/M1.0_SensorReaderCore.h
+ ../Core/Inc/M0.0_DataCenter.h ../Core/Inc/M0.1_FilterConfig.h \
+ ../Core/Inc/M1.0_SensorReaderCore.h
 ../Core/Inc/M1.1_MPU9250.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -60,4 +61,5 @@ Core/Src/M1.1_MPU9250.o: ../Core/Src/M1.1_MPU9250.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../Core/Inc/M0.0_DataCenter.h:
+../Core/Inc/M0.1_FilterConfig.h:
 ../Core/Inc/M1.0_SensorReaderCore.h:

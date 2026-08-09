@@ -1,0 +1,88 @@
+/*
+ * M4.0_Telemetry.c
+ *
+ * Yer istasyonuna (Rasat-GCS) UART üzerinden 77-byte BİNARY telemetri paketi gönderir.
+ */
+
+#include "M4.0_Telemetry.h"
+#include "main.h" // HAL_GetTick ve huart2 için
+#include <string.h>
+#include <stdio.h>
+
+extern UART_HandleTypeDef huart2;
+
+static uint32_t last_telemetry_time = 0;
+static uint32_t packet_counter = 1;
+
+// CRC-8 Hesaplama (Polinom: 0x07, Initial: 0x00)
+static uint8_t ComputeCRC8(uint8_t *data, uint32_t length) {
+    uint8_t crc = 0x00;
+    for (uint32_t i = 0; i < length; i++) {
+        crc ^= data[i];
+        for (uint8_t j = 0; j < 8; j++) {
+            if ((crc & 0x80) != 0) {
+                crc = (uint8_t)((crc << 1) ^ 0x07);
+            } else {
+                crc <<= 1;
+            }
+        }
+    }
+    return crc;
+}
+
+void Telemetry_Init(void) {
+    last_telemetry_time = HAL_GetTick();
+    packet_counter = 1;
+}
+
+void Telemetry_Run(DataCenter *dc) {
+    uint32_t current_time = HAL_GetTick();
+    
+    // 1 Hz (1000 ms) periyot ile veri gönderimi
+    if (current_time - last_telemetry_time >= 50) {
+        last_telemetry_time = current_time;
+        
+        TelemetryPacket packet;
+        memset(&packet, 0, sizeof(TelemetryPacket));
+        
+        // 1. Header (Sabit)
+        packet.header = 0xAB;
+        
+        // 2. Paket Numarası
+        packet.paketNumarasi = packet_counter++;
+        
+        // 3. Uydu Statüsü (FlightMode Enum: 0 veya 1)
+        packet.uyduStatusu = (uint8_t)dc->flightMode;
+        
+        // 4. Hata Kodu ("0000")
+        memcpy(packet.hataKodu, "0000", 4);
+        
+        // 5. Gönderme Saati (Geçen süreyi string'e çevirip 20 baytın içine sığdırıyoruz)
+        uint32_t elapsed_seconds = current_time / 1000;
+        snprintf(packet.gondermeSaati, sizeof(packet.gondermeSaati), "%lu", elapsed_seconds);
+        
+        // 6. Sayısal Veriler (Şu an 0 veya okunanlar)
+        packet.basinc = 0.0f;       // Gelecekte: dc->baro.pressure
+        packet.yukseklik = 0.0f;    // Gelecekte: dc->baro.altitude
+        packet.inisHizi = 0.0f;     
+        packet.sicaklik = 0.0f;     // Gelecekte: dc->baro.temperature
+        packet.pilGerilimi = 0.0f;  // Gelecekte: dc->batt.voltage
+        
+        packet.gpsLatitude = 0.0f;  // Gelecekte: dc->gps.latitude
+        packet.gpsLongitude = 0.0f; // Gelecekte: dc->gps.longitude
+        packet.gpsAltitude = 0.0f;  // Gelecekte: dc->gps.altitude
+        
+        packet.pitch = dc->estimated.pitch;
+        packet.roll = dc->estimated.roll;
+        packet.yaw = dc->estimated.yaw;
+        
+        // 7. Takım No
+        packet.takimNo = 6334;
+        
+        // 8. CRC Hesaplama (Son bayt hariç tüm yapının CRC'si)
+        packet.crc = ComputeCRC8((uint8_t*)&packet, sizeof(TelemetryPacket) - 1);
+        
+        // 9. Paketi Gönder (Bloklayıcı modda gönderiyoruz, ancak hız yüksek olduğu için sorun yaratmaz)
+        HAL_UART_Transmit(&huart2, (uint8_t*)&packet, sizeof(TelemetryPacket), HAL_MAX_DELAY);
+    }
+}

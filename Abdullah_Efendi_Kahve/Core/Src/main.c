@@ -22,11 +22,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "M1.0_SensorReaderCore.h"
-#include "M3.0_FilterCore.h"
-#include "M2.0_FactoryCalibrator.h"
-#include "M2.1_CalibrationUI.h"
+#include "M2.0_SystemCore.h"
 #include "M0.1_FilterConfig.h"
-#include "M5.0_Bonus.h"
+#include "M4.0_Telemetry.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -34,11 +32,8 @@
 /* USER CODE BEGIN PTD */
 #include "M0.0_DataCenter.h"
 DataCenter datacenter;
-Filter_System_t filterSystem;
-SensorCalib_t calibrator;
 uint8_t watchDog = 0 ;
 uint8_t discovered_i2c_addr = 0;
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -84,7 +79,35 @@ PUTCHAR_PROTOTYPE
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#include "M2.3_HardwareFeedback.h"
 
+// 1. Kalibrasyon Hazırlık Durumu (Turuncu LED yanar, Buzzer düz öter)
+void Cb_Prep_Enter(void) {
+    HAL_GPIO_WritePin(GPIOD, CALIB_LED_ORANGE_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOD, Buzzer_Pin, GPIO_PIN_SET);
+}
+
+// 2. Kalibrasyon Ölçüm Durumu (Kırmızı LED ve Buzzer hızlıca yanıp söner)
+void Cb_Measuring_Enter(void) {
+    HAL_GPIO_WritePin(GPIOD, CALIB_LED_ORANGE_Pin, GPIO_PIN_RESET); // Turuncuyu kapat
+}
+
+void Cb_Measuring_Run(void) {
+    static uint32_t last_toggle = 0;
+    // 100 milisaniyede bir flaş efekti
+    if(HAL_GetTick() - last_toggle >= 100) {
+        last_toggle = HAL_GetTick();
+        HAL_GPIO_TogglePin(GPIOD, CALIB_LED_RED_Pin);
+        HAL_GPIO_TogglePin(GPIOD, Buzzer_Pin);
+    }
+}
+
+// 3. Kalibrasyon Bitti Durumu (Sadece Yeşil LED yanar, Buzzer tamamen susar)
+void Cb_Done_Enter(void) {
+    HAL_GPIO_WritePin(GPIOD, CALIB_LED_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOD, Buzzer_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOD, CALIB_LED_GREEN_Pin, GPIO_PIN_SET);
+}
 /* USER CODE END 0 */
 
 /**
@@ -120,15 +143,20 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   
-  // 1. Sensörlerin donanımsal kurulumlarını ve bypass işlemlerini yap
-  SensorReaderCore_Init(&hi2c1);
+  // 0. Hardware Feedback (LED/Buzzer) Kurulumu ve Animasyon Kayıtları
+  M2_3_HardwareFeedback_Init();
+  M2_3_HardwareFeedback_RegisterCallback(FEEDBACK_CALIB_PREP, Cb_Prep_Enter, NULL);
+  M2_3_HardwareFeedback_RegisterCallback(FEEDBACK_CALIB_MEASURING, Cb_Measuring_Enter, Cb_Measuring_Run);
+  M2_3_HardwareFeedback_RegisterCallback(FEEDBACK_CALIB_DONE, Cb_Done_Enter, NULL);
 
-  // 2. Filtre sistemini, kalibrasyon parametrelerini ve EKF'yi başlat
-  Filter_Init(&filterSystem, &datacenter);
-  SensorCalib_Init(&calibrator);
+  // 1. Sensörlerin donanımsal kurulumlarını ve sıfırlamalarını yap
+  SensorReaderCore_Init(&hi2c1, &datacenter);
 
-  // 3. Telemetri paketleyiciyi baslat (Takim no 1234)
-  M_Bonus_Init(1234);
+  // 2. Sistemin çalışacağı ana modun kurulumunu yap
+  SystemCore_Init(&datacenter);
+
+  // 3. Telemetri Modülünü Başlat
+  Telemetry_Init();
 
   /* USER CODE END 2 */
 
@@ -142,31 +170,17 @@ int main(void)
 	  
 	  uint32_t current_time = HAL_GetTick();
 
-	  // SensÃƒÂ¶rlerden verileri okuyoruz (Raw Value)
+	  // Sensörlerden verileri okuyoruz (Raw Value)
 	  SensorReaderCore_Update(&datacenter, current_time);
 
-#if SYSTEM_OP_MODE == MODE_1_QUICK_CALIB
-      // ---- HIZLI KALIBRASYON MODU ----
-      SensorCalib_QuickRun(&calibrator, &datacenter, HAL_GetTick());
-#elif SYSTEM_OP_MODE == MODE_2_FULL_CALIB
-      // ---- 6 EKSEN KALIBRASYON MODU ----
-      SensorCalib_ProcessAdvanced(&calibrator, &datacenter, HAL_GetTick());
-#elif SYSTEM_OP_MODE == MODE_0_FLIGHT
-      // ---- UCUS / NORMAL MOD ----
-      Filter_Update(&filterSystem, &datacenter, HAL_GetTick() * 1000);
-      watchDog = 2;
-#else
-      // Diger modlar (ornek: MODE_3_ALT_CALIB) buraya gelecek
-#endif
+      // Sistem döngüsünü işlet (Kalibrasyon veya Uçuş moduna göre)
+      SystemCore_Run(&datacenter);
 
-      // 1 Saniyede bir telemetri gonder (1000 ms)
-      static uint32_t last_telemetry_time = 0;
-      if (current_time - last_telemetry_time >= 1000) {
-          last_telemetry_time = current_time;
-          
-          uint8_t* tx_buffer = M_Bonus_PackTelemetry(&datacenter);
-          HAL_UART_Transmit(&huart2, tx_buffer, 77, 100);
-      }
+      // LED ve Buzzer animasyonlarını işlet
+      M2_3_HardwareFeedback_Run();
+
+      // M4.0 Telemetri verilerini Yer İstasyonuna gönder (1Hz)
+      Telemetry_Run(&datacenter);
 
   }
   /* USER CODE END 3 */
@@ -302,14 +316,20 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, CALIB_LED_GREEN_Pin|CALIB_LED_ORANGE_Pin|CALIB_LED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, Buzzer_Pin|CALIB_LED_GREEN_Pin|CALIB_LED_ORANGE_Pin|CALIB_LED_RED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : CALIB_LED_GREEN_Pin CALIB_LED_ORANGE_Pin CALIB_LED_RED_Pin */
-  GPIO_InitStruct.Pin = CALIB_LED_GREEN_Pin|CALIB_LED_ORANGE_Pin|CALIB_LED_RED_Pin;
+  /*Configure GPIO pins : Buzzer_Pin CALIB_LED_GREEN_Pin CALIB_LED_ORANGE_Pin CALIB_LED_RED_Pin */
+  GPIO_InitStruct.Pin = Buzzer_Pin|CALIB_LED_GREEN_Pin|CALIB_LED_ORANGE_Pin|CALIB_LED_RED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : CALIB_LED_BLUE_Pin */
+  GPIO_InitStruct.Pin = CALIB_LED_BLUE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(CALIB_LED_BLUE_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -350,8 +370,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-
-
-
-

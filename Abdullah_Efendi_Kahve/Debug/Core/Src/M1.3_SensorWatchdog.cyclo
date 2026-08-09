@@ -1,0 +1,2 @@
+../Core/Src/M1.3_SensorWatchdog.c:10:6:SensorWatchdog_RecoverI2CBus	3
+../Core/Src/M1.3_SensorWatchdog.c:51:6:SensorWatchdog_Check	4

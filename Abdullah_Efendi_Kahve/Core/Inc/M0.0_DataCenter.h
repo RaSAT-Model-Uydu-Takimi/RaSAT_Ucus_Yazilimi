@@ -1,15 +1,8 @@
 /*
- * Data.h
+ * M0.0_DataCenter.h
  *
- * Tanım:
- * Sensorlerden Veri Okur Onları Bilrşe
- *
- * İşlev:
- * 1. Tekil float ve double hassasiyetli kanal yapılarını (Channel_t, DoubleChannel_t) tanımlar.
- * 2. TÜRKSAT Model Uydu Telemetri Formatı (79 Byte) ile tam uyumlu olacak şekilde,
- *    gereksiz çift birimleri (_g ve _dps) barındırmayan yalın SensorChannels_t yapısını kurar.
- * 3. 4 boyutlu kuaterniyon (q0, q1, q2, q3) ve 3 boyutlu Euler açılarını (Pitch, Roll, Yaw) barındırır.
- * 4. 9 durumlu EKF ve AHRS çıkışlarını kapsayan ana ProcessedData_t yapısını kurar.
+ * DataCenter Structure
+ * Stores all sensor raw/calibrated data and estimated states.
  */
 
 #ifndef INC_DATA_H_
@@ -20,142 +13,162 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
- * Tanım: Standart Tekli Kanal Yapısı 
- * İşlev: Float hassasiyetindeki her bir fiziksel ölçümü (SI biriminde) ve
- * o verinin anlık güven puanını (%0.0 ile %100.0 arasında) birlikte barındırır.
- */
-typedef struct {
-    float rawValue;        // Fiziksel ölçüm veya kestirim değeri (SI standart biriminde)
-    float calibratedValue;  // Kalibrasyon, ofset ve termal telafi uygulanmış değer
-    float filteredValue;    // Filtrelenmiş Veri
-    float confidence;   // Bu veriye özel anlık güven skoru [0-1]
-} SensorData;
 
-/*
- * Tanım: Yüksek Hassasiyetli Çiftli Kanal Yapısı (DoubleChannel_t)
- * İşlev: Metre altı hassasiyet gerektiren coğrafi koordinat (Enlem/Boylam) verilerini
- * ve bu koordinatların anlık güven puanlarını barındırır.
- */
-typedef struct {
-    double rawValue;        // Fiziksel ölçüm veya kestirim değeri (SI standart biriminde)
-    double calibratedValue;  // Kalibrasyon, ofset ve termal telafi uygulanmış değer
-    double filteredValue;    // Filtrelenmiş Veri
-    float confidence;   // Bu veriye özel anlık güven skoru [0-1]
-} DoubleSensorData;
-
-/*
- * Tanım: SensorDatalardan üreten yapılar
- * İşlev: 
- *
- */
-typedef struct {
-    float value;         // Farklı sensorlerden gelen total verinin kestirimi
-    float confidence;    // Bu veriye özel anlık güven skoru [0-1]
-} DerivedData;
+typedef enum {
+    FLIGHT_MODE_UNCALIBRATED = 0, // Makrolardaki sabit kalibrasyon değerlerini kullanır
+    FLIGHT_MODE_CALIBRATED   = 1  // RAM'de dinamik hesaplanan değerleri kullanır
+} FlightMode;
 
 typedef struct {
-    SensorData x;       // X ekseni ivmesi [g]
-    SensorData y;       // Y ekseni ivmesi [g]
-    SensorData z;       // Z ekseni ivmesi [g]
-    uint32_t UpdateTime; // Son güncelleme zamanı (us)
-} Acc;
-
-typedef struct {
-    SensorData x;       // X ekseni açısal hızı [dps]
-    SensorData y;       // Y ekseni açısal hızı [dps]
-    SensorData z;       // Z ekseni açısal hızı [dps]
-    uint32_t UpdateTime;   // Son güncelleme zamanı (us)
-} Gyro;
-
-typedef struct {
-    SensorData x;        // X ekseni manyetik alan [uT]
-    SensorData y;        // Y ekseni manyetik alan [uT]
-    SensorData z;        // Z ekseni manyetik alan [uT]
-    uint32_t UpdateTime;    // Son güncelleme zamanı (us)
-} Mag;
-
-typedef struct {
-    DoubleSensorData x;       // Enlem [°]
-    DoubleSensorData y;       // Boy
-    SensorData  z;            // Yükseklik [m]
-    SensorData course;        // Rota
-    float HDOP;               // HDOP = Horizontal Dilution of Precision - Yatay Hassasiyet Çarpanı
-    uint8_t satelliteCount;   // Görünen uydu sayısı
-    uint8_t fixQuality;       // 0: Fix Yok, 1: GPS Fix, 2: DGPS Fix
-    SensorData speed;         // Yere göre hız [m/s]
+    float raw_x;
+    float raw_y;
+    float raw_z;
     
-
-    uint32_t UpdateTime;      // Son güncelleme zamanı (us)
-
-}Gps;
-
-typedef struct {
-    SensorData press; // Basınç [Pa]
-    SensorData temp; // Sıcaklık [°C]
-    uint32_t UpdateTime; // Son güncelleme zamanı (us)
-} Baro;
-
-typedef struct {
-    SensorData battVolt; // Batarya gerilimi [V]
-    SensorData battCurr; // Batarya akımı [A]
-    uint32_t UpdateTime; // Son güncelleme zamanı (us)
-} Batt;
-
-
-
-
-typedef struct {
-    DerivedData pos_x; // X ekseni konum [m]
-    DerivedData pos_y; // Y ekseni konum [m]  
-    DerivedData pos_z; // Z ekseni konum [m] 
-
-    DerivedData vel_x; // X ekseni hız [m/s]
-    DerivedData vel_y; // Y ekseni hız [m/s]
-    DerivedData vel_z; // Z ekseni hız [m/s]
-
-    DerivedData a_x; // X ekseni ivme [m/s^2]
-    DerivedData a_y; // Y ekseni ivme [m/s^2]
-    DerivedData a_z; // Z ekseni ivme [m/s^2]
+    float calibrated_x;
+    float calibrated_y;
+    float calibrated_z;
     
-    // Dünya ekseni (NED) ivmeleri (M7 modülünden gelir)
-    DerivedData earth_a_x;
-    DerivedData earth_a_y;
-    DerivedData earth_a_z;
-
-    // Jiroskop Kaymaları (M3 7-Durumlu EKF'den gelir)
-    DerivedData gyro_bias_x; // Jiroskop X ekseni termal/mekanik kayması [rad/s]
-    DerivedData gyro_bias_y; // Jiroskop Y ekseni termal/mekanik kayması [rad/s]
-    DerivedData gyro_bias_z; // Jiroskop Z ekseni termal/mekanik kayması [rad/s]
-
-    // 
-    DerivedData q0; // Kuaterniyon w (real)
-    DerivedData q1; // Kuaterniyon x
-    DerivedData q2; // Kuaterniyon y
-    DerivedData q3; // Kuaterniyon z
-    
-    // 
-    DerivedData pitch; // Pitch açısı [°]
-    DerivedData roll;  // Roll açısı [°]
-    DerivedData yaw;   // Yaw açısı [°]
-} EstimatedDatas;
-
+    uint32_t UpdateTime;
+} AccData, GyroData, MagData;
 
 typedef struct {
-    Acc acc;                   // 3 Eksenli İvmeölçer (Accelerometer) Kanalları
-    Gyro gyro;                 // 3 Eksenli Jiroskop (Gyroscope) Kanalları
-    Mag mag;                   // 3 Eksenli Manyetometre (Magnetometer) Kanalları
-    Baro baro;                 // İrtifa Sensörü Kanalları
-    Gps gps;                   // GPS ve Navigasyon Kanalları
-    Batt batt;                 // Batarya Kanalları
+    float raw_press;
+    float raw_temp;
+    
+    float calibrated_press;
+    float calibrated_temp;
+    
+    uint32_t UpdateTime;
+} BaroData;
 
-    EstimatedDatas estimated;   // Türetilmiş Veriler
-} DataCenter ;
+typedef struct {
+    double raw_lat;
+    double raw_lon;
+    float raw_alt;
+    
+    double calibrated_lat;
+    double calibrated_lon;
+    float calibrated_alt;
+    
+    float HDOP;
+    uint8_t satelliteCount;
+    uint8_t fixQuality;
+    float speed;
+    uint32_t UpdateTime;
+} GpsData;
 
+typedef struct {
+    float raw_volt;
+    float raw_curr;
+    
+    float calibrated_volt;
+    float calibrated_curr;
+    
+    uint32_t UpdateTime;
+} BattData;
+
+// Filtrelenmiş / Hesaplanmış Uçuş Verileri
+typedef struct {
+    // Oryantasyon (Attitude)
+    float roll;
+    float pitch;
+    float yaw;
+    float q0, q1, q2, q3; // Kuaterniyonlar
+    
+    // Konum ve İrtifa (Position & Altitude)
+    float altitude; // Filtrelenmiş net irtifa (m)
+    double latitude; 
+    double longitude; 
+    
+    // Hız ve İvme (Velocity & Acceleration)
+    float vertical_velocity; // Düşey hız (m/s)
+    float horizontal_velocity; // Yatay hız (m/s)
+    
+    float linear_acceleration_x;
+    float linear_acceleration_y;
+    float linear_acceleration_z;
+} EstimatedData;
+
+// Sensör Kalibrasyon Profili (Bias, Scale, Noise)
+typedef struct {
+    // İvmeölçer Kalibrasyon Verileri
+    float acc_bias_x;
+    float acc_bias_y;
+    float acc_bias_z;
+    
+    float acc_scale_x;
+    float acc_scale_y;
+    float acc_scale_z;
+    
+    float acc_noise_x;
+    float acc_noise_y;
+    float acc_noise_z;
+    
+    // Jiroskop Kalibrasyon Verileri
+    float gyro_bias_x;
+    float gyro_bias_y;
+    float gyro_bias_z;
+    
+    float gyro_scale_x;
+    float gyro_scale_y;
+    float gyro_scale_z;
+    
+    float gyro_noise_x;
+    float gyro_noise_y;
+    float gyro_noise_z;
+    
+    // Manyetometre Kalibrasyon Verileri
+    float mag_bias_x;
+    float mag_bias_y;
+    float mag_bias_z;
+    float mag_scale_x;
+    float mag_scale_y;
+    float mag_scale_z;
+    float mag_noise_x;
+    float mag_noise_y;
+    float mag_noise_z;
+    
+    // Barometre Kalibrasyon Verileri
+    float baro_press_bias;
+    float baro_press_scale;
+    float baro_press_noise;
+    float baro_temp_bias;
+    float baro_temp_scale;
+    float baro_temp_noise;
+    
+    // GPS Kalibrasyon Verileri
+    double gps_lat_bias;
+    double gps_lat_scale;
+    double gps_lon_bias;
+    double gps_lon_scale;
+    float gps_alt_bias;
+    float gps_alt_scale;
+    float gps_noise;
+    
+    // Batarya Kalibrasyon Verileri
+    float batt_volt_bias;
+    float batt_volt_scale;
+    float batt_volt_noise;
+    float batt_curr_bias;
+    float batt_curr_scale;
+    float batt_curr_noise;
+} SensorCalibProfile;
+
+typedef struct {
+    SensorCalibProfile calibProfile;
+    EstimatedData estimated;
+    FlightMode flightMode; // Uçuş modunu takip etmek için eklendi
+    
+    AccData acc;
+    GyroData gyro;
+    BaroData baro;
+    MagData mag;
+    GpsData gps;
+    BattData batt;
+} DataCenter;
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* INC_DATA_H_ */
-

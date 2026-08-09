@@ -1,0 +1,3 @@
+../Core/Src/M4.0_Telemetry.c:18:16:ComputeCRC8	4
+../Core/Src/M4.0_Telemetry.c:33:6:Telemetry_Init	1
+../Core/Src/M4.0_Telemetry.c:38:6:Telemetry_Run	2

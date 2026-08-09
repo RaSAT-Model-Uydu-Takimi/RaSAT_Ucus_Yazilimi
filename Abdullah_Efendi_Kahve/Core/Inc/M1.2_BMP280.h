@@ -21,6 +21,12 @@
 
 uint8_t BMP280_Init(I2C_HandleTypeDef *i2c_handle);
 
+/*
+ * Sensor uyku moduna gecerse (hareket sirasinda reset yeme)
+ * yeniden uyandirmak icin kullanilir.
+ */
+void BMP280_ReInit(void);
+
 uint8_t BMP280_Read(DataCenter *data);
 
 uint8_t BMP280_IsReady(void);

@@ -1,173 +1,110 @@
-﻿#ifndef INC_FILTER_CONFIG_H_
-#define INC_FILTER_CONFIG_H_
+/*
+ * M0.1_FilterConfig.h
+ *
+ * Configuration file for Filter System and Operational Modes
+ */
+
+#ifndef INC_FILTERCONFIG_H_
+#define INC_FILTERCONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* =========================================================================
- * SISTEM CALISMA MODU (SYSTEM_OP_MODE)
- * ========================================================================= */
-#define MODE_0_FLIGHT         0
-#define MODE_1_QUICK_CALIB    1
-#define MODE_2_FULL_CALIB     2
-#define MODE_3_ALT_CALIB      3
+// --- ÇALIŞMA MODU SEÇİMİ ---
+// (Bu artık dinamik olarak M2.0_SystemCore içinde yönetilir)
+// --------------------------
 
-#ifndef SYSTEM_OP_MODE
-#define SYSTEM_OP_MODE    MODE_0_FLIGHT
-#endif
+// --- EKF (EXTENDED KALMAN FILTER) AYARLARI ---
+// EKF için varsayılan gürültü varyans değerleri (Uçuş öncesi ölçülemezse kullanılır)
+#define EKF_INITIAL_Q_GYRO    0.0001f  // Jiroskop gürültü varyansı (Süreç Gürültüsü Q)
+#define EKF_INITIAL_R_ACCEL   0.05f    // İvmeölçer gürültü varyansı (Ölçüm Gürültüsü R)
+#define EKF_INITIAL_P         1.0f     // Başlangıç hata kovaryansı (P Matrisi)
 
-// Kalibrasyon Bekleme/Ã–lÃ§Ã¼m SÃ¼releri (Milisaniye Cinsinden)
-#define CALIB_TRANSITION_TIME_MS    5000 // Pozisyon deÄŸiÅŸtirip cihazÄ±n titremesinin bitmesi iÃ§in sÃ¼re (10 sn)
-#define CALIB_MEASURING_TIME_MS     5000 // O pozisyonda tamamen sabitken veri toplanacak sÃ¼re (20 sn)
+// Dinamik R matrisi (Titreşim engelleme) için ivme sınırları (m/s^2)
+// Yerçekimi (9.81) değerinden bu kadar sapılırsa R matrisi büyütülür (İvmeölçere güven azalır)
+#define EKF_VIBRATION_THRESHOLD  2.0f   // 9.81 ± 2.0 m/s^2 dışı sarsıntı sayılır
+#define EKF_R_MULTIPLIER         100.0f // Sarsıntı anında R matrisi kaç kat büyütülecek?
 
-/* =========================================================================
- * 0. BÄ°RÄ°M DÃ–NÃœÅÃœM SABÄ°TLERÄ°
- * ========================================================================= */
-#define DEG2RAD          0.01745329251f   /* Ï€ / 180                          */
-#define RAD2DEG          57.2957795131f   /* 180 / Ï€                          */
-#define GRAVITY_MPS2     9.80665f         /* Standart yerÃ§ekimi [m/sÂ²]        */
+#define DEG_TO_RAD (3.14159265358979323846f / 180.0f)
+#define RAD_TO_DEG (180.0f / 3.14159265358979323846f)
+#define GRAVITY_MSS (9.80665f) // Yerçekimi ivmesi (m/s^2)
+// --- TİTREŞİM VE İVME FİLTRESİ (VIBRATION & ACCEL LPF) ---
+// İvmeölçer için yazılımsal LPF katsayısı (0.0 ile 1.0 arası)
+// Değer küçüldükçe filtreleme artar, tepki süresi yavaşlar. (Örn: 0.1 = %10 yeni veri, %90 eski veri)
+#define ACCEL_LPF_ALPHA    0.1f
 
-/* =========================================================================
- * 1. SENSÃ–R KANALLARI STATÄ°K SABÄ°TLERÄ° (BIAS - SCALE - NOISE)
- * Birimler: rawValue biriminde (g, dps, ÂµT, Pa)
- * M1 kalibrasyon sonrasÄ± SI'ya Ã§evrilir (m/sÂ², rad/s)
- * ========================================================================= */
+// Dinamik Kp için ivme vektörü büyüklüğü toleransı (m/s^2)
+// Yerçekimi 9.81 m/s^2 civarındadır. Eğer okunan toplam ivme, 
+// bu sınırların dışına çıkarsa (çok sarsıntı varsa), Mahony Kp sıfırlanır.
+#define ACCEL_MAG_MIN      7.0f   // ~0.7G
+#define ACCEL_MAG_MAX      13.0f  // ~1.3G
+// --------------------------
 
-// 1.1 Ä°vmeÃ¶lÃ§er (Accelerometer) â€“ rawValue birimi: g
-#define CALIB_ACC_X_BIAS           -0.059999f
-#define CALIB_ACC_X_SCALE           1.0f
-#define CALIB_ACC_X_NOISE           0.000007f
+// --- SENSÖR KALİBRASYON VARSAYILANLARI ---
 
-#define CALIB_ACC_Y_BIAS           0.0089140f
-#define CALIB_ACC_Y_SCALE           1.0f
-#define CALIB_ACC_Y_NOISE           0.000002f
+// İvmeölçer (Accelerometer)
+#define ACC_BIAS_X  0.0f
+#define ACC_BIAS_Y  0.0f
+#define ACC_BIAS_Z  0.0f
+#define ACC_SCALE_X 1.0f
+#define ACC_SCALE_Y 1.0f
+#define ACC_SCALE_Z 1.0f
+#define ACC_NOISE_X 0.0f
+#define ACC_NOISE_Y 0.0f
+#define ACC_NOISE_Z 0.0f
 
-#define CALIB_ACC_Z_BIAS           -0.002826f
-#define CALIB_ACC_Z_SCALE           1.0f
-#define CALIB_ACC_Z_NOISE           0.000040f
-#define CALIB_ACC_THERMAL_DRIFT     0.000000f
-// 1.2 Jiroskop (Gyroscope) â€“ rawValue birimi: dps (degree per second)
-#define CALIB_GYRO_X_BIAS          -2.454215f
-#define CALIB_GYRO_X_SCALE          1.000000f
-#define CALIB_GYRO_X_NOISE          0.092418f
+// Jiroskop (Gyroscope)
+#define GYRO_BIAS_X 0.0f
+#define GYRO_BIAS_Y 0.0f
+#define GYRO_BIAS_Z 0.0f
+#define GYRO_SCALE_X 1.0f
+#define GYRO_SCALE_Y 1.0f
+#define GYRO_SCALE_Z 1.0f
+#define GYRO_NOISE_X 0.0f
+#define GYRO_NOISE_Y 0.0f
+#define GYRO_NOISE_Z 0.0f
 
-#define CALIB_GYRO_Y_BIAS           2.431931f
-#define CALIB_GYRO_Y_SCALE          1.000000f
-#define CALIB_GYRO_Y_NOISE          0.166621f
+// Manyetometre (Magnetometer)
+#define MAG_BIAS_X  0.0f
+#define MAG_BIAS_Y  0.0f
+#define MAG_BIAS_Z  0.0f
+#define MAG_SCALE_X 1.0f
+#define MAG_SCALE_Y 1.0f
+#define MAG_SCALE_Z 1.0f
+#define MAG_NOISE_X 0.0f
+#define MAG_NOISE_Y 0.0f
+#define MAG_NOISE_Z 0.0f
 
-#define CALIB_GYRO_Z_BIAS          -0.615513f
-#define CALIB_GYRO_Z_SCALE          1.000000f
-#define CALIB_GYRO_Z_NOISE          0.033881f
+// Barometre (Barometer)
+#define BARO_PRESS_BIAS  0.0f
+#define BARO_PRESS_SCALE 1.0f
+#define BARO_PRESS_NOISE 0.0f
+#define BARO_TEMP_BIAS   0.0f
+#define BARO_TEMP_SCALE  1.0f
+#define BARO_TEMP_NOISE  0.0f
 
-// 1.3 Manyetometre (Magnetometer) â€“ rawValue birimi: ÂµT
-#define CALIB_MAG_X_BIAS            0.0000f
-#define CALIB_MAG_X_SCALE           1.0000f
-#define CALIB_MAG_X_NOISE           0.0500f
+// GPS
+#define GPS_LAT_BIAS    0.0
+#define GPS_LAT_SCALE   1.0
+#define GPS_LON_BIAS    0.0
+#define GPS_LON_SCALE   1.0
+#define GPS_ALT_BIAS    0.0f
+#define GPS_ALT_SCALE   1.0f
+#define GPS_NOISE       0.0f
 
-#define CALIB_MAG_Y_BIAS            0.0000f
-#define CALIB_MAG_Y_SCALE           1.0000f
-#define CALIB_MAG_Y_NOISE           0.0500f
+// Batarya (Battery)
+#define BATT_VOLT_BIAS  0.0f
+#define BATT_VOLT_SCALE 1.0f
+#define BATT_VOLT_NOISE 0.0f
+#define BATT_CURR_BIAS  0.0f
+#define BATT_CURR_SCALE 1.0f
+#define BATT_CURR_NOISE 0.0f
+// --------------------------
 
-#define CALIB_MAG_Z_BIAS            0.0000f
-#define CALIB_MAG_Z_SCALE           1.0000f
-#define CALIB_MAG_Z_NOISE           0.0500f
-
-// 1.4 Ä°rtifa SensÃ¶rÃ¼ (Barometer) â€“ rawValue birimi: Pa, Â°C
-#define CALIB_BARO_PRESS_BIAS       0.0000f
-#define CALIB_BARO_PRESS_SCALE      1.0000f
-#define CALIB_BARO_PRESS_NOISE      2.0000f
-
-#define CALIB_BARO_TEMP_BIAS        0.0000f
-#define CALIB_BARO_TEMP_SCALE       1.0000f
-#define CALIB_BARO_TEMP_NOISE       0.0000f
-
-// 1.5 GPS KanallarÄ± â€“ rawValue birimi: Â°, m, m/s
-#define CALIB_GPS_X_BIAS            0.0000f
-#define CALIB_GPS_X_SCALE           1.0000f
-#define CALIB_GPS_X_NOISE           0.0100f
-
-#define CALIB_GPS_Y_BIAS            0.0000f
-#define CALIB_GPS_Y_SCALE           1.0000f
-#define CALIB_GPS_Y_NOISE           0.0100f
-
-#define CALIB_GPS_Z_BIAS            0.0000f
-#define CALIB_GPS_Z_SCALE           1.0000f
-#define CALIB_GPS_Z_NOISE           0.0100f
-
-#define CALIB_GPS_VEL_BIAS          0.0000f
-#define CALIB_GPS_VEL_SCALE         1.0000f
-#define CALIB_GPS_VEL_NOISE         0.0100f
-
-/* =========================================================================
- * 2. ORIENTATION (YÃ–NELIM) SABÄ°TLERÄ°
- * ========================================================================= */
-#define ORIENTATION_SYSTEM_GAIN           0.041f  /* Mahony Kp: ivmeÃ¶lÃ§er dÃ¼zeltme kazancÄ± */
-#define ORIENTATION_SYSTEM_GPS_YAW_GAIN   0.005f  /* GPS ile Yaw dÃ¼zeltme kazancÄ±          */
-
-/* =========================================================================
- * 3. ORTAM VE RAMPA KALÄ°BRASYON SABÄ°TLERÄ°
- * ========================================================================= */
-#define FILTER_CALIB_SAMPLES_COUNT     100        /* Rampada alÄ±nacak referans Ã¶rnek sayÄ±sÄ± */
-#define FILTER_SEA_LEVEL_PA_DEFAULT    101325.0f  /* UluslararasÄ± deniz seviyesi basÄ±ncÄ±    */
-#define FILTER_TEMP_REF_DEFAULT        25.0f      /* Referans kalibrasyon sÄ±caklÄ±ÄŸÄ± [Â°C]    */
-
-/* =========================================================================
- * 4. GÃœVEN MOTORU (CONFIDENCE) SABÄ°TLERÄ° VE SIÃ‡RAMA (SPIKE) LÄ°MÄ°TLERÄ°
- * Spike limitleri KALÄ°BRE EDÄ°LMÄ°Å birim cinsindendir (m/sÂ², rad/s, Pa)
- * ========================================================================= */
-#define CONFIDENCE_MIN_VALID             0.20f    /* EKF'ye kabul iÃ§in minimum gÃ¼ven (%20)  */
-#define CONFIDENCE_TIMEOUT_US            500000   /* Veri donmasÄ±nÄ± tespit sÃ¼resi (500 ms)  */
-#define CONFIDENCE_SPIKE_PENALTY_FACTOR  0.5f     /* SÄ±Ã§ramada gÃ¼ven ceza Ã§arpanÄ±           */
-#define CONFIDENCE_RECOVERY_RATE         0.05f    /* DÃ¶ngÃ¼ baÅŸÄ±na gÃ¼ven toparlanma artÄ±ÅŸÄ±   */
-
-#define CONFIDENCE_MAX_SPIKE_ACC_MPS2    15.0f    /* Ä°vmede max adÄ±m deÄŸiÅŸim [m/sÂ²]         */
-#define CONFIDENCE_MAX_SPIKE_GYRO_RADPS  0.8726f  /* Jiroskopta max adÄ±m deÄŸiÅŸim [rad/s]    */
-#define CONFIDENCE_MAX_SPIKE_BARO_PA     500.0f   /* BasÄ±nÃ§ta max adÄ±m deÄŸiÅŸim [Pa]         */
-#define CONFIDENCE_MAX_SPIKE_MAG_UT      50.0f    /* Manyetometrede max adÄ±m deÄŸiÅŸim [ÂµT]   */
-
-/* FDI (Hata Tespiti ve Ä°zolasyon) Sabitleri */
-#define EKF_INNOVATION_GATE_3SIGMA       9.0f     /* 3-Sigma kuralÄ± (Ä°statistikte %99.7 sÄ±nÄ±r) */
-
-/* =========================================================================
- * 5. EKF SÃœREÃ‡ GÃœRÃœLTÃœSÃœ (PROCESS NOISE - Q)
- * Modelin kendi fiziksel/matematiksel belirsizliÄŸidir.
- * Ne kadar kÃ¼Ã§Ã¼k olursa EKF tahmine o kadar gÃ¼venir.
- * ========================================================================= */
-
-// M3_EKF_ATTITUDE (YÃ¶nelim - 7 Durumlu) Q Matrisi DeÄŸerleri
-#define EKF_Q_ATT_Q                  0.001f  /* Kuaterniyon tahmini belirsizliÄŸi */
-#define EKF_Q_ATT_BIAS               0.0001f /* Jiroskop bias (kayma) belirsizliÄŸi */
-
-// M5_EKF_Z (Ä°rtifa ve Dikey HÄ±z) Q Matrisi DeÄŸerleri
-#define EKF_Q_Z_POS                  0.01f   /* Ä°rtifa tahminindeki belirsizlik       */
-#define EKF_Q_Z_VEL                  0.05f   /* HÄ±z tahminindeki belirsizlik           */
-#define EKF_Q_Z_ACC_BIAS             0.001f  /* Z Ä°vmeÃ¶lÃ§er Bias kayma hÄ±zÄ±           */
-
-// M6_EKF_XY (Yatay Konum ve HÄ±z) Q Matrisi DeÄŸerleri
-#define EKF_Q_XY_POS                 0.01f
-#define EKF_Q_XY_VEL                 0.05f
-
-// M4_EKF_YAW (Pusula YÃ¶nÃ¼) Q Matrisi DeÄŸerleri
-#define EKF_Q_YAW_ANGLE              0.01f
-
-/* =========================================================================
- * 6. EKF G-KOMPANSASYONU VE DÄ°NAMÄ°K AÄIRLIK SABÄ°TLERÄ°
- * ========================================================================= */
-
-/* calibratedValue artÄ±k m/sÂ² olduÄŸu iÃ§in eÅŸik de m/sÂ² cinsindendir.         */
-/* 12g Ã— 9.81 â‰ˆ 117.7 m/sÂ²: motor yanmasÄ± sÄ±rasÄ±nda ivmeÃ¶lÃ§er yoksayÄ±lÄ±r.   */
-#define EKF_G_COMP_THRESHOLD_MPS2    (12.0f * GRAVITY_MPS2)
-
-#define WEIGHT_PR_ACC                1.0f    /* Pitch/Roll iÃ§in Ä°vmeÃ¶lÃ§er AÄŸÄ±rlÄ±ÄŸÄ±   */
-#define WEIGHT_YAW_GPS               1.0f    /* Yaw iÃ§in GPS Rota AÄŸÄ±rlÄ±ÄŸÄ±           */
-#define WEIGHT_YAW_MAG               0.5f    /* Yaw iÃ§in Manyetometre AÄŸÄ±rlÄ±ÄŸÄ±       */
-#define WEIGHT_ALT_BARO              1.0f    /* Ä°rtifa iÃ§in Barometre AÄŸÄ±rlÄ±ÄŸÄ±        */
-#define WEIGHT_XY_GPS                1.0f    /* Yatay Konum/HÄ±z iÃ§in GPS AÄŸÄ±rlÄ±ÄŸÄ±    */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* INC_FILTER_CONFIG_H_ */
-
+#endif /* INC_FILTERCONFIG_H_ */
