@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 
+void M3_3_Yaw_Init(DataCenter *dc);
 void M3_3_Yaw_Update(DataCenter *dc, float dt);
 
 #ifdef __cplusplus

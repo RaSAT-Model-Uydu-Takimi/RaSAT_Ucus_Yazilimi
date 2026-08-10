@@ -15,6 +15,8 @@ static struct {
     double gyro_x_sq_sum, gyro_y_sq_sum, gyro_z_sq_sum; // Varyans hesaplaması için
     
     double mag_x_sum, mag_y_sum, mag_z_sum;
+    double mag_x_sq_sum, mag_y_sq_sum, mag_z_sq_sum; // Varyans hesaplaması için
+    
     double baro_press_sum, baro_temp_sum;
     uint32_t count;
 } calibData;
@@ -43,6 +45,10 @@ void M3_1_Calibration_Accumulate(DataCenter *dc) {
     calibData.mag_x_sum += dc->mag.raw_x;
     calibData.mag_y_sum += dc->mag.raw_y;
     calibData.mag_z_sum += dc->mag.raw_z;
+    
+    calibData.mag_x_sq_sum += (double)dc->mag.raw_x * dc->mag.raw_x;
+    calibData.mag_y_sq_sum += (double)dc->mag.raw_y * dc->mag.raw_y;
+    calibData.mag_z_sq_sum += (double)dc->mag.raw_z * dc->mag.raw_z;
     
     calibData.baro_press_sum += dc->baro.raw_press;
     calibData.baro_temp_sum += dc->baro.raw_temp;
@@ -90,10 +96,20 @@ void M3_1_Calibration_Calculate(DataCenter *dc) {
     if(dc->calibProfile.acc_noise_y < 0.0001f) dc->calibProfile.acc_noise_y = 0.0001f;
     if(dc->calibProfile.acc_noise_z < 0.0001f) dc->calibProfile.acc_noise_z = 0.0001f;
     
-    // MAG (Gerçek manyetik kalibrasyon sphere fit veya min/max ister, burada basit ortalama yapıyoruz şimdilik)
-    dc->calibProfile.mag_bias_x = (float)(calibData.mag_x_sum / calibData.count);
-    dc->calibProfile.mag_bias_y = (float)(calibData.mag_y_sum / calibData.count);
-    dc->calibProfile.mag_bias_z = (float)(calibData.mag_z_sum / calibData.count);
+    // MAG VARYANS (EKF R Matrisi İçin) - Uçuş öncesi manyetik gürültü ölçümü
+    float mag_avg_x = (float)(calibData.mag_x_sum / calibData.count);
+    float mag_avg_y = (float)(calibData.mag_y_sum / calibData.count);
+    float mag_avg_z = (float)(calibData.mag_z_sum / calibData.count);
+    
+    dc->calibProfile.mag_noise_x = (float)((calibData.mag_x_sq_sum / calibData.count) - (mag_avg_x * mag_avg_x));
+    dc->calibProfile.mag_noise_y = (float)((calibData.mag_y_sq_sum / calibData.count) - (mag_avg_y * mag_avg_y));
+    dc->calibProfile.mag_noise_z = (float)((calibData.mag_z_sq_sum / calibData.count) - (mag_avg_z * mag_avg_z));
+    
+    if(dc->calibProfile.mag_noise_x < 0.0001f) dc->calibProfile.mag_noise_x = 0.0001f;
+    if(dc->calibProfile.mag_noise_y < 0.0001f) dc->calibProfile.mag_noise_y = 0.0001f;
+    if(dc->calibProfile.mag_noise_z < 0.0001f) dc->calibProfile.mag_noise_z = 0.0001f;
+    
+    // NOT: mag_bias hesaplaması buradan kaldırıldı çünkü sabit dururken pusula sıfırlanmaz!
     
     // BARO (Mevcut basıncı yer seviyesi sıfır noktası olarak alabiliriz)
     dc->calibProfile.baro_press_bias = (float)(calibData.baro_press_sum / calibData.count);

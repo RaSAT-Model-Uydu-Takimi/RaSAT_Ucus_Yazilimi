@@ -7,6 +7,7 @@
 
 #include "M3.0_FilterSystem.h"
 #include "M0.1_FilterConfig.h"
+#include "M3.3_Yaw.h"
 #include <math.h>
 
 // EKF State Covariance Matrix (4x4)
@@ -62,7 +63,9 @@ void FilterSystem_Init(DataCenter *dc) {
     // Reset Euler
     dc->estimated.roll = 0.0f;
     dc->estimated.pitch = 0.0f;
-    dc->estimated.yaw = 0.0f;
+    
+    // Yaw ve Kalman durumunu sıfırla (Kullanıcı isteği üzerine Filter Init içinden çağrılıyor)
+    M3_3_Yaw_Init(dc);
     
     // Initialize P Matrix
     for(int i=0; i<4; i++) {

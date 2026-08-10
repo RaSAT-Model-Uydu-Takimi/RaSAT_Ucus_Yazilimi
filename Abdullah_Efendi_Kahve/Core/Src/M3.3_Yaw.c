@@ -2,75 +2,90 @@
  * M3.3_Yaw.c
  *
  * Sapma (Yaw / Pusula) Hesaplama Modülü
+ * Manyetometre ve Jiroskop verilerini kullanarak 1-Boyutlu Kalman Filtresi (1D KF) üretir.
  */
 
 #include "M3.3_Yaw.h"
 #include "M0.1_FilterConfig.h"
 #include <math.h>
 
+// 1D Kalman Durum Kovaryansı (P)
+static float P_yaw = 1.0f;
+
+void M3_3_Yaw_Init(DataCenter *dc) {
+    dc->estimated.yaw = 0.0f;
+    P_yaw = 1.0f; // Filtreyi sıfırla
+}
+
 void M3_3_Yaw_Update(DataCenter *dc, float dt) {
     
+    // --- 1. TAHMİN (PREDICT) ADIMI ---
+    // Jiroskopun Z ekseni verisini kalibrasyon profilindeki kayma (bias) ile düzeltiyoruz.
+    float gz = dc->gyro.calibrated_z - dc->calibProfile.gyro_bias_z; 
+    
+    // Tahmini Yaw = Önceki Yaw + (Jiroskop Hızı * Zaman)
+    float yaw_pred = dc->estimated.yaw + (gz * dt);
+    
+    // Tahmini Kovaryans = Önceki Kovaryans + Süreç Gürültüsü (Q)
+    // Q matrisi (skaler) olarak Jiroskop Z gürültüsünü kullanıyoruz.
+    float Q_yaw = (dc->calibProfile.gyro_noise_z > 0) ? dc->calibProfile.gyro_noise_z : 0.0001f;
+    P_yaw = P_yaw + Q_yaw;
+
 #if YAW_USE_MAGNETOMETER
-    // 1. Manyetometre Kalibrasyonu (Bias ve Scale uygulama)
-    // Ham veri üzerinden bias çıkartılır ve scale ile çarpılır.
+    // --- 2. DÜZELTME (UPDATE) ADIMI ---
+    
+    // Manyetometre Kalibrasyonu (Sadece Yer İstasyonundan Bias/Scale geldiyse uygulanır)
+    // Sabit dururken bias ölçmediğimiz için, yer istasyonu girmediyse bias_x/y/z sıfırdır.
     float mag_x = (dc->mag.raw_x - dc->calibProfile.mag_bias_x) * dc->calibProfile.mag_scale_x;
     float mag_y = (dc->mag.raw_y - dc->calibProfile.mag_bias_y) * dc->calibProfile.mag_scale_y;
     float mag_z = (dc->mag.raw_z - dc->calibProfile.mag_bias_z) * dc->calibProfile.mag_scale_z;
     
-    // Eğer manyetometre bağlantısı koptuysa veya 0 okuyorsa koruma:
-    if(mag_x == 0.0f && mag_y == 0.0f && mag_z == 0.0f) {
-        // Kör uçuş jiroskop entegrasyonuna geri dön
-        float gz = dc->gyro.calibrated_z - dc->calibProfile.gyro_bias_z; 
-        dc->estimated.yaw += gz * dt; 
-        return;
+    // Eğer manyetometre verisi sıfırsa (bağlantı kopukluğu vb.), düzeltme yapma, tahmini kullan.
+    if(mag_x != 0.0f || mag_y != 0.0f || mag_z != 0.0f) {
+        
+        // Tilt Compensation (Eğim Düzeltmesi)
+        float roll_rad  = dc->estimated.roll * DEG_TO_RAD;
+        float pitch_rad = dc->estimated.pitch * DEG_TO_RAD;
+        
+        float cos_roll  = cosf(roll_rad);
+        float sin_roll  = sinf(roll_rad);
+        float cos_pitch = cosf(pitch_rad);
+        float sin_pitch = sinf(pitch_rad);
+        
+        // Yatay düzleme (Earth Frame) yansıtılmış manyetik vektörler
+        float Xh = mag_x * cos_pitch + mag_z * sin_pitch;
+        float Yh = mag_x * sin_roll * sin_pitch + mag_y * cos_roll - mag_z * sin_roll * cos_pitch;
+        
+        // Pusula Yönü (Ölçüm - Z)
+        float yaw_mag = atan2f(-Yh, Xh) * RAD_TO_DEG;
+        
+        // Ölçüm Gürültüsü (R) - Kalibrasyonda ölçülen manyetometre varyanslarının ortalamasını (veya max'ını) pusula gürültüsü olarak kabul ediyoruz.
+        float mag_noise_avg = (dc->calibProfile.mag_noise_x + dc->calibProfile.mag_noise_y) * 0.5f;
+        float R_yaw = (mag_noise_avg > 0) ? mag_noise_avg : 0.05f;
+        
+        // İnovasyon (Fark) = Ölçüm - Tahmin
+        float Y_diff = yaw_mag - yaw_pred;
+        
+        // 360 Derece Sarılma (Wrap-around) Koruması
+        // Örn: Pusula 359 derece (veya -1), Tahmin 1 derece ise aradaki fark 358 değil, -2 olmalıdır.
+        if(Y_diff > 180.0f) Y_diff -= 360.0f;
+        if(Y_diff < -180.0f) Y_diff += 360.0f;
+        
+        // Kalman Kazancı (K) = P / (P + R)
+        float K = P_yaw / (P_yaw + R_yaw);
+        
+        // Durum (State) Güncellemesi
+        yaw_pred = yaw_pred + (K * Y_diff);
+        
+        // Kovaryans (P) Güncellemesi
+        P_yaw = (1.0f - K) * P_yaw;
     }
-    
-    // 2. Tilt Compensation (Eğim Düzeltmesi)
-    // Roket eğik olduğunda manyetometrenin yere paralel bileşenlerini (Xh, Yh) bulmak için
-    // EKF/Attitude kütüphanesinden gelen Pitch ve Roll açılarını kullanıyoruz.
-    float roll_rad  = dc->estimated.roll * DEG_TO_RAD;
-    float pitch_rad = dc->estimated.pitch * DEG_TO_RAD;
-    
-    float cos_roll  = cosf(roll_rad);
-    float sin_roll  = sinf(roll_rad);
-    float cos_pitch = cosf(pitch_rad);
-    float sin_pitch = sinf(pitch_rad);
-    
-    float Xh = mag_x * cos_pitch + mag_z * sin_pitch;
-    float Yh = mag_x * sin_roll * sin_pitch + mag_y * cos_roll - mag_z * sin_roll * cos_pitch;
-    
-    // 3. Yaw Hesaplama (Pusula yönü)
-    float yaw_mag = atan2f(-Yh, Xh) * RAD_TO_DEG;
-    
-    // 4. Complementary Filter (Jiroskop Hızı + Manyetometre Kesinliği)
-    // Sabitler ileride FilterConfig'e taşınabilir. (Örn: Alpha = 0.98)
-    // Bu basit complementary filtre, karmaşık bir EKF'ye gerek kalmadan Yaw'ı stabilize eder.
-    float gz = dc->gyro.calibrated_z - dc->calibProfile.gyro_bias_z;
-    
-    // Açının 360 derecede sarılması (wrap) problemini önlemek için fark alınır:
-    float diff = yaw_mag - dc->estimated.yaw;
-    if(diff > 180.0f) diff -= 360.0f;
-    if(diff < -180.0f) diff += 360.0f;
-    
-    float yaw_new = dc->estimated.yaw + (gz * dt); // Önce jiroskopla tahmin et
-    yaw_new += diff * 0.02f; // Sonra manyetometreyle %2 düzelt (Alpha = 0.98)
-    
-    // -180 ile +180 arasında tut
-    if(yaw_new > 180.0f) yaw_new -= 360.0f;
-    if(yaw_new < -180.0f) yaw_new += 360.0f;
-    
-    dc->estimated.yaw = yaw_new;
-
-#else
-    // MANYETOMETRE YOK - Sadece Jiroskop Entegrasyonu (Kör Uçuş)
-    // Not: dc->gyro.calibrated_z zaten hardware tabanlı LPF'den geçmiş halidir.
-    // Ancak bias'ı kalibrasyon modülünden (M3.1) geldiği için çıkartıyoruz.
-    float gz = dc->gyro.calibrated_z - dc->calibProfile.gyro_bias_z; 
-    
-    dc->estimated.yaw += gz * dt; 
-    
-    // -180 ile +180 arasında sınırla
-    if(dc->estimated.yaw > 180.0f) dc->estimated.yaw -= 360.0f;
-    if(dc->estimated.yaw < -180.0f) dc->estimated.yaw += 360.0f;
 #endif
+
+    // Sonucu -180 ile +180 arasında sınırla
+    if(yaw_pred > 180.0f) yaw_pred -= 360.0f;
+    if(yaw_pred < -180.0f) yaw_pred += 360.0f;
+    
+    // Yeni durumu kaydet
+    dc->estimated.yaw = yaw_pred;
 }
