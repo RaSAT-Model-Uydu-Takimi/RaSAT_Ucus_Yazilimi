@@ -7,12 +7,14 @@
 
 #include "M2.2_FlyingMode.h"
 #include "M3.0_FilterSystem.h"
+#include "M3.2_Attitude.h"
+#include "M3.3_Yaw.h"
 #include "main.h" // HAL_GetTick için
 
 static uint32_t last_run_time = 0;
 
 void FlyingMode_Init(DataCenter *data) {
-    // Filtreleri (Mahony) ilk değerleriyle başlat
+    // Filtreleri (EKF) ilk değerleriyle başlat
     FilterSystem_Init(data);
     
     last_run_time = HAL_GetTick();
@@ -46,9 +48,15 @@ void FlyingMode_Run(DataCenter *data) {
     data->mag.calibrated_y = (data->mag.raw_y - data->calibProfile.mag_bias_y) * data->calibProfile.mag_scale_y;
     data->mag.calibrated_z = (data->mag.raw_z - data->calibProfile.mag_bias_z) * data->calibProfile.mag_scale_z;
 
-    // 3. Yönelim (Attitude) Filtresini (Mahony) Çalıştır
-    // Mahony, düzeltilmiş kalibrasyonlu verileri (calibrated_*) kullanarak estimated.roll, pitch, yaw hesaplar.
+    // 3. Yönelim (Attitude) Filtresini (EKF) Çalıştır
+    // EKF, düzeltilmiş ivme ve jiroskop verilerini kullanarak sadece kuaterniyonları (q0-q3) hesaplar.
     FilterSystem_Update(data, dt);
+    
+    // 4. Kuaterniyonlardan Pitch ve Roll (Yunuslama/Yuvarlanma) açılarını bul
+    M3_2_Attitude_Update(data);
+    
+    // 5. Yaw (Pusula) açısını bul (Pitch ve Roll verisine ihtiyaç duyar)
+    M3_3_Yaw_Update(data, dt);
     
     // 4. (Gelecekte) Yükseklik Filtresi (1D EKF) ve Konum Filtresi burada çalıştırılacak
     

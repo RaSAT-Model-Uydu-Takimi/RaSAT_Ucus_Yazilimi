@@ -26,6 +26,11 @@ extern "C" {
 #define EKF_VIBRATION_THRESHOLD  2.0f   // 9.81 ± 2.0 m/s^2 dışı sarsıntı sayılır
 #define EKF_R_MULTIPLIER         100.0f // Sarsıntı anında R matrisi kaç kat büyütülecek?
 
+// --- YAW (SAPMA) AYARLARI ---
+// 1 = Yaw açısı için Manyetometre + Eğim Düzeltmesi kullan
+// 0 = Manyetometre yok, sadece Jiroskop Z entegrasyonu kullan
+#define YAW_USE_MAGNETOMETER     0
+
 #define DEG_TO_RAD (3.14159265358979323846f / 180.0f)
 #define RAD_TO_DEG (180.0f / 3.14159265358979323846f)
 #define GRAVITY_MSS (9.80665f) // Yerçekimi ivmesi (m/s^2)

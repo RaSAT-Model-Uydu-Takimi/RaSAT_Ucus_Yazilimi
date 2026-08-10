@@ -1,10 +1,10 @@
-23:16:29 **** Incremental Build of configuration Debug for project Abdullah_Efendi_Kahve ****
+10:09:46 **** Incremental Build of configuration Debug for project Abdullah_Efendi_Kahve ****
 make -j16 all 
 arm-none-eabi-size  Abdullah_Efendi_Kahve.elf 
    text	   data	    bss	    dec	    hex	filename
-  35476	    112	   2976	  38564	   96a4	Abdullah_Efendi_Kahve.elf
+  35672	    112	   2976	  38760	   9768	Abdullah_Efendi_Kahve.elf
 Finished building: default.size.stdout
  
 
-23:16:29 Build Finished. 0 errors, 0 warnings. (took 635ms)
+10:09:46 Build Finished. 0 errors, 0 warnings. (took 560ms)
 

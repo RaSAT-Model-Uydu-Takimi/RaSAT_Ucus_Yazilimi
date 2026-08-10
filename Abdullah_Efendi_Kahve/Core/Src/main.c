@@ -176,7 +176,7 @@ int main(void)
       // Sistem döngüsünü işlet (Kalibrasyon veya Uçuş moduna göre)
       SystemCore_Run(&datacenter);
 
-      // LED ve Buzzer animasyonlarını işlet
+      // LED ve Buzzer
       M2_3_HardwareFeedback_Run();
 
       // M4.0 Telemetri verilerini Yer İstasyonuna gönder (1Hz)

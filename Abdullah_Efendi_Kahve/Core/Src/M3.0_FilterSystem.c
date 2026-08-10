@@ -281,9 +281,4 @@ void FilterSystem_Update(DataCenter *dc, float dt) {
     dc->estimated.q1 = q1;
     dc->estimated.q2 = q2;
     dc->estimated.q3 = q3;
-
-    // Convert quaternions to Euler angles (Roll, Pitch, Yaw)
-    dc->estimated.roll  = atan2f(q0*q1 + q2*q3, 0.5f - q1*q1 - q2*q2) * RAD_TO_DEG;
-    dc->estimated.pitch = asinf(-2.0f * (q1*q3 - q0*q2)) * RAD_TO_DEG;
-    dc->estimated.yaw   = 0.0f; 
 }

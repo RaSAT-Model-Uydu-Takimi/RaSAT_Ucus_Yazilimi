@@ -1,6 +1,7 @@
 Core/Src/M2.2_FlyingMode.o: ../Core/Src/M2.2_FlyingMode.c \
  ../Core/Inc/M2.2_FlyingMode.h ../Core/Inc/M0.0_DataCenter.h \
- ../Core/Inc/M3.0_FilterSystem.h ../Core/Inc/main.h \
+ ../Core/Inc/M3.0_FilterSystem.h ../Core/Inc/M3.2_Attitude.h \
+ ../Core/Inc/M3.3_Yaw.h ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -32,6 +33,8 @@ Core/Src/M2.2_FlyingMode.o: ../Core/Src/M2.2_FlyingMode.c \
 ../Core/Inc/M2.2_FlyingMode.h:
 ../Core/Inc/M0.0_DataCenter.h:
 ../Core/Inc/M3.0_FilterSystem.h:
+../Core/Inc/M3.2_Attitude.h:
+../Core/Inc/M3.3_Yaw.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
