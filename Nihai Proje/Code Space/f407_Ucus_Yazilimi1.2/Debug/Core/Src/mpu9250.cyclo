@@ -1,0 +1,12 @@
+../Core/Src/mpu9250.c:160:16:MPU9250_ReadRegister	4
+../Core/Src/mpu9250.c:184:16:MPU9250_WriteRegister	3
+../Core/Src/mpu9250.c:207:16:AK8963_ReadRegister	4
+../Core/Src/mpu9250.c:231:16:AK8963_WriteRegister	3
+../Core/Src/mpu9250.c:254:16:MPU9250_ToInt16	1
+../Core/Src/mpu9250.c:261:16:AK8963_ToInt16_LE	1
+../Core/Src/mpu9250.c:272:16:AK8963_Init	8
+../Core/Src/mpu9250.c:373:16:AK8963_Read	7
+../Core/Src/mpu9250.c:456:9:MPU9250_Init	15
+../Core/Src/mpu9250.c:629:9:MPU9250_Read	4
+../Core/Src/mpu9250.c:714:9:MPU9250_IsReady	1
+../Core/Src/mpu9250.c:720:9:MPU9250_IsMagReady	1

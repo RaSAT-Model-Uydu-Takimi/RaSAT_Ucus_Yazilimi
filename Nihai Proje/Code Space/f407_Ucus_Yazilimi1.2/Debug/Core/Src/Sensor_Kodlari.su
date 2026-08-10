@@ -1,0 +1,4 @@
+../Core/Src/Sensor_Kodlari.c:19:9:Sensors_Init	24	static
+../Core/Src/Sensor_Kodlari.c:47:6:SensorleriOku	16	static
+../Core/Src/Sensor_Kodlari.c:107:6:MPU9250_Int_Fonksiyonu	16	static
+../Core/Src/Sensor_Kodlari.c:114:6:GPS_Uart_Int_Fonksiyonu	16	static

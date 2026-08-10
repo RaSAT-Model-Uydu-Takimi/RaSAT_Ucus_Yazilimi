@@ -16,9 +16,6 @@ void CalibrationMode_Init(DataCenter *data) {
     currentState = CALIB_STATE_PREP;
     stateStartTime = HAL_GetTick();
     
-    M2_3_HardwareFeedback_Init();
-    M2_3_HardwareFeedback_SetState(FEEDBACK_CALIB_PREP);
-    
     M3_1_Calibration_Reset();
 }
 

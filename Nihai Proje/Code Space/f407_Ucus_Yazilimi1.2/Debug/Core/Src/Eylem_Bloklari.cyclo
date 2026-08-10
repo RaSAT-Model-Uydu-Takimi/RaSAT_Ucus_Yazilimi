@@ -1,0 +1,9 @@
+../Core/Src/Eylem_Bloklari.c:11:9:Ayril	1
+../Core/Src/Eylem_Bloklari.c:15:9:SigmaAc	1
+../Core/Src/Eylem_Bloklari.c:19:9:TelemetriFonksiyonu	2
+../Core/Src/Eylem_Bloklari.c:28:9:S2DFonksiyonu	1
+../Core/Src/Eylem_Bloklari.c:36:9:PidHedefYukseklik	1
+../Core/Src/Eylem_Bloklari.c:40:9:ApamAc	1
+../Core/Src/Eylem_Bloklari.c:45:9:SigmaKapat	1
+../Core/Src/Eylem_Bloklari.c:49:9:Buzzer	1
+../Core/Src/Eylem_Bloklari.c:53:9:VideoFunction	2
