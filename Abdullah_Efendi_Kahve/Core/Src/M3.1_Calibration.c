@@ -5,6 +5,7 @@
  */
 
 #include "M3.1_Calibration.h"
+#include "M0.1_FilterConfig.h" // Default config tanımlamaları için
 #include <string.h> // For memset
 
 static struct {
@@ -23,6 +24,66 @@ static struct {
 
 void M3_1_Calibration_Reset(void) {
     memset(&calibData, 0, sizeof(calibData));
+}
+
+void M3_1_Calibration_LoadDefaults(DataCenter *dc) {
+    // ACC
+    dc->calibProfile.acc_bias_x = ACC_BIAS_X;
+    dc->calibProfile.acc_bias_y = ACC_BIAS_Y;
+    dc->calibProfile.acc_bias_z = ACC_BIAS_Z;
+    dc->calibProfile.acc_scale_x = ACC_SCALE_X;
+    dc->calibProfile.acc_scale_y = ACC_SCALE_Y;
+    dc->calibProfile.acc_scale_z = ACC_SCALE_Z;
+    dc->calibProfile.acc_noise_x = ACC_NOISE_X;
+    dc->calibProfile.acc_noise_y = ACC_NOISE_Y;
+    dc->calibProfile.acc_noise_z = ACC_NOISE_Z;
+
+    // GYRO
+    dc->calibProfile.gyro_bias_x = GYRO_BIAS_X;
+    dc->calibProfile.gyro_bias_y = GYRO_BIAS_Y;
+    dc->calibProfile.gyro_bias_z = GYRO_BIAS_Z;
+    dc->calibProfile.gyro_scale_x = GYRO_SCALE_X;
+    dc->calibProfile.gyro_scale_y = GYRO_SCALE_Y;
+    dc->calibProfile.gyro_scale_z = GYRO_SCALE_Z;
+    dc->calibProfile.gyro_noise_x = GYRO_NOISE_X;
+    dc->calibProfile.gyro_noise_y = GYRO_NOISE_Y;
+    dc->calibProfile.gyro_noise_z = GYRO_NOISE_Z;
+
+    // MAG
+    dc->calibProfile.mag_bias_x = MAG_BIAS_X;
+    dc->calibProfile.mag_bias_y = MAG_BIAS_Y;
+    dc->calibProfile.mag_bias_z = MAG_BIAS_Z;
+    dc->calibProfile.mag_scale_x = MAG_SCALE_X;
+    dc->calibProfile.mag_scale_y = MAG_SCALE_Y;
+    dc->calibProfile.mag_scale_z = MAG_SCALE_Z;
+    dc->calibProfile.mag_noise_x = MAG_NOISE_X;
+    dc->calibProfile.mag_noise_y = MAG_NOISE_Y;
+    dc->calibProfile.mag_noise_z = MAG_NOISE_Z;
+
+    // BARO
+    dc->calibProfile.baro_press_bias = BARO_PRESS_BIAS;
+    dc->calibProfile.baro_press_scale = BARO_PRESS_SCALE;
+    dc->calibProfile.baro_press_noise = BARO_PRESS_NOISE;
+    dc->calibProfile.baro_temp_bias = BARO_TEMP_BIAS;
+    dc->calibProfile.baro_temp_scale = BARO_TEMP_SCALE;
+    dc->calibProfile.baro_temp_noise = BARO_TEMP_NOISE;
+
+    // GPS
+    dc->calibProfile.gps_lat_bias = GPS_LAT_BIAS;
+    dc->calibProfile.gps_lat_scale = GPS_LAT_SCALE;
+    dc->calibProfile.gps_lon_bias = GPS_LON_BIAS;
+    dc->calibProfile.gps_lon_scale = GPS_LON_SCALE;
+    dc->calibProfile.gps_alt_bias = GPS_ALT_BIAS;
+    dc->calibProfile.gps_alt_scale = GPS_ALT_SCALE;
+    dc->calibProfile.gps_noise = GPS_NOISE;
+
+    // BATT
+    dc->calibProfile.batt_volt_bias = BATT_VOLT_BIAS;
+    dc->calibProfile.batt_volt_scale = BATT_VOLT_SCALE;
+    dc->calibProfile.batt_volt_noise = BATT_VOLT_NOISE;
+    dc->calibProfile.batt_curr_bias = BATT_CURR_BIAS;
+    dc->calibProfile.batt_curr_scale = BATT_CURR_SCALE;
+    dc->calibProfile.batt_curr_noise = BATT_CURR_NOISE;
 }
 
 void M3_1_Calibration_Accumulate(DataCenter *dc) {

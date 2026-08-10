@@ -17,6 +17,7 @@ extern "C" {
 void M3_1_Calibration_Reset(void);
 
 // Ölçüm durumundayken her iterasyonda çağrılır ve raw değerleri toplar
+void M3_1_Calibration_LoadDefaults(DataCenter *dc);
 void M3_1_Calibration_Accumulate(DataCenter *dc);
 
 // Süre dolduğunda ortalama (bias) ve ölçek (scale) hesaplamalarını yapar

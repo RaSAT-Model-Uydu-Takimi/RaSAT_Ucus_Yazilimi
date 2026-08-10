@@ -7,6 +7,7 @@
 #include "M2.0_SystemCore.h"
 #include "M2.1_CalibrationMode.h"
 #include "M2.2_FlyingMode.h"
+#include "M3.1_Calibration.h"
 
 static SystemMode currentSystemMode = SYSTEM_MODE_CALIBRATION;
 
@@ -14,6 +15,9 @@ void SystemCore_Init(DataCenter *data) {
     // Sistem her zaman kalibrasyon ile başlar
     currentSystemMode = SYSTEM_MODE_CALIBRATION;
     data->flightMode = FLIGHT_MODE_UNCALIBRATED;
+    
+    // Config dosyasındaki (M0.1) varsayılan değerleri yükle
+    M3_1_Calibration_LoadDefaults(data);
     
     CalibrationMode_Init(data);
 }
