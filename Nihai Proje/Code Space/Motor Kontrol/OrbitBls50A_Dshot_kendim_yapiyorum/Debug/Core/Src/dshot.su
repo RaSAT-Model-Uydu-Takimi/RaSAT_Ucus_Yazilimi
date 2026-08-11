@@ -1,0 +1,9 @@
+../Core/Src/dshot.c:22:6:Dshot_Init_1	16	static
+../Core/Src/dshot.c:27:6:Dshot_Init_2	24	static
+../Core/Src/dshot.c:34:6:Motors_Arm	16	static
+../Core/Src/dshot.c:40:6:Motors_Disarm	16	static
+../Core/Src/dshot.c:46:6:Dshot_Frame_End_Callback	16	static
+../Core/Src/dshot.c:90:6:Dshot_Communicator_Timer_Callback	16	static
+../Core/Src/dshot.c:127:10:Read_RawADC_Current_Value	8	static
+../Core/Src/dshot.c:146:7:Get_ESC_Current	16	static
+../Core/Src/dshot.c:160:6:DSHOT_Prepare_Packet	32	static
