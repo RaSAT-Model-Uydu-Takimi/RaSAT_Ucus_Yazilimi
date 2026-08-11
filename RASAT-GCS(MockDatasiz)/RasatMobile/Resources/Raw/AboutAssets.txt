@@ -1,0 +1,2 @@
+﻿Bu dosya Android build hatasını çözmek için oluşturulmuştur.
+Silmeyiniz.

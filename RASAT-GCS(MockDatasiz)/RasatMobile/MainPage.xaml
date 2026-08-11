@@ -1,0 +1,197 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
+             x:Class="RASATMobile.MainPage"
+             BackgroundColor="{StaticResource AppBackground}">
+
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- ÜST PANEL: TELEMETRİ VERİLERİ (Yarı Saydam Glassmorphism) -->
+        <Border Grid.Row="0" 
+                BackgroundColor="{StaticResource OverlayBackground}"
+                Stroke="{StaticResource BorderColor}"
+                StrokeThickness="0,0,0,1"
+                Padding="12,8"
+                ZIndex="10">
+            
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                
+                <!-- SOL: LOGO -->
+                <Image Grid.Column="0" 
+                       Source="rasat_logo.png"
+                       HeightRequest="40"
+                       WidthRequest="40"
+                       Aspect="AspectFit"
+                       VerticalOptions="Center"
+                       Margin="0,0,15,0"/>
+                
+                <!-- ORTA: TELEMETRİ VERİLERİ -->
+                <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="6">
+                    
+                    <!-- 1. Satır: Ana Veriler -->
+                    <HorizontalStackLayout Grid.Row="0" Spacing="12" HorizontalOptions="Center">
+                        
+                        <!-- Paket -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="📦" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.PaketNumarasi}" 
+                                   FontSize="14" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" Color="{StaticResource SeparatorColor}" VerticalOptions="Fill"/>
+
+                        <!-- Yükseklik -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="📏" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.Yukseklik, StringFormat='{0:F1}m'}" 
+                                   FontSize="14" TextColor="{StaticResource ValueGood}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" Color="{StaticResource SeparatorColor}" VerticalOptions="Fill"/>
+
+                        <!-- Basınç -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="⏲️" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.Basinc, StringFormat='{0:F0}'}" 
+                                   FontSize="14" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" Color="{StaticResource SeparatorColor}" VerticalOptions="Fill"/>
+
+                        <!-- Sıcaklık -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="🌡️" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.Sicaklik, StringFormat='{0:F1}°C'}" 
+                                   FontSize="14" TextColor="{StaticResource ValueWarning}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" Color="{StaticResource SeparatorColor}" VerticalOptions="Fill"/>
+
+                        <!-- İniş Hızı -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="⬇️" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.InisHizi, StringFormat='{0:F1}m/s'}" 
+                                   FontSize="14" TextColor="{StaticResource ValueInfo}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" Color="{StaticResource SeparatorColor}" VerticalOptions="Fill"/>
+
+                        <!-- Pil -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="🔋" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.PilGerilimi, StringFormat='{0:F1}V'}" 
+                                   FontSize="14" TextColor="{StaticResource ValueAlert}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                    </HorizontalStackLayout>
+                    
+                    <!-- 2. Satır: GPS ve Açı Verileri -->
+                    <HorizontalStackLayout Grid.Row="1" Spacing="12" HorizontalOptions="Center">
+                        
+                        <!-- GPS Lat/Lon -->
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="📍" FontSize="12" VerticalOptions="Center"/>
+                            <Label FontSize="12" TextColor="{StaticResource ValueInfo}" FontAttributes="Bold" VerticalOptions="Center">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{}{0:F5}, {1:F5}">
+                                        <Binding Path="CurrentData.GpsLatitude"/>
+                                        <Binding Path="CurrentData.GpsLongitude"/>
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" Color="{StaticResource SeparatorColor}" VerticalOptions="Fill" HeightRequest="16"/>
+
+                        <!-- Pitch/Roll/Yaw -->
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="P:" FontSize="11" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.Pitch, StringFormat='{0:F1}'}" 
+                                   FontSize="12" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold" VerticalOptions="Center"/>
+                            
+                            <Label Text="R:" FontSize="11" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.Roll, StringFormat='{0:F1}'}" 
+                                   FontSize="12" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold" VerticalOptions="Center"/>
+                            
+                            <Label Text="Y:" FontSize="11" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center"/>
+                            <Label Text="{Binding CurrentData.Yaw, StringFormat='{0:F1}'}" 
+                                   FontSize="12" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                    </HorizontalStackLayout>
+                </Grid>
+                
+                <!-- SAĞ: BAĞLANTI DURUMU -->
+                <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center" Margin="15,0,0,0">
+                    <Label Text="📡" FontSize="14" VerticalOptions="Center"/>
+                    <Label Text="{Binding ConnectionStatus}" 
+                           FontSize="11" TextColor="{StaticResource IndicatorSuccess}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                
+            </Grid>
+        </Border>
+
+        <!-- ANA PANEL: HARİTA (Tam Ekran) -->
+        <Grid Grid.Row="1">
+            
+            <!-- Mapsui Harita Kontrolü -->
+            <mapsui:MapView x:Name="TelemetryMap"
+                            VerticalOptions="Fill"
+                            HorizontalOptions="Fill"
+                            BackgroundColor="#1E1E1E"/>
+            
+            <!-- Yükleniyor Göstergesi -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource ValueGood}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+            
+            <!-- OVERLAY: MOD SLIDER (Haritanın Üzerinde, Alt Kısımda) -->
+            <Border BackgroundColor="{StaticResource OverlayBackground}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    Margin="20,0,20,20"
+                    Padding="16,12,16,16"
+                    VerticalOptions="End"
+                    HorizontalOptions="Fill"
+                    ZIndex="100">
+                
+                <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto, *" RowSpacing="4">
+                    
+                    <!-- Slider -->
+                    <Slider Grid.Row="0" Grid.ColumnSpan="3"
+                            Minimum="0" 
+                            Maximum="2" 
+                            Value="{Binding MapMode}"
+                            ThumbColor="{StaticResource AccentBlue}"
+                            MinimumTrackColor="{StaticResource AccentBlue}"
+                            MaximumTrackColor="{StaticResource SeparatorColor}"
+                            HeightRequest="40"/>
+                    
+                    <!-- Mod Etiketleri -->
+                    <Label Grid.Row="1" Grid.Column="0" 
+                           Text="🔍 Full View" 
+                           FontSize="11" 
+                           TextColor="{Binding FullViewColor}"
+                           HorizontalOptions="Start"/>
+                    
+                    <Label Grid.Row="1" Grid.Column="1" 
+                           Text="📍 Follow" 
+                           FontSize="11" 
+                           TextColor="{Binding FollowColor}"
+                           HorizontalOptions="Center"/>
+                    
+                    <Label Grid.Row="1" Grid.Column="2" 
+                           Text="🖱️ Inspect" 
+                           FontSize="11" 
+                           TextColor="{Binding InspectColor}"
+                           HorizontalOptions="End"/>
+                    
+                </Grid>
+            </Border>
+            
+        </Grid>
+    </Grid>
+
+</ContentPage>

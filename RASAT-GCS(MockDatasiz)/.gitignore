@@ -1,0 +1,88 @@
+# --- ÖZEL RASAT GİZLİ VERİLERİ VE LOGLAR ---
+# Sürekli büyüyen haberleşme logları
+Rasat_Com_Log.txt
+*log*.txt
+
+# Mock dataların bulunduğu klasör
+SeriPortFakeData/
+# ---------------------------------------------
+
+# Firebase Credentials - GÜVENLİK
+# Bu dosya hassas bilgiler içerir, GitHub'a yüklenmemelidir
+**/firebase-credentials.json
+
+# Publish / Build Output - BÜYÜK DOSYALAR
+# Derlenen dosyalar GitHub'a yüklenmemeli (çok büyük ve her build'de değişir)
+publish/
+*.exe
+*.apk
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Visual Studio cache files
+*.cache
+*.cachefile
+
+# Others
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin
+$RECYCLE.BIN/
+
+# Mac
+.DS_Store
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
