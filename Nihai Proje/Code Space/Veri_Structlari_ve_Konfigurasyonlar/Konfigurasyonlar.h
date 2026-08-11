@@ -126,6 +126,16 @@ static inline float CSF3_7(float x){ return fmaxf(0.0f,fminf(1.0f,(x - 90.0f)/20
 #define BATARYA_MIN_GUVEN                  0.50f
 
 
+//*****************************FLIGHT CONTROL GENEL AYARLARI************************
+
+#define FLIGHT_CONTROL_PERIYOT_US           10000U
+#define FLIGHT_CONTROL_MAX_DT_S             0.050f
+
+#define ORTAK_THROTTLE_MIN                  0.0f
+#define ORTAK_THROTTLE_MAX                  1.0f
+
+#define TEMEL_THROTTLE                      0.68f
+
 //*****************************PID GENEL AYARLARI**********************************
 
 #define PID_TUREV_FILTRE_ALPHA             0.20f
