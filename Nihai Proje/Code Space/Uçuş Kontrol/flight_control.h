@@ -8,8 +8,8 @@
    ucus kontrol islemlerini yonetir.
  */
 
-#ifndef INC_FIGHT_CONTROL_H_
-#define INC_FIGHT_CONTROL_H_
+#ifndef INC_FLIGHT_CONTROL_H_
+#define INC_FLIGHT_CONTROL_H_
 
 
 #include "Data_Structlari.h"
@@ -111,4 +111,4 @@ void FlightControl_Update(
 
 
 
-#endif /* INC_FIGHT_CONTROL_H_ */
+#endif /* INC_FLIGHT_CONTROL_H_ */
