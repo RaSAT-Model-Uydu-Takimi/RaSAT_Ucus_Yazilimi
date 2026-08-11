@@ -71,12 +71,12 @@ extern "C" {
 #define GYRO_NOISE_Z 0.0f
 
 // Manyetometre (Magnetometer)
-#define MAG_BIAS_X  0.0f
-#define MAG_BIAS_Y  0.0f
-#define MAG_BIAS_Z  0.0f
-#define MAG_SCALE_X 1.0f
-#define MAG_SCALE_Y 1.0f
-#define MAG_SCALE_Z 1.0f
+#define MAG_BIAS_X  151.5f
+#define MAG_BIAS_Y  -54.0f
+#define MAG_BIAS_Z  -94.0f
+#define MAG_SCALE_X 1.4184f
+#define MAG_SCALE_Y 1.5625f
+#define MAG_SCALE_Z 1.3699f
 #define MAG_NOISE_X 0.0f
 #define MAG_NOISE_Y 0.0f
 #define MAG_NOISE_Z 0.0f
