@@ -92,13 +92,6 @@ namespace _10OcakRASAT.Managers
                         int bytesRead = _serialPort.Read(buffer, 0, buffer.Length);
                         if (bytesRead > 0)
                         {
-                            // DEBUG İÇİN GEÇİCİ LOG: Gelen tüm ham baytları dosyaya yazalım
-                            try {
-                                string logPath = @"m:\Yedek Projeler\Projeler\RASAT-GCS(MockDatasiz)\Rasat_Com_Log.txt";
-                                string hexDump = BitConverter.ToString(buffer, 0, bytesRead) + "-";
-                                System.IO.File.AppendAllText(logPath, hexDump);
-                            } catch {}
-
                             OnDataReceived?.Invoke(buffer, bytesRead);
                         }
                     }

@@ -31,7 +31,7 @@ namespace _10OcakRASAT.Managers
 
     public class StmTelemetryParser
     {
-        public const byte HEADER_BYTE = 0xAB;
+        public const byte HEADER_BYTE = 0xA5;
         public const int PACKET_SIZE = 79;
 
         public delegate void DataParsedEventHandler(TData data);
@@ -153,7 +153,7 @@ namespace _10OcakRASAT.Managers
             data.Yaw = BitConverter.ToSingle(packet, index);
             index += 4;
             
-            data.TakimNo = BitConverter.ToUInt32(packet, index);
+            data.TakimNo = (int)BitConverter.ToUInt32(packet, index);
             index += 4;
             
             return data;
