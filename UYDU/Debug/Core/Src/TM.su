@@ -1,0 +1,10 @@
+../Core/Src/TM.c:26:9:Hesapla_CRC8	24	static
+../Core/Src/TM.c:49:6:Sensor_Oku	4	static
+../Core/Src/TM.c:67:6:TM_Paket_Olustur	16	static
+../Core/Src/TM.c:100:6:Telemetri_Gonder	8	static
+../Core/Src/TM.c:108:6:Komut_Dinlemeye_Basla	8	static
+../Core/Src/TM.c:118:6:Komut_Isle	16	static
+../Core/Src/TM.c:171:6:IOT_Verisi_Gonder	8	static
+../Core/Src/TM.c:188:6:ayrilma	4	static
+../Core/Src/TM.c:194:6:apam	4	static
+../Core/Src/TM.c:200:6:kilitle	4	static
