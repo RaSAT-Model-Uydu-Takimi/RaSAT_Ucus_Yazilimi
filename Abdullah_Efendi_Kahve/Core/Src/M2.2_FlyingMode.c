@@ -49,6 +49,10 @@ void FlyingMode_Run(DataCenter *data) {
     data->mag.calibrated_y = (data->mag.raw_y - data->calibProfile.mag_bias_y) * data->calibProfile.mag_scale_y;
     data->mag.calibrated_z = (data->mag.raw_z - data->calibProfile.mag_bias_z) * data->calibProfile.mag_scale_z;
 
+    // Barometre
+    data->baro.calibrated_press = (data->baro.raw_press - data->calibProfile.baro_press_bias) * data->calibProfile.baro_press_scale + data->calibProfile.baro_press_bias;
+    data->baro.calibrated_temp  = (data->baro.raw_temp  - data->calibProfile.baro_temp_bias)  * data->calibProfile.baro_temp_scale  + data->calibProfile.baro_temp_bias;
+
     // 3. Yönelim (Attitude) Filtresini (EKF) Çalıştır
     // EKF, düzeltilmiş ivme ve jiroskop verilerini kullanarak sadece kuaterniyonları (q0-q3) hesaplar.
     FilterSystem_Update(data, dt);

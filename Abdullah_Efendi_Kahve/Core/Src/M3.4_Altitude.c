@@ -73,6 +73,13 @@ void M3_4_Altitude_Update(DataCenter *dc, float dt) {
     float Q10 = 0.5f  * dt3 * acc_var_ms4;
     float Q11 = dt2 * acc_var_ms4;
     
+    // Minimum süreç gürültüsü tabanı (Kritik!)
+    // Yüksek örnekleme hızlarında (200Hz) dt^4 çarpanı Q'yu sıfıra düşürür.
+    // Q sıfıra düşerse Kalman Kazancı (K) da sıfıra düşer ve filtre
+    // barometre ölçümünü görmezden gelir → ivmeölçer sürüklenmesi → salınım.
+    if(Q00 < 0.001f) Q00 = 0.001f;
+    if(Q11 < 0.001f) Q11 = 0.001f;
+    
     // P = F * P * F^T + Q
     float P00_pred = P00 + dt * (P10 + P01 + P11 * dt) + Q00;
     float P01_pred = P01 + P11 * dt + Q01;
