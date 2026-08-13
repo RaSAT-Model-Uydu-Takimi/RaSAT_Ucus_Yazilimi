@@ -8,6 +8,7 @@
 #include "M3.0_FilterSystem.h"
 #include "M0.1_FilterConfig.h"
 #include "M3.3_Yaw.h"
+#include "M3.4_Altitude.h"
 #include <math.h>
 
 // EKF State Covariance Matrix (4x4)
@@ -66,6 +67,7 @@ void FilterSystem_Init(DataCenter *dc) {
     
     // Yaw ve Kalman durumunu sıfırla (Kullanıcı isteği üzerine Filter Init içinden çağrılıyor)
     M3_3_Yaw_Init(dc);
+    M3_4_Altitude_Init(dc);
     
     // Initialize P Matrix
     for(int i=0; i<4; i++) {

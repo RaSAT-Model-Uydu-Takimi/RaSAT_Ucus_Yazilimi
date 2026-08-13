@@ -9,6 +9,7 @@
 #include "M3.0_FilterSystem.h"
 #include "M3.2_Attitude.h"
 #include "M3.3_Yaw.h"
+#include "M3.4_Altitude.h"
 #include "main.h" // HAL_GetTick için
 
 static uint32_t last_run_time = 0;
@@ -58,7 +59,8 @@ void FlyingMode_Run(DataCenter *data) {
     // 5. Yaw (Pusula) açısını bul (Pitch ve Roll verisine ihtiyaç duyar)
     M3_3_Yaw_Update(data, dt);
     
-    // 4. (Gelecekte) Yükseklik Filtresi (1D EKF) ve Konum Filtresi burada çalıştırılacak
+    // 6. Yükseklik Filtresi (2-Durumlu Kalman) ve Düşey Hız hesaplaması
+    M3_4_Altitude_Update(data, dt);
     
-    // 5. (Gelecekte) PID Kontrolcüsü burada çalışacak ve motor PWM'leri güncellenecek
+    // 7. (Gelecekte) PID Kontrolcüsü burada çalışacak ve motor PWM'leri güncellenecek
 }

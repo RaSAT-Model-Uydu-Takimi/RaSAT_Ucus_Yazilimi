@@ -19,6 +19,7 @@ static struct {
     double mag_x_sq_sum, mag_y_sq_sum, mag_z_sq_sum; // Varyans hesaplaması için
     
     double baro_press_sum, baro_temp_sum;
+    double baro_press_sq_sum, baro_temp_sq_sum; // Varyans hesaplaması için
     uint32_t count;
 } calibData;
 
@@ -114,6 +115,9 @@ void M3_1_Calibration_Accumulate(DataCenter *dc) {
     calibData.baro_press_sum += dc->baro.raw_press;
     calibData.baro_temp_sum += dc->baro.raw_temp;
     
+    calibData.baro_press_sq_sum += (double)dc->baro.raw_press * dc->baro.raw_press;
+    calibData.baro_temp_sq_sum += (double)dc->baro.raw_temp * dc->baro.raw_temp;
+    
     calibData.count++;
 }
 
@@ -175,6 +179,13 @@ void M3_1_Calibration_Calculate(DataCenter *dc) {
     // BARO (Mevcut basıncı yer seviyesi sıfır noktası olarak alabiliriz)
     dc->calibProfile.baro_press_bias = (float)(calibData.baro_press_sum / calibData.count);
     dc->calibProfile.baro_temp_bias = (float)(calibData.baro_temp_sum / calibData.count);
+    
+    // BARO VARYANS (İrtifa Kalman Filtresi R Matrisi İçin)
+    dc->calibProfile.baro_press_noise = (float)((calibData.baro_press_sq_sum / calibData.count) - (dc->calibProfile.baro_press_bias * dc->calibProfile.baro_press_bias));
+    dc->calibProfile.baro_temp_noise = (float)((calibData.baro_temp_sq_sum / calibData.count) - (dc->calibProfile.baro_temp_bias * dc->calibProfile.baro_temp_bias));
+    
+    if(dc->calibProfile.baro_press_noise < 0.01f) dc->calibProfile.baro_press_noise = 0.01f;
+    if(dc->calibProfile.baro_temp_noise < 0.01f) dc->calibProfile.baro_temp_noise = 0.01f;
     
     // Ölçekleri varsayılan olarak 1.0'da bırakalım, gelişmiş kalibrasyonda min-max hesaplanır.
     dc->calibProfile.acc_scale_x = 1.0f;
