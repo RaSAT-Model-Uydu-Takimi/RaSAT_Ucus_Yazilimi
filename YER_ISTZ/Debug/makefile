@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (13.3.rel1)
+# Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -60,8 +60,8 @@ all: main-build
 main-build: YER_ISTZ.elf secondary-outputs
 
 # Tool invocations
-YER_ISTZ.elf YER_ISTZ.map: $(OBJS) $(USER_OBJS) C:\Users\hamza\STM32CubeIDE\workspace_1.18.0\YER_ISTZ\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "YER_ISTZ.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\hamza\STM32CubeIDE\workspace_1.18.0\YER_ISTZ\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="YER_ISTZ.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+YER_ISTZ.elf YER_ISTZ.map: $(OBJS) $(USER_OBJS) D:\GITHUB\RaSAT\ Model\ Uydu\RaSAT_Ucus_Yazilimi\YER_ISTZ\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "YER_ISTZ.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\GITHUB\RaSAT Model Uydu\RaSAT_Ucus_Yazilimi\YER_ISTZ\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="YER_ISTZ.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

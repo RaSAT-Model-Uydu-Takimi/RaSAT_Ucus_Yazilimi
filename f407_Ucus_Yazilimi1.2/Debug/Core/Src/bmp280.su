@@ -1,0 +1,10 @@
+../Core/Src/bmp280.c:122:16:BMP280_ReadRegister	32	static
+../Core/Src/bmp280.c:146:16:BMP280_WriteRegister	32	static
+../Core/Src/bmp280.c:169:17:BMP280_U16_LE	16	static
+../Core/Src/bmp280.c:175:16:BMP280_S16_LE	16	static
+../Core/Src/bmp280.c:181:16:BMP280_ReadCalibration	32	static
+../Core/Src/bmp280.c:218:14:BMP280_CompensateTemperature	56	static
+../Core/Src/bmp280.c:247:14:BMP280_CompensatePressure	48	static
+../Core/Src/bmp280.c:295:9:BMP280_Init	24	static
+../Core/Src/bmp280.c:379:9:BMP280_Read	32	static
+../Core/Src/bmp280.c:447:9:BMP280_IsReady	4	static

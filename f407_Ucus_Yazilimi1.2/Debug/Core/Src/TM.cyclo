@@ -1,0 +1,11 @@
+../Core/Src/TM.c:33:9:Hesapla_CRC8	4
+../Core/Src/TM.c:56:6:Sensor_Oku	1
+../Core/Src/TM.c:77:6:TM_Paket_Olustur	1
+../Core/Src/TM.c:110:6:Telemetri_Gonder	1
+../Core/Src/TM.c:118:6:Komut_Dinlemeye_Basla	1
+../Core/Src/TM.c:128:6:Komut_Isle	9
+../Core/Src/TM.c:181:6:IOT_Verisi_Gonder	1
+../Core/Src/TM.c:198:6:ayrilma	1
+../Core/Src/TM.c:204:6:apam	1
+../Core/Src/TM.c:210:6:kilitle	1
+../Core/Src/TM.c:217:6:sigma	1
