@@ -9,17 +9,23 @@ SensorVerileri_t sensorler;
 IoTPaketi_t iot_verisi;
 uint8_t rx_buffer[RF_MAX_PAKET_BOYUTU];
 KomutPaketi_t rx_komut;
+uint8_t hata_1 = '0';
+uint8_t hata_2 = '0';
+uint8_t hata_3 = '0';
+uint8_t hata_4 = '0';
 
 // main.c dosyasında tanımlı olan UART ve Bayrak değişkenlerini
 // bu dosyada kullanabilmek için "extern" (dışarıda ara) komutuyla çağırıyoruz.
 extern UART_HandleTypeDef huart2;
 extern volatile uint8_t tx_complete;
 extern TIM_HandleTypeDef htim9;
+extern TIM_HandleTypeDef htim1;
 
 //PFP
 void ayrilma(void);
 void apam(void);
 void kilitle(void);
+void sigma (void);
 
 
 // --- CRC HESAPLAMA FONKSİYONU ---
@@ -71,10 +77,10 @@ void TM_Paket_Olustur(void)
     telemetri.uydu_statusu = 1;
     telemetri.takim_no = 84710;
 
-    telemetri.hata_kodu[0] = '0';
-    telemetri.hata_kodu[1] = '0';
-    telemetri.hata_kodu[2] = '0';
-    telemetri.hata_kodu[3] = '0';
+    telemetri.hata_kodu[0] = hata_1;
+    telemetri.hata_kodu[1] = hata_2;
+    telemetri.hata_kodu[2] = hata_3;
+    telemetri.hata_kodu[3] = hata_4;
 
     strcpy(telemetri.gonderme_saati, "08/08/2026 12:46:00");
 
@@ -144,19 +150,28 @@ void Komut_Isle(void)
                         apam();
                         break;
                     case 0x03:
-                        // sıgma fonksiyonu
+                        sigma();
                         break;
                     case 0x04:
                     	// ıot komut alındı ıot yollama fonksiyonu
                         IOT_Verisi_Gonder();
                     	break;
                     case 0x05:
-                    	//motor tahrik
+                    	hata_1 = '1';
+                    	hata_2 = '0';
+                    	hata_3 = '1';
+                    	hata_4 = '0';
+                    	break;
                     case 0x06:
-                    	//motor güç kes
+                    	hata_1 = '0';
+                    	hata_2 = '0';
+                    	hata_3 = '0';
+                    	hata_4 = '0';
+                    	break;
                     case 0x07:
                     	//kilitle
                     	kilitle();
+                    	break;
                     default:
                         break;
                 }
@@ -197,8 +212,16 @@ void apam(void)
     __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_1, 2500);
 }
 
+void sigma(void)
+{
+    // kilitli durum
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 1200);
+
+}
+
 void kilitle(void)
 {
-    // APAM Durumu (180 derece)
+    // kilitli durum ayrilma + sigma
     __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_1, 1500);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 500);
 }

@@ -1,0 +1,7 @@
+../Core/Src/TM.c:25:9:Hesapla_CRC8	4
+../Core/Src/TM.c:48:6:Telemetri_Dinlemeye_Basla	1
+../Core/Src/TM.c:57:6:PC_Dinlemeye_Basla	1
+../Core/Src/TM.c:65:6:Telemetri_Isle	5
+../Core/Src/TM.c:117:6:PC_Gelen_Veriyi_Isle	3
+../Core/Src/TM.c:135:6:Komut_Paketi_Olustur	1
+../Core/Src/TM.c:146:6:Komut_Gonder	1
